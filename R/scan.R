@@ -46,3 +46,6 @@ function(filename, type='fastq') {
 
 dyn.load('io.so')
 .Call('string_to_base_qualities', "ABC")
+
+dyn.load('io.so')
+.Call('read_fastq_file', 'test.fastq')
