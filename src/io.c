@@ -133,13 +133,14 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
       break;
     case 'N':
       base_matrix[5*i + 4]++;
+      break;
     default:
-      error("Sequence character encountered that is not A, T, C, G, or N");
+      error("Sequence character encountered that is not A, T, C, G, or N: '%c'", block->sequence[i]);
     }
   }
 }
 
-void zero_matrix(int *matrix, int nx, int ny) {
+void zero_int_matrix(int *matrix, int nx, int ny) {
   int i, j;
   for (i = 0; i < nx; i++) {
     for(j = 0; j < ny; j++)
@@ -163,7 +164,7 @@ SEXP summarize_fastq_file(SEXP filename) {
   ibc = INTEGER(base_counts);
   iqc = INTEGER(qual_counts);
   
-  zero_matrix(ibc, nx, ny);
+  zero_int_matrix(ibc, nx, ny);
 
   while ((block = read_fastq_block(fp)) != NULL) {
     update_summary_matrices(block, ibc, iqc);
