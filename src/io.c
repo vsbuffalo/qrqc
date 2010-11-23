@@ -169,10 +169,7 @@ SEXP summarize_fastq_file(SEXP filename) {
       if (tmp->sequence[i] == 'N')
         ibc_matrix[5*i + 4]++;
     }
-
-    /* printf("head: %s\n", tmp->header); */
-    //printf("seq: %s\n", tmp->sequence);
-    /* printf("qual: %s\n", tmp->quality);     */
+    free(tmp);
   }
 
   UNPROTECT(1);
