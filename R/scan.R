@@ -15,10 +15,14 @@ convertQuality <-
 #
 function(qual, to='sanger') {
   if (tolower(to) != 'sanger')
-    stop('Conversions to Sanger qualities only supported')
-
+    stop("Conversions to Sanger qualities only supported")
+  if (any(!is.character(qual)))
+    stop("qualities must be character strings")
   
-  
+  if (length(qual) == 1)
+    return(.Call('string_to_base_qualities', qual))
+  else
+    return(lapply(qual, function(q) .Call('string_to_base_qualities', q)))
 }
 
 scanFASTQ <-
@@ -41,4 +45,4 @@ function(filename, type='fastq') {
 }
 
 dyn.load('io.so')
-.Call('convert_quality', "A")
+.Call('string_to_base_qualities', "ABC")
