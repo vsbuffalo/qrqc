@@ -103,10 +103,10 @@ fastq_block *_get_fastq_block(FILE *fp) {
     default:
       error("unexpected error; consult maintainer - %d", nlines);
     }
-
+    
     nlines++;
   }
-
+  free(buf);
   return block;
 }
 
@@ -157,6 +157,7 @@ SEXP summarize_fastq_file(SEXP filename) {
 
   while ((tmp = _get_fastq_block(fp)) != NULL) {
     for (i = 0; i < strlen(tmp->sequence); i++) {
+      // TODO - we could cast these to char, and use a lookup table
       if (tmp->sequence[i] == 'A')
         ibc_matrix[5*i]++;
       if (tmp->sequence[i] == 'C')
@@ -170,7 +171,7 @@ SEXP summarize_fastq_file(SEXP filename) {
     }
 
     /* printf("head: %s\n", tmp->header); */
-    printf("seq: %s\n", tmp->sequence);
+    //printf("seq: %s\n", tmp->sequence);
     /* printf("qual: %s\n", tmp->quality);     */
   }
 
