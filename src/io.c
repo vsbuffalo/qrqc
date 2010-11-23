@@ -116,8 +116,14 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
     Given `fastq_block`, adjust the nucloeotide frequency
     `counts_matrix` accordingly.
   */
-  int i;
-  for (i = 0; i < strlen(block->sequence); i++) {
+  int i, len;
+  
+  if (strlen(block->sequence) != strlen(block->quality))
+    error("improperly formatted FASTQ file; sequence and quality lengths differ");
+
+  len = strlen(block->sequence);
+
+  for (i = 0; i < len; i++) {
     switch ((int) block->sequence[i]) {
     case 'A':
       base_matrix[5*i]++;
