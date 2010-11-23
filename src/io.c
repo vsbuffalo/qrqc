@@ -140,7 +140,7 @@ SEXP summarize_fastq_file(SEXP filename) {
   long unsigned int nblock = 0;
   fastq_block *tmp;
   SEXP base_counts;
-  int *ibc_matrix, i;
+  int *ibc_matrix, i, j;
   
   FILE *fp = fopen(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
@@ -148,23 +148,29 @@ SEXP summarize_fastq_file(SEXP filename) {
 
   PROTECT(base_counts = allocMatrix(INTSXP, 5, 100));
   ibc_matrix = INTEGER(base_counts);
+  
+  int nx = 5, ny = 100;
+  for (i = 0; i < nx; i++) {
+    for(j = 0; j < ny; j++)
+      ibc_matrix[i + nx*j] = 0;
+  }
 
   while ((tmp = _get_fastq_block(fp)) != NULL) {
     for (i = 0; i < strlen(tmp->sequence); i++) {
       if (tmp->sequence[i] == 'A')
         ibc_matrix[5*i]++;
-      if (tmp->sequence[i] == 'T')
-        ibc_matrix[5*i + 1]++;
       if (tmp->sequence[i] == 'C')
+        ibc_matrix[5*i + 1]++;
+      if (tmp->sequence[i] == 'T')
         ibc_matrix[5*i + 2]++;
       if (tmp->sequence[i] == 'G')
         ibc_matrix[5*i + 3]++;
       if (tmp->sequence[i] == 'N')
         ibc_matrix[5*i + 4]++;
     }
-    
+
     /* printf("head: %s\n", tmp->header); */
-    /* printf("seq: %s\n", tmp->sequence); */
+    printf("seq: %s\n", tmp->sequence);
     /* printf("qual: %s\n", tmp->quality);     */
   }
 
