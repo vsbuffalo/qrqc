@@ -74,7 +74,7 @@ char *trim(char *str) {
   return str;
 }
 
-fastq_block *_get_fastq_block(FILE *fp) {
+fastq_block *read_fastq_block(FILE *fp) {
   unsigned int nlines = 0, i;
   fastq_block *block = malloc(sizeof(fastq_block));
 
@@ -111,42 +111,65 @@ fastq_block *_get_fastq_block(FILE *fp) {
   return block;
 }
 
+void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_matrix) {
+  /*
+    Given `fastq_block`, adjust the nucloeotide frequency
+    `counts_matrix` accordingly.
+  */
+  int i;
+  for (i = 0; i < strlen(block->sequence); i++) {
+    switch ((int) block->sequence[i]) {
+    case 'A':
+      base_matrix[5*i]++;
+      break;
+    case 'C':
+      base_matrix[5*i + 1]++;
+      break;
+    case 'T':
+      base_matrix[5*i + 2]++;
+      break;
+    case 'G':
+      base_matrix[5*i + 3]++;
+      break;
+    case 'N':
+      base_matrix[5*i + 4]++;
+    default:
+      error("Sequence character encountered that is not A, T, C, G, or N");
+    }
+  }
+}
+
+void zero_matrix(int *matrix, int nx, int ny) {
+  int i, j;
+  for (i = 0; i < nx; i++) {
+    for(j = 0; j < ny; j++)
+      matrix[i + nx*j] = 0;
+  }
+}
+
 SEXP summarize_fastq_file(SEXP filename) {
   long unsigned int nblock = 0;
-  fastq_block *tmp;
-  SEXP base_counts;
-  int *ibc_matrix, i, j;
+  fastq_block *block;
+  SEXP base_counts, qual_counts;
+  int *ibc, *iqc, i, j, nx = 5, ny = 100; // TODO make macros/check & warn
   
   FILE *fp = fopen(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
 
   PROTECT(base_counts = allocMatrix(INTSXP, 5, 100));
-  ibc_matrix = INTEGER(base_counts);
+  PROTECT(qual_counts = allocMatrix(INTSXP, 5, 100));
   
-  int nx = 5, ny = 100;
-  for (i = 0; i < nx; i++) {
-    for(j = 0; j < ny; j++)
-      ibc_matrix[i + nx*j] = 0;
+  ibc = INTEGER(base_counts);
+  iqc = INTEGER(qual_counts);
+  
+  zero_matrix(ibc, nx, ny);
+
+  while ((block = read_fastq_block(fp)) != NULL) {
+    update_summary_matrices(block, ibc, iqc);
+    free(block);
   }
 
-  while ((tmp = _get_fastq_block(fp)) != NULL) {
-    for (i = 0; i < strlen(tmp->sequence); i++) {
-      // TODO - we could cast these to char, and use a lookup table
-      if (tmp->sequence[i] == 'A')
-        ibc_matrix[5*i]++;
-      if (tmp->sequence[i] == 'C')
-        ibc_matrix[5*i + 1]++;
-      if (tmp->sequence[i] == 'T')
-        ibc_matrix[5*i + 2]++;
-      if (tmp->sequence[i] == 'G')
-        ibc_matrix[5*i + 3]++;
-      if (tmp->sequence[i] == 'N')
-        ibc_matrix[5*i + 4]++;
-    }
-    free(tmp);
-  }
-
-  UNPROTECT(1);
+  UNPROTECT(2);
   return base_counts;
 }
