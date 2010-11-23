@@ -3,9 +3,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <R.h>
+#include <R_ext/Utils.h>
 #include <Rinternals.h>
 
 #define LINE_BUFFER 500
+
+#define QUALITY_RANGE 38
+#define QUALITY_OFFSET 64
+#define QUALITY_MIN 66
+#define QUALITY_MAX 104
+#define NUM_BASES 5 // includes N
+
+typedef enum {
+  SANGER,
+  SOLEXA,
+  ILLUMINA
+} quality_type;
+
+#define Q_OFFSET 0
+#define Q_MIN 1
+#define Q_MAX 2
+
+static const int quality_contants[3][3] = {
+  // offset, min, max
+  {33, 0, 93}, // SANGER
+  {64, -5, 62}, // SOLEXA
+  {64, 0, 62}, // ILLUMINA
+};
 
 static const int LINES_PER_FASTQ_REC = 4;
 
@@ -111,12 +135,16 @@ fastq_block *read_fastq_block(FILE *fp) {
   return block;
 }
 
-void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_matrix) {
+void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_matrix, quality_type q_type) {
   /*
     Given `fastq_block`, adjust the nucloeotide frequency
     `counts_matrix` accordingly.
   */
   int i, len;
+  int q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
+  int q_min = quality_contants[q_type][Q_MIN];
+  int q_max = quality_contants[q_type][Q_MAX];
+  int q_offset = quality_contants[q_type][Q_OFFSET];
   
   if (strlen(block->sequence) != strlen(block->quality))
     error("improperly formatted FASTQ file; sequence and quality lengths differ");
@@ -124,7 +152,7 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
   len = strlen(block->sequence);
 
   for (i = 0; i < len; i++) {
-    switch ((int) block->sequence[i]) {
+    switch ((char) block->sequence[i]) {
     case 'A':
       base_matrix[5*i]++;
       break;
@@ -141,8 +169,15 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
       base_matrix[5*i + 4]++;
       break;
     default:
-      error("Sequence character encountered that is not A, T, C, G, or N: '%c'", block->sequence[i]);
+      error("Sequence character encountered that is not"
+            " A, T, C, G, or N: '%c'", block->sequence[i]);
     }
+    
+    if ((char) block->quality[i] - q_offset < q_min || (char) block->quality[i] - q_offset > q_max)
+      error("base quality out of range (%d < b < %d) encountered: %d", q_min, 
+            q_max, (char) block->quality[i]);
+    
+    qual_matrix[q_range*i + ((char) block->quality[i]) - q_offset - q_min]++;
   }
 }
 
@@ -154,29 +189,47 @@ void zero_int_matrix(int *matrix, int nx, int ny) {
   }
 }
 
-SEXP summarize_fastq_file(SEXP filename) {
+SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEXP quality_type) {
+  if (!isString(filename))
+    error("filename should be an environment");
+  if (!isEnvironment(R_hashed_env))
+    error("R_hashed_env should be an environment");
+  if (INTEGER(max_length)[0] > LINE_BUFFER)
+    error("You have specified a max_length less than the C buffer size. "
+          "Adjust the 'LINE_BUFFER' macro and recompile to run sequences"
+          " greater than %d.", LINE_BUFFER);
+
   long unsigned int nblock = 0;
   fastq_block *block;
-  SEXP base_counts, qual_counts;
-  int *ibc, *iqc, i, j, nx = 5, ny = 100; // TODO make macros/check & warn
+  SEXP base_counts, qual_counts, out_list;
+  int *ibc, *iqc, i, j, q_type, q_range;
+
+  q_type = INTEGER(quality_type)[0];
+  q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
   
   FILE *fp = fopen(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
-
-  PROTECT(base_counts = allocMatrix(INTSXP, 5, 100));
-  PROTECT(qual_counts = allocMatrix(INTSXP, 5, 100));
+  
+  protect(out_list = allocVector(VECSXP, 2));
+  PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
+  PROTECT(qual_counts = allocMatrix(INTSXP, q_range, INTEGER(max_length)[0]));
   
   ibc = INTEGER(base_counts);
   iqc = INTEGER(qual_counts);
   
-  zero_int_matrix(ibc, nx, ny);
+  zero_int_matrix(ibc, NUM_BASES, INTEGER(max_length)[0]);
+  zero_int_matrix(iqc, QUALITY_RANGE, INTEGER(max_length)[0]);
 
   while ((block = read_fastq_block(fp)) != NULL) {
-    update_summary_matrices(block, ibc, iqc);
+    void R_CheckUserInterrupt(void);
+     
+    update_summary_matrices(block, ibc, iqc, q_type);
     free(block);
   }
 
-  UNPROTECT(2);
-  return base_counts;
+  SET_VECTOR_ELT(out_list, 0, base_counts);
+  SET_VECTOR_ELT(out_list, 1, qual_counts);
+  UNPROTECT(3);
+  return out_list;
 }

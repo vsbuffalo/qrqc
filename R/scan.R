@@ -48,4 +48,4 @@ dyn.load('io.so')
 .Call('string_to_base_qualities', "ABC")
 
 dyn.load('io.so')
-.Call('summarize_fastq_file', 'test.fastq')
+system.time(e <- .Call('summarize_fastq_file', 'test.fastq', as.integer(100), new.env(hash=TRUE), as.integer(2)))
