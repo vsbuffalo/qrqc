@@ -80,7 +80,8 @@ fastq_block *_get_fastq_block(FILE *fp) {
 
   if (fp == NULL) error("stream pointer is null");
   
-  char *buf = malloc(LINE_BUFFER);
+  char *obuf, *buf = malloc(LINE_BUFFER);
+  obuf = buf;
   if (!buf) error("cannot allocate buffer in read_fastq_file");
   
   for (i = 0; i < 4; i++) {
@@ -106,35 +107,9 @@ fastq_block *_get_fastq_block(FILE *fp) {
     
     nlines++;
   }
-  free(buf);
+  free(obuf);
   return block;
 }
-
-/* SEXP update_sequence_counts(char *seq, SEXP base_counts) { */
-/*   /\* */
-/*     Given a sequence, update the counts in `base_counts`. */
-/*   *\/ */
-  
-/*   unsigned int i, nseq = strlen(seq); */
-/*   SEXP tmp; */
-/*   PROTECT(tmp = allocVector(INTSXP, 5)); */
-  
-/*   for (i = 0; i < nseq; i++) { */
-/*     // TODO check length of base_counts */
-/*     switch (seq[i]) { */
-/*     case 'A': */
-/*       tmp = INTEGER(VECTOR_ELT(base_counts, i)); */
-/*       printf("-->%d\n", tmp[0]); */
-/*       tmp[0]++; */
-/*       SET_VECTOR_ELT(base_counts, i, tmp); */
-/*       break; */
-/*     default: */
-/*       break; */
-/*     } */
-/*   } */
-/*   UNPROTECT(1); */
-/*   return base_counts; */
-/* } */
 
 SEXP summarize_fastq_file(SEXP filename) {
   long unsigned int nblock = 0;
