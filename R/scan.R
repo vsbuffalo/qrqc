@@ -48,4 +48,6 @@ dyn.load('io.so')
 .Call('string_to_base_qualities', "ABC")
 
 dyn.load('io.so')
-.Call('read_fastq_file', 'test.fastq')
+base.counts <- vector('list', 100)
+base.counts <- lapply(base.counts, function(x) integer(5))
+.Call('summarize_fastq_file', 'test.fastq', base.counts)

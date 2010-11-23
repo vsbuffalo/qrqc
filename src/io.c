@@ -110,18 +110,64 @@ fastq_block *_get_fastq_block(FILE *fp) {
   return block;
 }
 
-SEXP get_fastq_block(SEXP filename) {
-  long unsigned int nblocks = 0;
-  fastq_block *tmp;
+/* SEXP update_sequence_counts(char *seq, SEXP base_counts) { */
+/*   /\* */
+/*     Given a sequence, update the counts in `base_counts`. */
+/*   *\/ */
+  
+/*   unsigned int i, nseq = strlen(seq); */
+/*   SEXP tmp; */
+/*   PROTECT(tmp = allocVector(INTSXP, 5)); */
+  
+/*   for (i = 0; i < nseq; i++) { */
+/*     // TODO check length of base_counts */
+/*     switch (seq[i]) { */
+/*     case 'A': */
+/*       tmp = INTEGER(VECTOR_ELT(base_counts, i)); */
+/*       printf("-->%d\n", tmp[0]); */
+/*       tmp[0]++; */
+/*       SET_VECTOR_ELT(base_counts, i, tmp); */
+/*       break; */
+/*     default: */
+/*       break; */
+/*     } */
+/*   } */
+/*   UNPROTECT(1); */
+/*   return base_counts; */
+/* } */
 
+SEXP summarize_fastq_file(SEXP filename) {
+  long unsigned int nblock = 0;
+  fastq_block *tmp;
+  SEXP base_counts;
+  int *ibc_matrix, i;
+  
   FILE *fp = fopen(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
 
+  PROTECT(base_counts = allocMatrix(INTSXP, 5, 100));
+  ibc_matrix = INTEGER(base_counts);
+
   while ((tmp = _get_fastq_block(fp)) != NULL) {
-    printf("head: %s\n", tmp->header);
-    printf("seq: %s\n", tmp->sequence);
-    printf("qual: %s\n", tmp->quality);
+    for (i = 0; i < strlen(tmp->sequence); i++) {
+      if (tmp->sequence[i] == 'A')
+        ibc_matrix[5*i]++;
+      if (tmp->sequence[i] == 'T')
+        ibc_matrix[5*i + 1]++;
+      if (tmp->sequence[i] == 'C')
+        ibc_matrix[5*i + 2]++;
+      if (tmp->sequence[i] == 'G')
+        ibc_matrix[5*i + 3]++;
+      if (tmp->sequence[i] == 'N')
+        ibc_matrix[5*i + 4]++;
+    }
+    
+    /* printf("head: %s\n", tmp->header); */
+    /* printf("seq: %s\n", tmp->sequence); */
+    /* printf("qual: %s\n", tmp->quality);     */
   }
-  return R_NilValue;
+
+  UNPROTECT(1);
+  return base_counts;
 }
