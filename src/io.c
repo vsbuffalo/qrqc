@@ -176,6 +176,30 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
     qual_matrix[(q_range+1)*i + ((char) block->quality[i]) - q_offset - q_min]++;
   }
 }
+SEXP mkans(double x) {
+  SEXP ans;
+  PROTECT(ans = allocVector(INTSXP, 1));
+  INTEGER(ans)[0] = x;
+  UNPROTECT(1);
+  return ans;
+}
+
+void update_environment(fastq_block *block, SEXP R_hashed_env) {
+  /*
+    Use R environments like a hash to store frequency of certain sequences.
+  */
+  SEXP tmp;
+  unsigned int c = 0;
+  tmp = findVar(install(block->sequence), R_hashed_env);
+  if (tmp == R_UnboundValue)
+    defineVar(install(block->sequence), mkans(1), R_hashed_env);
+  else {
+    c = INTEGER(tmp)[0];
+    c++;
+    setVar(install(block->sequence), mkans(c), R_hashed_env);
+  }
+
+}
 
 void zero_int_matrix(int *matrix, int nx, int ny) {
   int i, j;
@@ -221,6 +245,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEX
     void R_CheckUserInterrupt(void);
      
     update_summary_matrices(block, ibc, iqc, q_type);
+    update_environment(block, R_hashed_env);
     free(block);
   }
 

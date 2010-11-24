@@ -17,7 +17,7 @@ trimRightCols <-
 # matrix allocates excess space.
 function(matrix) {
   cs <- colSums(matrix)
-  return(matrix[, 1:max(which(cs != 0)))])
+  return(matrix[, 1:max(which(cs != 0))])
 }
 
 summarizeFastq <-
@@ -27,15 +27,16 @@ summarizeFastq <-
 function(filename, max.length=100, quality='illumina') {
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
-
+  hash <- new.env(hash=TRUE)
   out <- .Call('summarize_fastq_file', filename,
                as.integer(max.length),
-               new.env(hash=TRUE),
+               hash,
                as.integer(which(names(QUALITY.CONSTANTS) == quality) - 1))
 
   names(out) <- c('base.freqs', 'qual.freqs')
   out$qual.freqs <- setQualityNames(trimRightCols(out$qual.freqs), quality)
+  out$hash <- sapply(ls(envir=hash), function(x) get(x, envir=hash))
   return(out)
 }
 
-summarizeFastq('test.fastq')
+s <- summarizeFastq('test.fastq')
