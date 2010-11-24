@@ -1,51 +1,41 @@
 ## scan.R - Scan sequenece files
 
-initReadQC <-
-# Initialize a read QC storage object. `seq.length` is for
-# pre-allocation and is the maximum read/quality length.
-function(seq.length=100) {
-  quals <- vector('list', seq.length)
-  bases <- vector('list', seq.length)
-
-  obj <- list(raw.quals=quals, raw.bases=bases)
-  class(obj) <- 'ReadQC'
-}
-
-convertQuality <-
-#
-function(qual, to='sanger') {
-  if (tolower(to) != 'sanger')
-    stop("Conversions to Sanger qualities only supported")
-  if (any(!is.character(qual)))
-    stop("qualities must be character strings")
+QUALITY.CONSTANTS <- list(phred=list(offset=33, min=0, max=93),
+                          solexa=list(offset=64, min=-5, max=62),
+                          illumina=list(offset=64, min=0, max=62))
   
-  if (length(qual) == 1)
-    return(.Call('string_to_base_qualities', qual))
-  else
-    return(lapply(qual, function(q) .Call('string_to_base_qualities', q)))
-}
-
-scanFASTQ <-
+setQualityNames <-
 #
-function(filename, obj) {
-  
+function(matrix, quality) {
+  constants <- QUALITY.CONSTANTS[[quality]]
+  rownames(matrix) <- constants$min:constants$max
+  return(matrix)
 }
 
-scanFASTA <-
-#
-function(filename, obj) {
-
+trimRightCols <-
+# Remove blank cols from right of matrix, which occur because the
+# matrix allocates excess space.
+function(matrix) {
+  cs <- colSums(matrix)
+  return(matrix[, 1:max(which(cs != 0)))])
 }
 
-scanReads <-
-# Read in bases, updating a ReadQC object's raw entries
-function(filename, type='fastq') {
-  obj <- initReadQC()
-  
+summarizeFastq <-
+# Use the C function summarize_fastq_file to create matrices of base
+# and quality counts, per position along all reads.
+# TODO: Currently only the illumina quality setting has been tested.
+function(filename, max.length=100, quality='illumina') {
+  if (!file.exists(filename))
+    stop(sprintf("file '%s' does not exist", filename))
+
+  out <- .Call('summarize_fastq_file', filename,
+               as.integer(max.length),
+               new.env(hash=TRUE),
+               as.integer(which(names(QUALITY.CONSTANTS) == quality) - 1))
+
+  names(out) <- c('base.freqs', 'qual.freqs')
+  out$qual.freqs <- setQualityNames(trimRightCols(out$qual.freqs), quality)
+  return(out)
 }
 
-dyn.load('io.so')
-.Call('string_to_base_qualities', "ABC")
-
-dyn.load('io.so')
-system.time(e <- .Call('summarize_fastq_file', 'test.fastq', as.integer(100), new.env(hash=TRUE), as.integer(2)))
+summarizeFastq('test.fastq')

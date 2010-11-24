@@ -8,10 +8,6 @@
 
 #define LINE_BUFFER 500
 
-#define QUALITY_RANGE 38
-#define QUALITY_OFFSET 64
-#define QUALITY_MIN 66
-#define QUALITY_MAX 104
 #define NUM_BASES 5 // includes N
 
 typedef enum {
@@ -177,7 +173,7 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
       error("base quality out of range (%d < b < %d) encountered: %d", q_min, 
             q_max, (char) block->quality[i]);
     
-    qual_matrix[q_range*i + ((char) block->quality[i]) - q_offset - q_min]++;
+    qual_matrix[(q_range+1)*i + ((char) block->quality[i]) - q_offset - q_min]++;
   }
 }
 
@@ -213,13 +209,13 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEX
   
   protect(out_list = allocVector(VECSXP, 2));
   PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
-  PROTECT(qual_counts = allocMatrix(INTSXP, q_range, INTEGER(max_length)[0]));
+  PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
   
   ibc = INTEGER(base_counts);
   iqc = INTEGER(qual_counts);
   
   zero_int_matrix(ibc, NUM_BASES, INTEGER(max_length)[0]);
-  zero_int_matrix(iqc, QUALITY_RANGE, INTEGER(max_length)[0]);
+  zero_int_matrix(iqc, q_range + 1, INTEGER(max_length)[0]);
 
   while ((block = read_fastq_block(fp)) != NULL) {
     void R_CheckUserInterrupt(void);
@@ -231,5 +227,6 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEX
   SET_VECTOR_ELT(out_list, 0, base_counts);
   SET_VECTOR_ELT(out_list, 1, qual_counts);
   UNPROTECT(3);
+  fclose(fp);
   return out_list;
 }
