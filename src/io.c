@@ -209,10 +209,10 @@ void zero_int_matrix(int *matrix, int nx, int ny) {
   }
 }
 
-SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEXP quality_type) {
+SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEXP quality_type, SEXP hash) {
   if (!isString(filename))
     error("filename should be an environment");
-  if (!isEnvironment(R_hashed_env))
+  if (LOGICAL(hash)[0] && !isEnvironment(R_hashed_env))
     error("R_hashed_env should be an environment");
   if (INTEGER(max_length)[0] > LINE_BUFFER)
     error("You have specified a max_length less than the C buffer size. "
@@ -245,7 +245,9 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEX
     void R_CheckUserInterrupt(void);
      
     update_summary_matrices(block, ibc, iqc, q_type);
-    update_environment(block, R_hashed_env);
+
+    if (LOGICAL(hash)[0])
+      update_environment(block, R_hashed_env);
     free(block);
   }
 
