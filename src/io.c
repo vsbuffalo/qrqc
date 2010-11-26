@@ -6,6 +6,11 @@
 #include <R_ext/Utils.h>
 #include <Rinternals.h>
 
+#include "khash.h"
+
+// In khash.h's examples, this is not done in functions
+KHASH_MAP_INIT_STR(str, int)
+
 #define LINE_BUFFER 500
 
 #define NUM_BASES 5 // includes N
@@ -176,6 +181,7 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
     qual_matrix[(q_range+1)*i + ((char) block->quality[i]) - q_offset - q_min]++;
   }
 }
+
 SEXP mkans(double x) {
   SEXP ans;
   PROTECT(ans = allocVector(INTSXP, 1));
@@ -184,22 +190,6 @@ SEXP mkans(double x) {
   return ans;
 }
 
-void update_environment(fastq_block *block, SEXP R_hashed_env) {
-  /*
-    Use R environments like a hash to store frequency of certain sequences.
-  */
-  SEXP tmp;
-  unsigned int c = 0;
-  tmp = findVar(install(block->sequence), R_hashed_env);
-  if (tmp == R_UnboundValue)
-    defineVar(install(block->sequence), mkans(1), R_hashed_env);
-  else {
-    c = INTEGER(tmp)[0];
-    c++;
-    setVar(install(block->sequence), mkans(c), R_hashed_env);
-  }
-
-}
 
 void zero_int_matrix(int *matrix, int nx, int ny) {
   int i, j;
@@ -209,29 +199,37 @@ void zero_int_matrix(int *matrix, int nx, int ny) {
   }
 }
 
-SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEXP quality_type, SEXP hash) {
+SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash) {
   if (!isString(filename))
-    error("filename should be an environment");
-  if (LOGICAL(hash)[0] && !isEnvironment(R_hashed_env))
-    error("R_hashed_env should be an environment");
+    error("filename should be a string");
   if (INTEGER(max_length)[0] > LINE_BUFFER)
     error("You have specified a max_length less than the C buffer size. "
           "Adjust the 'LINE_BUFFER' macro and recompile to run sequences"
           " greater than %d.", LINE_BUFFER);
 
+  khash_t(str) *h;
+  khiter_t k;
+  int is_missing, ret, size_out_list = 2;
+  unsigned int num_unique_seqs = 0;
+
   long unsigned int nblock = 0;
   fastq_block *block;
-  SEXP base_counts, qual_counts, out_list;
+  SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list;
   int *ibc, *iqc, i, j, q_type, q_range;
 
   q_type = INTEGER(quality_type)[0];
   q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
   
+  if (LOGICAL(hash)[0]) {
+    h = kh_init(str);
+    size_out_list = 3;
+  }
+
   FILE *fp = fopen(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
-  
-  protect(out_list = allocVector(VECSXP, 2));
+
+  protect(out_list = allocVector(VECSXP, size_out_list));
   PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
   PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
   
@@ -246,14 +244,45 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP R_hashed_env, SEX
      
     update_summary_matrices(block, ibc, iqc, q_type);
 
-    if (LOGICAL(hash)[0])
-      update_environment(block, R_hashed_env);
-    free(block);
+    if (LOGICAL(hash)[0]) {
+      k = kh_get(str, h, block->sequence);
+      is_missing = (k == kh_end(h));
+      if (is_missing) {
+        k = kh_put(str, h, block->sequence, &ret);
+        if (!ret) {
+          kh_del(str, h, k);
+        } else {
+          kh_value(h, k) = 1;
+          num_unique_seqs++;
+        }
+      } else 
+        kh_value(h, k) = kh_value(h, k) + 1; 
+    }
   }
+
+  protect(seq_hash = allocVector(VECSXP, num_unique_seqs));
+  PROTECT(seq_hash_names = allocVector(VECSXP, num_unique_seqs));
+
+  i = 0;
+  for (k = kh_begin(h); k != kh_end(h); ++k) {
+    if (kh_exist(h, k)) {
+      SET_VECTOR_ELT(seq_hash_names, i, mkString(kh_key(h, k)));
+      SET_VECTOR_ELT(seq_hash, i, ScalarInteger(kh_value(h, k)));
+      i++;
+    }
+  }
+    
+  free(block);
+  kh_destroy(str, h);
 
   SET_VECTOR_ELT(out_list, 0, base_counts);
   SET_VECTOR_ELT(out_list, 1, qual_counts);
-  UNPROTECT(3);
+  if (LOGICAL(hash)[0]) {
+    setAttrib(seq_hash, R_NamesSymbol, seq_hash_names);
+    SET_VECTOR_ELT(out_list, 2, seq_hash);
+  }
+
+  UNPROTECT(5);
   fclose(fp);
   return out_list;
 }
