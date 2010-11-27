@@ -254,7 +254,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
         kh_value(h, k) = kh_value(h, k) + 1;
       
       if (LOGICAL(verbose)[0] && num_unique_seqs % 100000 == 0)
-        printf("on block %\n", num_unique_seqs);
+        printf("on block %d\n", num_unique_seqs);
       num_unique_seqs++;
     }
   }
