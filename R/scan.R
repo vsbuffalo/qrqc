@@ -23,6 +23,10 @@ function(matrix) {
   return(matrix[, 1:max(which(cs != 0))])
 }
 
+sortSequenceHash <- function(seq.hash) {
+  return(sort(unlist(seq.hash), decreasing=TRUE))
+}
+
 summarizeFastq <-
 # Use the C function summarize_fastq_file to create matrices of base
 # and quality counts, per position along all reads.
@@ -39,9 +43,11 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
 
   names(out) <- c('base.freqs', 'qual.freqs')
 
-  if (hash)
+  if (hash) {
     names(out)[3] <- 'hash'
-
+    out$hash <- sortSequenceHash(obj$hash)
+  }
+  
   ## Data cleaning
   out$base.freqs <- local({
     tmp <- as.data.frame(t(.trimRightCols(out$base.freqs)))
@@ -77,9 +83,8 @@ function(obj){
   p <- ggplot(base.freqs, aes(x=position, y=frequency, color=base))
   p <- p + geom_line()
   print(p)
-  invisible(p)  
+  invisible(p)
 }
-
 
 plotBaseProps <-
 #
@@ -89,3 +94,46 @@ function(obj){
   print(p)
   invisible(p)  
 }
+
+binned2quantilefunc <-
+# Assumes names are x values
+function(x) {
+  y <- as.numeric(x)
+  x <- as.integer(names(x))
+  t <- approxfun(cumsum(y)/sum(y), x, yleft=0, yright=1, ties="ordered")
+  return(t)
+}
+
+binned2boxplot <-
+#
+function(x) {
+  f <- binned2quantilefunc(x)
+  out <- c(ymin=f(0),
+           lower=f(0.25),
+           middle=f(0.5),
+           upper=f(0.75),
+           ymax=f(1))
+  return(out)
+}
+
+plotQuals <-
+#
+function(obj) {
+  d <- local({
+    tmp <- apply(obj$qual.freqs[, -1], 1, binned2boxplot)
+    tmp <- t(tmp)
+    tmp <- cbind(1:nrow(tmp), tmp)
+    colnames(tmp)[1] <- 'position'
+    return(as.data.frame(tmp))
+  })
+
+  p <- ggplot(d)
+  p <- p + geom_pointrange(aes(x=position,
+                            ymin=lower,
+                            y=middle,
+                            ymax=upper))
+  print(p)
+  invisible(p)
+}
+
+plotQuals(obj)
