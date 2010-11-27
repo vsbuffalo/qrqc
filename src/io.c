@@ -256,9 +256,10 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
         kh_value(h, k) = kh_value(h, k) + 1;
       
       if (LOGICAL(verbose)[0] && num_unique_seqs % 100000 == 0)
-        printf("on block %d, %d entries in hash table\n", num_unique_seqs, num_unique_seqs);
+        printf("on block %d, %d entries in hash table\n", nblock, num_unique_seqs);
     }
     free(block);
+    nblock++;
   }
 
   PROTECT(seq_hash = allocVector(VECSXP, num_unique_seqs));
