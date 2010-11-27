@@ -24,7 +24,7 @@ summarizeFastq <-
 # Use the C function summarize_fastq_file to create matrices of base
 # and quality counts, per position along all reads.
 # TODO: Currently only the illumina quality setting has been tested.
-function(filename, max.length=100, quality='illumina', hash=TRUE) {
+function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE) {
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
 
@@ -35,7 +35,8 @@ function(filename, max.length=100, quality='illumina', hash=TRUE) {
   out <- .Call('summarize_fastq_file', filename,
                as.integer(max.length),
                as.integer(which(names(QUALITY.CONSTANTS) == quality) - 1),
-               as.logical(hash))
+               as.logical(hash),
+               as.logical(verbose))
 
   names(out) <- c('base.freqs', 'qual.freqs')
 

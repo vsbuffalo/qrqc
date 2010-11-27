@@ -199,7 +199,7 @@ void zero_int_matrix(int *matrix, int nx, int ny) {
   }
 }
 
-SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash) {
+SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, SEXP verbose) {
   if (!isString(filename))
     error("filename should be a string");
   if (INTEGER(max_length)[0] > LINE_BUFFER)
@@ -253,16 +253,18 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
       } else 
         kh_value(h, k) = kh_value(h, k) + 1;
       
-      if (num_unique_seqs % 1000 == 0)
+      if (LOGICAL(verbose)[0] && num_unique_seqs % 100000 == 0)
         printf("on block %d", num_unique_seqs);
-        num_unique_seqs++;
+      num_unique_seqs++;
     }
   }
 
   PROTECT(seq_hash = allocVector(VECSXP, num_unique_seqs));
   PROTECT(seq_hash_names = allocVector(VECSXP, num_unique_seqs));
 
-  printf("processing complete... now loading C hash structure to R...\n");
+  if (LOGICAL(verbose)[0])
+    printf("processing complete... now loading C hash structure to R...\n");
+
   i = 0;
   for (k = kh_begin(h); k != kh_end(h); ++k) {
     if (kh_exist(h, k)) {
