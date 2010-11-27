@@ -249,14 +249,13 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
       is_missing = (k == kh_end(h));
       if (is_missing) {
         k = kh_put(str, h, block->sequence, &ret);
-        if (!ret) {
-	  error("cannot put string in hash");
-        } else {
-          kh_value(h, k) = 1;
-          num_unique_seqs++;
-        }
+        kh_value(h, k) = 1;
       } else 
-        kh_value(h, k) = kh_value(h, k) + 1; 
+        kh_value(h, k) = kh_value(h, k) + 1;
+      
+      if (num_unique_seqs % 1000 == 0)
+        printf("on block %d", num_unique_seqs);
+        num_unique_seqs++;
     }
   }
 
