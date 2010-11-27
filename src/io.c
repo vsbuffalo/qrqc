@@ -243,15 +243,14 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
     void R_CheckUserInterrupt(void);
      
     update_summary_matrices(block, ibc, iqc, q_type);
-
+    
     if (LOGICAL(hash)[0]) {
       k = kh_get(str, h, block->sequence);
       is_missing = (k == kh_end(h));
       if (is_missing) {
         k = kh_put(str, h, block->sequence, &ret);
         if (!ret) {
-	  error("ret is false\n");
-          kh_del(str, h, k);
+	  error("cannot put string in hash");
         } else {
           kh_value(h, k) = 1;
           num_unique_seqs++;
