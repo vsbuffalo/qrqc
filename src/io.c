@@ -222,6 +222,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
   
   if (LOGICAL(hash)[0]) {
     h = kh_init(str);
+    kh_resize(str, h, 196613);
     size_out_list = 3;
   }
 
