@@ -45,7 +45,7 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
 
   if (hash) {
     names(out)[3] <- 'hash'
-    out$hash <- sortSequenceHash(obj$hash)
+    out$hash <- sortSequenceHash(out$hash)
   }
   
   ## Data cleaning
@@ -136,4 +136,4 @@ function(obj) {
   invisible(p)
 }
 
-plotQuals(obj)
+
