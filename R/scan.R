@@ -28,10 +28,6 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
 
-  hash.env <- NULL
-  if (hash)
-    hash.env <- new.env(hash=FALSE)
-  
   out <- .Call('summarize_fastq_file', filename,
                as.integer(max.length),
                as.integer(which(names(QUALITY.CONSTANTS) == quality) - 1),
