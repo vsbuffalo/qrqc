@@ -212,7 +212,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
   int is_missing, ret, size_out_list = 2;
   unsigned int num_unique_seqs = 0;
 
-  long unsigned int nblock = 0;
+  unsigned int nblock = 0;
   fastq_block *block;
   SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list;
   int *ibc, *iqc, i, j, q_type, q_range;
@@ -249,7 +249,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
       k = kh_get(str, h, block->sequence);
       is_missing = (k == kh_end(h));
       if (is_missing) {
-        k = kh_put(str, h, block->sequence, &ret);
+        k = kh_put(str, h, strdup(block->sequence), &ret);
         kh_value(h, k) = 1;
         num_unique_seqs++;
       } else 
@@ -273,6 +273,11 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
     if (kh_exist(h, k)) {
       SET_VECTOR_ELT(seq_hash_names, i, mkString(kh_key(h, k)));
       SET_VECTOR_ELT(seq_hash, i, ScalarInteger(kh_value(h, k)));
+      /* per the comment here
+         (http://attractivechaos.wordpress.com/2009/09/29/khash-h/),
+         using character arrays keys with strdup must be freed during
+         table traverse. */
+      free((char *) kh_key(h, k));
       i++;
     }
   }
