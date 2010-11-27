@@ -250,6 +250,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
       if (is_missing) {
         k = kh_put(str, h, block->sequence, &ret);
         if (!ret) {
+	  error("ret is false\n");
           kh_del(str, h, k);
         } else {
           kh_value(h, k) = 1;
@@ -260,9 +261,10 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
     }
   }
 
-  protect(seq_hash = allocVector(VECSXP, num_unique_seqs));
+  PROTECT(seq_hash = allocVector(VECSXP, num_unique_seqs));
   PROTECT(seq_hash_names = allocVector(VECSXP, num_unique_seqs));
 
+  printf("processing complete... now loading C hash structure to R...\n");
   i = 0;
   for (k = kh_begin(h); k != kh_end(h); ++k) {
     if (kh_exist(h, k)) {

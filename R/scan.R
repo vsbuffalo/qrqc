@@ -45,4 +45,4 @@ function(filename, max.length=100, quality='illumina', hash=TRUE) {
   return(out)
 }
 
-s <- summarizeFastq('test.fastq')
+
