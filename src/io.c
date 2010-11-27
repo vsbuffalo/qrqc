@@ -157,10 +157,10 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
     case 'A':
       base_matrix[5*i]++;
       break;
-    case 'C':
+    case 'T':
       base_matrix[5*i + 1]++;
       break;
-    case 'T':
+    case 'C':
       base_matrix[5*i + 2]++;
       break;
     case 'G':
