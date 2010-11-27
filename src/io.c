@@ -240,7 +240,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
   zero_int_matrix(iqc, q_range + 1, INTEGER(max_length)[0]);
 
   while ((block = read_fastq_block(fp)) != NULL) {
-    void R_CheckUserInterrupt(void);
+    R_CheckUserInterrupt();
      
     update_summary_matrices(block, ibc, iqc, q_type);
     
@@ -257,6 +257,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
         printf("on block %d\n", num_unique_seqs);
       num_unique_seqs++;
     }
+    free(block);
   }
 
   PROTECT(seq_hash = allocVector(VECSXP, num_unique_seqs));
@@ -274,7 +275,6 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
     }
   }
     
-  free(block);
   kh_destroy(str, h);
 
   SET_VECTOR_ELT(out_list, 0, base_counts);
