@@ -63,7 +63,7 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
     return(tmp)})
 
   out$base.props <- local({
-    tmp <- prop.table(as.matrix(obj$base.freqs[, -1]), margin=1)
+    tmp <- prop.table(as.matrix(out$base.freqs[, -1]), margin=1)
     tmp <- melt(tmp, id='position')
     colnames(tmp) <- c('position', 'base', 'proportion')
     return(tmp)
