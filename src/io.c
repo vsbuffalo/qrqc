@@ -182,15 +182,6 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
   }
 }
 
-SEXP mkans(double x) {
-  SEXP ans;
-  PROTECT(ans = allocVector(INTSXP, 1));
-  INTEGER(ans)[0] = x;
-  UNPROTECT(1);
-  return ans;
-}
-
-
 void zero_int_matrix(int *matrix, int nx, int ny) {
   int i, j;
   for (i = 0; i < nx; i++) {
@@ -230,7 +221,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
 
-  protect(out_list = allocVector(VECSXP, size_out_list));
+  PROTECT(out_list = allocVector(VECSXP, size_out_list));
   PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
   PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
   
