@@ -58,7 +58,7 @@ SEXP string_to_base_qualities(SEXP ascii_quality) {
   return quals;
 }
 
-int getline(FILE *fp, char *buf, int bufsize) {
+int get_line(FILE *fp, char *buf, int bufsize) {
   /* 
      Ported from Rconnections.h, because this hasn't been opened up to
      package developers yet. This verison works with a raw C stream
@@ -110,7 +110,7 @@ fastq_block *read_fastq_block(FILE *fp) {
   if (!buf) error("cannot allocate buffer in read_fastq_file");
   
   for (i = 0; i < 4; i++) {
-    if (getline(fp, buf, LINE_BUFFER) == -1) return NULL;
+    if (get_line(fp, buf, LINE_BUFFER) == -1) return NULL;
 
     switch (nlines % LINES_PER_FASTQ_REC) {
     case 0:
