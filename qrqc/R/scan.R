@@ -127,7 +127,7 @@ function(obj, n=100, f=1/6) {
   }
 
   # Use binsample() to sample from the binned quality frequency data, then
-  # do lots of data munging to get it in a usable format for lowess.
+  # do some data munging to get it in a usable format for lowess.
   d <- local({
     s <- apply(obj$qual.freqs[, -1], 1, binsample)
     tmp <- t(s)
@@ -174,6 +174,8 @@ function(obj, ylim='relative') {
   apply(d, 1, function(x) lines(x=c(x[1], x[1]), y=c(x[2], x[6]), col='grey'))
   apply(d, 1, function(x) lines(x=c(x[1], x[1]), y=c(x[3], x[5]), lwd=2.5, col='orange'))
   points(d$position, d$middle, pch=20, col='blue')
-  points(d$position, d$means, pch=20, col='green')
-  
+
+  lw <- 0.2
+  apply(d, 1, function(x) lines(x=c(x[1]-lw, x[1]+lw), y=c(x[7], x[7]), lwd=2.5, col='green'))
 }
+plotQuals(s)
