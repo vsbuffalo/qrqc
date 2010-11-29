@@ -118,12 +118,29 @@ function(x) {
   return(out)
 }
 
-fitQualMCLowess <-
+qualMCLowess <-
 # Monte Carlo Lowess, or lowess on binned quality data
-function(obj, n=100) {
-  
+function(obj, n=100, f=1/6) {
+  vals <- as.numeric(names(obj$qual.freqs[1, -1]))
+  binsample <- function(x) {
+    sample(vals, n, prob=x/sum(x), replace=TRUE)
+  }
+
+  # Use binsample() to sample from the binned quality frequency data, then
+  # do lots of data munging to get it in a usable format for lowess.
+  d <- local({
+    s <- apply(obj$qual.freqs[, -1], 1, binsample)
+    tmp <- t(s)
+    nr <- nrow(tmp)
+    dim(tmp) <- c(ncol(tmp)*nrow(tmp), 1)
+    tmp <- as.data.frame(cbind(1:nr, tmp))    
+    colnames(tmp) <- c('position', 'quality')
+    return(tmp)
+  })
+  l <- lowess(d$position, d$quality, f=f)
+  return(l)
 }
-  
+
 
 plotQuals <-
 #
