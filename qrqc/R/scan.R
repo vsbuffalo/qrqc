@@ -68,6 +68,8 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
     colnames(tmp) <- c('position', 'base', 'proportion')
     return(tmp)
   })
+
+  out$quality=quality
   return(out)
 }
 
@@ -98,9 +100,9 @@ function(obj){
 binned2quantilefunc <-
 # Assumes names are x values
 function(x) {
-  y <- as.numeric(x)
-  x <- as.integer(names(x))
-  t <- approxfun(cumsum(y)/sum(y), x, yleft=0, yright=1, ties="ordered")
+  y <- as.numeric(x[x!=0])
+  x <- as.integer(names(x)[x!=0])
+  t <- approxfun(cumsum(y)/sum(y), x, yleft=min(x), yright=max(x))
   return(t)
 }
 
@@ -116,24 +118,45 @@ function(x) {
   return(out)
 }
 
+fitQualMCLowess <-
+# Monte Carlo Lowess, or lowess on binned quality data
+function(obj, n=100) {
+  
+}
+  
+
 plotQuals <-
 #
-function(obj) {
+function(obj, ylim='relative') {
   d <- local({
     tmp <- apply(obj$qual.freqs[, -1], 1, binned2boxplot)
     tmp <- t(tmp)
     tmp <- cbind(1:nrow(tmp), tmp)
+    vals <- as.numeric(names(obj$qual.freqs[, -1]))
+    tmp <- cbind(tmp, apply(obj$qual.freqs[, -1], 1, function(x) weighted.mean(vals, x)))
     colnames(tmp)[1] <- 'position'
+    colnames(tmp)[7] <- 'means'
     return(as.data.frame(tmp))
   })
 
-  p <- ggplot(d)
-  p <- p + geom_pointrange(aes(x=position,
-                            ymin=lower,
-                            y=middle,
-                            ymax=upper))
-  print(p)
-  invisible(p)
+  if (ylim == 'fixed') {
+    q <- QUALITY.CONSTANTS[[obj$quality]]
+    qmin <- q$min
+    qmax <- q$max
+  } else {
+    qmin <- min(d$ymin)
+    qmax <- min(d$ymax)
+  }
+  
+  plot.new()
+  plot.window(xlim=c(0, nrow(d)), ylim=c(qmin, qmax))
+
+  axis(1, at=1:nrow(d), las=1)
+  axis(2, at=qmin:qmax, las=1)
+
+  apply(d, 1, function(x) lines(x=c(x[1], x[1]), y=c(x[2], x[6]), col='grey'))
+  apply(d, 1, function(x) lines(x=c(x[1], x[1]), y=c(x[3], x[5]), lwd=2.5, col='orange'))
+  points(d$position, d$middle, pch=20, col='blue')
+  points(d$position, d$means, pch=20, col='green')
+  
 }
-
-

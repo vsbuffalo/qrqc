@@ -1,12 +1,12 @@
-Package: rQC
+Package: qrqc
 Version: 0.1
 Date: 2010-11-22
-Title: Read Quality Control
+Title: Quick Read Quality Control
 Author@R: person("Vince", "Buffalo", email = "vsbuffalo@ucdavis.edu")
 Author: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Suggests: MASS
-Description: Scans reads quickly and executes R functions upon them 
-    (to gather summary statistics).
+Description: Scans reads quickly gathers statistics on base and 
+    quality frequencies, read length, and frequent sequences.
 License: GPL-2
 URL: http://www.r-project.org
