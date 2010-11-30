@@ -1,7 +1,20 @@
 \#*
 \.#*
 .Rhistory
-*~
 *.o
 *.so
 .RData
+
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+
+.DS_Store?
+Icon?
+
+# Thumbnails
+._*

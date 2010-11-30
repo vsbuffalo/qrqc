@@ -78,7 +78,7 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
 
 plotBaseFreqs <-
 # Plot the frequency (absolute counts) of bases across a read.
-function(obj) { 
+function(obj, bases=NULL) { 
   base.freqs <- local({
     tmp <- melt(obj$base.freqs, id='position')
     colnames(tmp) <- c('position', 'base', 'frequency')
@@ -89,8 +89,12 @@ function(obj) {
   plot.window(ylim=c(min(base.freqs$frequency)*1.2, max(base.freqs$frequency)*1.2),
               xlim=c(1, max(base.freqs$position)))
 
+  if (is.null(bases))
+    levs <- levels(base.freqs$base)
+  else
+    levs = bases
 
-  for (base in levels(base.freqs$base)) {
+  for (base in levs) {
     lines(base.freqs$position[base.freqs$base == base],
           base.freqs$frequency[base.freqs$base == base],
           col=NUCLEOTIDES.COLORS[as.character(base)])
