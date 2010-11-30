@@ -5,6 +5,7 @@ QUALITY.CONSTANTS <- list(phred=list(offset=33, min=0, max=93),
                           illumina=list(offset=64, min=0, max=62))
 
 NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N')
+NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red', 'C'='blue', 'G'='black', 'N'='purple')
 
 .setQualityNames <-
 # Given a quality type (as integer), name the matrix output from
@@ -75,26 +76,49 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
 
 plotBaseFreqs <-
 #
-function(obj){
+function(obj) { 
   base.freqs <- local({
     tmp <- melt(obj$base.freqs, id='position')
     colnames(tmp) <- c('position', 'base', 'frequency')
     return(tmp)
   })
 
-  p <- ggplot(base.freqs, aes(x=position, y=frequency, color=base))
-  p <- p + geom_line()
-  print(p)
-  invisible(p)
+  plot.new()
+  plot.window(ylim=c(min(base.freqs$frequency)*1.2, max(base.freqs$frequency)*1.2),
+              xlim=c(1, max(base.freqs$position)))
+
+
+  for (base in levels(base.freqs$base)) {
+    lines(base.freqs$position[base.freqs$base == base],
+          base.freqs$frequency[base.freqs$base == base],
+          col=NUCLEOTIDES.COLORS[as.character(base)])
+  }
+
+  axis(1, at=min(base.freqs$position):max(base.freqs$position))
+  axis(2)
+  title(main="base frequency by position in read", xlab="position", ylab="frequency")
 }
+plotBaseFreqs(s)
 
 plotBaseProps <-
 #
-function(obj){
-  p <- ggplot(obj$base.props, aes(x=position, y=proportion, color=base))
-  p <- p + geom_line()
-  print(p)
-  invisible(p)  
+function(obj) {
+  base.props <- obj$base.props
+  plot.new()
+  plot.window(ylim=c(min(base.props$proportion)*1.2, max(base.props$proportion)*1.2),
+              xlim=c(1, max(base.props$position)))
+  
+  
+  for (base in levels(base.props$base)) {
+    lines(base.props$position[base.props$base == base],
+          base.props$proportion[base.props$base == base],
+          col=NUCLEOTIDES.COLORS[as.character(base)])
+  }
+
+  axis(1, at=min(base.props$position):max(base.props$position))
+  axis(2)
+  abline(h=0.25, col='grey')  
+  title(main="base proportion by position in read", xlab="position", ylab="proportion")
 }
 
 binned2quantilefunc <-
@@ -144,7 +168,7 @@ function(obj, n=100, f=1/6) {
 
 plotQuals <-
 #
-function(obj, ylim='relative') {
+function(obj, ylim='relative', lowess=TRUE) {
   d <- local({
     tmp <- apply(obj$qual.freqs[, -1], 1, binned2boxplot)
     tmp <- t(tmp)
@@ -176,6 +200,11 @@ function(obj, ylim='relative') {
   points(d$position, d$middle, pch=20, col='blue')
 
   lw <- 0.2
-  apply(d, 1, function(x) lines(x=c(x[1]-lw, x[1]+lw), y=c(x[7], x[7]), lwd=2.5, col='green'))
+  apply(d, 1, function(x) lines(x=c(x[1]-lw, x[1]+lw), y=c(x[7], x[7]), lwd=2.5, col='dark green'))
+
+  if (lowess)
+    lines(qualMCLowess(obj), col='purple')
+
+  title(main=sprintf("quality distribution by read base (quality type: %s)", obj$quality),
+        xlab="position", ylab="quality")
 }
-plotQuals(s)
