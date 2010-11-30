@@ -184,7 +184,7 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
 void zero_int_matrix(int *matrix, int nx, int ny) {
   int i, j;
   for (i = 0; i < nx; i++) {
-    for(j = 0; j < ny; j++)
+    for (j = 0; j < ny; j++)
       matrix[i + nx*j] = 0;
   }
 }

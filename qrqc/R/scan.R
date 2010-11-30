@@ -5,7 +5,9 @@ QUALITY.CONSTANTS <- list(phred=list(offset=33, min=0, max=93),
                           illumina=list(offset=64, min=0, max=62))
 
 NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N')
-NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red', 'C'='blue', 'G'='black', 'N'='purple')
+NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
+                        'C'='blue', 'G'='black',
+                        'N'='purple')
 
 .setQualityNames <-
 # Given a quality type (as integer), name the matrix output from
@@ -104,7 +106,9 @@ plotBaseProps <-
 function(obj) {
   base.props <- obj$base.props
   plot.new()
-  plot.window(ylim=c(min(base.props$proportion)*1.2, max(base.props$proportion)*1.2),
+
+  w <- 1.2
+  plot.window(ylim=c(min(base.props$proportion)*w, max(base.props$proportion)*w),
               xlim=c(1, max(base.props$position)))
   
   
@@ -194,18 +198,68 @@ function(obj, ylim='relative', lowess=TRUE) {
   axis(1, at=1:nrow(d), las=1)
   axis(2, at=qmin:qmax, las=1)
 
-  apply(d, 1, function(x) lines(x=c(x[1], x[1]), y=c(x[2], x[6]), col='grey'))
-  apply(d, 1, function(x) lines(x=c(x[1], x[1]), y=c(x[3], x[5]), lwd=2.5, col='orange'))
+  apply(d, 1, function(x)
+        lines(x=c(x[1], x[1]), y=c(x[2], x[6]), col='grey'))
+  
+  apply(d, 1, function(x)
+        lines(x=c(x[1], x[1]), y=c(x[3], x[5]), lwd=2.5, col='orange'))
   points(d$position, d$middle, pch=20, col='blue')
 
   lw <- 0.2
-  apply(d, 1, function(x) lines(x=c(x[1]-lw, x[1]+lw), y=c(x[7], x[7]), lwd=2.5, col='dark green'))
+  apply(d, 1, function(x)
+        lines(x=c(x[1]-lw, x[1]+lw), y=c(x[7], x[7]), lwd=2.5, col='dark green'))
 
   if (lowess)
     lines(qualMCLowess(obj), col='purple')
 
-  title(main=sprintf("quality distribution by read base (quality type: %s)", obj$quality),
-        xlab="position", ylab="quality")
+  m <- sprintf("quality distribution by read base (quality type: %s)", obj$quality)
+  title(main=m, xlab="position", ylab="quality")
 }
 
+plotGC <-
+#
+function(obj) {
+  gc <- local({
+    d <- subset(obj$base.props, obj$base.props$base %in% c('G', 'C'))
+    gc <- aggregate(d$proportion, list(d$position), sum)
+    colnames(gc) <- c('position', 'gc')
+    return(gc)
+  })
+  
+  plot.new()
 
+  w <- 1.2
+  plot.window(ylim=c(min(gc$gc)*w, max(gc$gc)*w),
+              xlim=c(1, max(gc$position)))
+  
+  
+  lines(gc$position, gc$gc, col='red')
+
+  axis(1, at=min(gc$position):max(gc$position))
+  axis(2, at=seq(0, 1, by=0.2))
+  abline(h=0.5, col='grey')  
+  title(main="gc content by position in read", xlab="position", ylab="proportion")
+  
+}
+
+plotSeqLengths <-
+# Plot a histogram of sequence lengths. This is done manually (not
+# using hist) so that the case when there's a single length, the
+# histogram doesn't look ridiculous.
+function(obj) {
+  plot.new()
+
+  l <- obj$seq.lengths
+  x <- unique(l)
+  y <- sapply(x, function(a) length(which(a == l))/length(l))
+  d <- data.frame(cbind(x, y))
+  
+  plot.window(ylim=c(0, 1), xlim=c(min(x)-1, max(x)+1))
+  apply(d, 1, function(x) lines(x[1], x[2], type='h', col='blue'))
+  axis(1, at=(min(x)-1):(max(x)+1))
+  
+  
+  axis(2, at=seq(0, max(x), by=0.2))
+  title(ylab='density', xlab='sequence length',
+        main='sequence length distribution')
+}

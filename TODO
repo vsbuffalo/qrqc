@@ -1,0 +1,6 @@
+TODO
+
+- Be stricter with integer, etc limits, use limits.h, although this could break
+  Windows compatability.
+- BAM and SAM support (again, in C). With this branch, much of the number 
+  gathering should be outside summarize_fastq_file C function.
