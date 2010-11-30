@@ -8,7 +8,6 @@
 
 #include "khash.h"
 
-// In khash.h's examples, this is not done in functions
 KHASH_MAP_INIT_STR(str, int)
 
 #define LINE_BUFFER 500
@@ -200,13 +199,13 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
 
   khash_t(str) *h;
   khiter_t k;
-  int is_missing, ret, size_out_list = 2;
+  int is_missing, ret, size_out_list = 3;
   unsigned int num_unique_seqs = 0;
 
   unsigned int nblock = 0;
   fastq_block *block;
-  SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list;
-  int *ibc, *iqc, i, j, q_type, q_range;
+  SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list, seq_lengths;
+  int *ibc, *iqc, *isl, i, j, q_type, q_range;
 
   q_type = INTEGER(quality_type)[0];
   q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
@@ -214,7 +213,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
   if (LOGICAL(hash)[0]) {
     h = kh_init(str);
     kh_resize(str, h, 1572869);
-    size_out_list = 3;
+    size_out_list = 4;
   }
 
   FILE *fp = fopen(CHAR(STRING_ELT(filename, 0)), "r");
@@ -224,10 +223,12 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
   PROTECT(out_list = allocVector(VECSXP, size_out_list));
   PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
   PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
+  PROTECT(seq_lengths = allocVector(INTSXP, INTEGER(max_length)[0]));
   
   ibc = INTEGER(base_counts);
   iqc = INTEGER(qual_counts);
-  
+  isl = INTEGER(seq_lengths);
+
   zero_int_matrix(ibc, NUM_BASES, INTEGER(max_length)[0]);
   zero_int_matrix(iqc, q_range + 1, INTEGER(max_length)[0]);
 
@@ -236,6 +237,8 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
      
     update_summary_matrices(block, ibc, iqc, q_type);
     
+    isl[nblock] = strlen(block->sequence);
+
     if (LOGICAL(hash)[0]) {
       k = kh_get(str, h, block->sequence);
       is_missing = (k == kh_end(h));
@@ -277,12 +280,13 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
 
   SET_VECTOR_ELT(out_list, 0, base_counts);
   SET_VECTOR_ELT(out_list, 1, qual_counts);
+  SET_VECTOR_ELT(out_list, 2, seq_lengths);
   if (LOGICAL(hash)[0]) {
     setAttrib(seq_hash, R_NamesSymbol, seq_hash_names);
-    SET_VECTOR_ELT(out_list, 2, seq_hash);
+    SET_VECTOR_ELT(out_list, 3, seq_hash);
   }
 
-  UNPROTECT(5);
+  UNPROTECT(6);
   fclose(fp);
   return out_list;
 }

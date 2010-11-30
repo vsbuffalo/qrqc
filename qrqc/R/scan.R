@@ -42,10 +42,10 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
                as.logical(hash),
                as.logical(verbose))
 
-  names(out) <- c('base.freqs', 'qual.freqs')
+  names(out) <- c('base.freqs', 'qual.freqs', 'seq.lengths')
 
   if (hash) {
-    names(out)[3] <- 'hash'
+    names(out)[4] <- 'hash'
     out$hash <- sortSequenceHash(out$hash)
   }
   
@@ -98,7 +98,6 @@ function(obj) {
   axis(2)
   title(main="base frequency by position in read", xlab="position", ylab="frequency")
 }
-plotBaseFreqs(s)
 
 plotBaseProps <-
 #
@@ -116,7 +115,7 @@ function(obj) {
   }
 
   axis(1, at=min(base.props$position):max(base.props$position))
-  axis(2)
+  axis(2, at=seq(0, 1, by=0.2))
   abline(h=0.25, col='grey')  
   title(main="base proportion by position in read", xlab="position", ylab="proportion")
 }
@@ -208,3 +207,5 @@ function(obj, ylim='relative', lowess=TRUE) {
   title(main=sprintf("quality distribution by read base (quality type: %s)", obj$quality),
         xlab="position", ylab="quality")
 }
+
+
