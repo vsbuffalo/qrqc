@@ -77,7 +77,7 @@ function(filename, max.length=100, quality='illumina', hash=TRUE, verbose=FALSE)
 }
 
 plotBaseFreqs <-
-#
+# Plot the frequency (absolute counts) of bases across a read.
 function(obj) { 
   base.freqs <- local({
     tmp <- melt(obj$base.freqs, id='position')
@@ -102,7 +102,7 @@ function(obj) {
 }
 
 plotBaseProps <-
-#
+# Plot proportions of all nucleotides across a read.
 function(obj) {
   base.props <- obj$base.props
   plot.new()
@@ -134,7 +134,8 @@ function(x) {
 }
 
 binned2boxplot <-
-#
+# Extract useful quantiles for a boxplot from an empirical qunatile
+# function.
 function(x) {
   f <- binned2quantilefunc(x)
   out <- c(ymin=f(0),
@@ -170,7 +171,10 @@ function(obj, n=100, f=1/6) {
 
 
 plotQuals <-
-#
+# Make a series of (custom) boxplots, with a point for median and a
+# horizontal line for the mean. If `lowess` is TRUE, add lowess curve,
+# which is fit through MC samples though the binned quals with
+# `qualMCLowess`.
 function(obj, ylim='relative', lowess=TRUE) {
   d <- local({
     tmp <- apply(obj$qual.freqs[, -1], 1, binned2boxplot)
@@ -217,7 +221,7 @@ function(obj, ylim='relative', lowess=TRUE) {
 }
 
 plotGC <-
-#
+# Plot the proportion of bases that are G or C (the GC content).
 function(obj) {
   gc <- local({
     d <- subset(obj$base.props, obj$base.props$base %in% c('G', 'C'))
@@ -257,8 +261,7 @@ function(obj) {
   plot.window(ylim=c(0, 1), xlim=c(min(x)-1, max(x)+1))
   apply(d, 1, function(x) lines(x[1], x[2], type='h', col='blue'))
   axis(1, at=(min(x)-1):(max(x)+1))
-  
-  
+
   axis(2, at=seq(0, max(x), by=0.2))
   title(ylab='density', xlab='sequence length',
         main='sequence length distribution')
