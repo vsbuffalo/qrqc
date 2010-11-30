@@ -7,7 +7,7 @@ Author: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Imports: reshape
 Suggests: MASS
-Description: Scans reads quickly gathers statistics on base and 
+Description: Scans reads quickly and gathers statistics on base and 
     quality frequencies, read length, and frequent sequences.
 License: BSD
 URL: http://www.r-project.org
