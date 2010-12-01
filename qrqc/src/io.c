@@ -223,11 +223,11 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
   PROTECT(out_list = allocVector(VECSXP, size_out_list));
   PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
   PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
-  PROTECT(seq_lengths = allocVector(INTSXP, INTEGER(max_length)[0]));
+  //PROTECT(seq_lengths = allocVector(INTSXP, INTEGER(max_length)[0]));
   
   ibc = INTEGER(base_counts);
   iqc = INTEGER(qual_counts);
-  isl = INTEGER(seq_lengths);
+  //isl = INTEGER(seq_lengths);
 
   zero_int_matrix(ibc, NUM_BASES, INTEGER(max_length)[0]);
   zero_int_matrix(iqc, q_range + 1, INTEGER(max_length)[0]);
@@ -237,7 +237,7 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
      
     update_summary_matrices(block, ibc, iqc, q_type);
     
-    isl[nblock] = strlen(block->sequence);
+    //isl[nblock] = strlen(block->sequence);
 
     if (LOGICAL(hash)[0]) {
       k = kh_get(str, h, block->sequence);
@@ -280,13 +280,13 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
 
   SET_VECTOR_ELT(out_list, 0, base_counts);
   SET_VECTOR_ELT(out_list, 1, qual_counts);
-  SET_VECTOR_ELT(out_list, 2, seq_lengths);
+  //SET_VECTOR_ELT(out_list, 2, seq_lengths);
   if (LOGICAL(hash)[0]) {
     setAttrib(seq_hash, R_NamesSymbol, seq_hash_names);
     SET_VECTOR_ELT(out_list, 3, seq_hash);
   }
 
-  UNPROTECT(6);
+  UNPROTECT(5);
   fclose(fp);
   return out_list;
 }
