@@ -2,13 +2,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <zlib.h>
 #include <R.h>
 #include <R_ext/Utils.h>
 #include <Rinternals.h>
 
 #include "khash.h"
+#include "kseq.h"
 
 KHASH_MAP_INIT_STR(str, int)
+
+KSEQ_INIT(gzFile, gzread)
 
 #define LINE_BUFFER 500
 
@@ -28,131 +32,21 @@ static const int quality_contants[3][3] = {
   // offset, min, max
   {33, 0, 93}, // SANGER
   {64, -5, 62}, // SOLEXA
-  {64, 0, 62}, // ILLUMINA
+  {64, 0, 62} // ILLUMINA
 };
 
-static const int LINES_PER_FASTQ_REC = 4;
 
-typedef struct {
-  char header[LINE_BUFFER];
-  char sequence[LINE_BUFFER];
-  char quality[LINE_BUFFER];
-} fastq_block;
-
-SEXP string_to_base_qualities(SEXP ascii_quality) {
-
-  if (!isString(ascii_quality))
-    error("ascii_quality must be of type 'character'");  
-
-  SEXP quals;
-  int i, l = strlen(CHAR(STRING_ELT(ascii_quality, 0)));
-
-  PROTECT(quals = allocVector(INTSXP, l));
-
-  for (i = 0; i < l; i++) {
-    //printf("base: %c\n", CHAR(STRING_ELT(ascii_quality, 0))[i]);
-    INTEGER(quals)[i] = (int) CHAR(STRING_ELT(ascii_quality, 0))[i] - 33;
-  }
-  UNPROTECT(1);
-  return quals;
-}
-
-int get_line(FILE *fp, char *buf, int bufsize) {
-  /* 
-     Ported from Rconnections.h, because this hasn't been opened up to
-     package developers yet. This verison works with a raw C stream
-     rather than an R connection.
-  */
-  int c, nbuf = -1;
-  
-  while((c = fgetc(fp)) != EOF) {
-    if (nbuf+1 >= bufsize) error("Line longer than buffer size");
-    if (c != '\n') {
-      buf[++nbuf] = c;
-    } else {
-      buf[++nbuf] = '\0';
-      break;
-    }
-  }
-  /* Make sure it is null-terminated and count is correct, even if
-   *  file did not end with newline.
-   */
-  if (nbuf >= 0 && buf[nbuf]) {
-    if (nbuf+1 >= bufsize) error("Line longer than buffer size");
-    buf[++nbuf] = '\0';
-  }
-  return nbuf;
-}
-
-char *trim(char *str) {
-  char *end;
-  while (isspace(*str)) str++;
-
-  if (*str == '\0')
-    return str;
-
-  end = str + strlen(str) - 1;
-  while (end > str && isspace(*end)) end--;
-
-  *(end+1) = 0;
-  return str;
-}
-
-fastq_block *read_fastq_block(FILE *fp) {
-  unsigned int nlines = 0, i;
-  fastq_block *block = malloc(sizeof(fastq_block));
-
-  if (fp == NULL) error("stream pointer is null");
-  
-  char *obuf, *buf = malloc(LINE_BUFFER);
-  obuf = buf;
-  if (!buf) error("cannot allocate buffer in read_fastq_file");
-  
-  for (i = 0; i < 4; i++) {
-    if (get_line(fp, buf, LINE_BUFFER) == -1) return NULL;
-
-    switch (nlines % LINES_PER_FASTQ_REC) {
-    case 0:
-    case 2:
-      buf++; // ditch header character
-      strcpy(block->header, trim(buf));
-      break;
-    case 1:
-      // sequence
-      strcpy(block->sequence, trim(buf));
-      break;
-    case 3:
-      // quality
-      strcpy(block->quality, trim(buf));
-      break;
-    default:
-      error("unexpected error; consult maintainer - %d", nlines);
-    }
-    
-    nlines++;
-  }
-  free(obuf);
-  return block;
-}
-
-void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_matrix, quality_type q_type) {
+void update_base_matrices(kseq_t *block, int *base_matrix) {
   /*
-    Given `fastq_block`, adjust the nucloeotide frequency
+    Given `fastx_block`, adjust the nucloeotide frequency
     `counts_matrix` accordingly.
   */
   int i, len;
-  int q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
-  int q_min = quality_contants[q_type][Q_MIN];
-  int q_max = quality_contants[q_type][Q_MAX];
-  int q_offset = quality_contants[q_type][Q_OFFSET];
   
-  if (strlen(block->sequence) != strlen(block->quality))
-    error("improperly formatted FASTQ file; sequence and quality lengths differ");
-
-  len = strlen(block->sequence);
+  len = strlen(block->seq.s);
 
   for (i = 0; i < len; i++) {
-    switch ((char) block->sequence[i]) {
+    switch ((char) block->seq.s[i]) {
     case 'A':
       base_matrix[5*i]++;
       break;
@@ -170,16 +64,38 @@ void update_summary_matrices(fastq_block *block, int *base_matrix, int *qual_mat
       break;
     default:
       error("Sequence character encountered that is not"
-            " A, T, C, G, or N: '%c'", block->sequence[i]);
+            " A, T, C, G, or N: '%c', from %s", block->seq.s[i], block->seq.s);
     }
-    
-    if ((char) block->quality[i] - q_offset < q_min || (char) block->quality[i] - q_offset > q_max)
-      error("base quality out of range (%d < b < %d) encountered: %d", q_min, 
-            q_max, (char) block->quality[i]);
-    
-    qual_matrix[(q_range+1)*i + ((char) block->quality[i]) - q_offset - q_min]++;
   }
 }
+
+void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q_type) {
+  /*
+    Given `fastx_block` (must be type FASTQ), adjust the quality
+    frequency in `qual_matrix` accordingly.
+  */
+  int i, len;
+  int q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
+  int q_min = quality_contants[q_type][Q_MIN];
+  int q_max = quality_contants[q_type][Q_MAX];
+  int q_offset = quality_contants[q_type][Q_OFFSET];
+
+  if (!block->qual.s)
+    error("update_qual_matrices only works on FASTQ files");
+  
+  len = strlen(block->seq.s);
+  if (len != strlen(block->qual.s))
+    error("improperly formatted FASTQ file; sequence and quality lengths differ");
+
+  for (i = 0; i < len; i++) {
+    if ((char) block->qual.s[i] - q_offset < q_min || (char) block->qual.s[i] - q_offset > q_max)
+      error("base quality out of range (%d < b < %d) encountered: %d", q_min,
+            q_max, (char) block->qual.s[i]);
+    
+    qual_matrix[(q_range+1)*i + ((char) block->qual.s[i]) - q_offset - q_min]++;
+  }
+}
+
 
 void zero_int_matrix(int *matrix, int nx, int ny) {
   int i, j;
@@ -199,11 +115,11 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
 
   khash_t(str) *h;
   khiter_t k;
-  int is_missing, ret, size_out_list = 3;
+  int is_missing, ret, size_out_list = 3, l;
   unsigned int num_unique_seqs = 0;
 
   unsigned int nblock = 0;
-  fastq_block *block;
+  kseq_t *block;
   SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list, seq_lengths;
   int *ibc, *iqc, *isl, i, j, q_type, q_range;
 
@@ -216,43 +132,52 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
     size_out_list = 4;
   }
 
-  FILE *fp = fopen(CHAR(STRING_ELT(filename, 0)), "r");
+  gzFile *fp = gzopen(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
+  block = kseq_init(fp);
 
   PROTECT(out_list = allocVector(VECSXP, size_out_list));
   PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
   PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
-  //PROTECT(seq_lengths = allocVector(INTSXP, INTEGER(max_length)[0]));
+  PROTECT(seq_lengths = allocVector(INTSXP, INTEGER(max_length)[0]));
   
   ibc = INTEGER(base_counts);
   iqc = INTEGER(qual_counts);
-  //isl = INTEGER(seq_lengths);
+  isl = INTEGER(seq_lengths);
 
   zero_int_matrix(ibc, NUM_BASES, INTEGER(max_length)[0]);
   zero_int_matrix(iqc, q_range + 1, INTEGER(max_length)[0]);
 
-  while ((block = read_fastq_block(fp)) != NULL) {
+  while ((l = kseq_read(block)) >= 0) {
     R_CheckUserInterrupt();
-     
-    update_summary_matrices(block, ibc, iqc, q_type);
     
-    //isl[nblock] = strlen(block->sequence);
+    if (l >= LINE_BUFFER-1)
+      error("read in sequence greater than LINE_BUFFER size");
+
+    printf("name: %s\n", block->name.s); 
+    if (block->comment.l) printf("comment: %s\n", block->comment.s);
+    printf("seq: %s\n", block->seq.s);
+    if (block->qual.l) printf("qual: %s\n", block->qual.s);
+    
+    update_base_matrices(block, ibc);
+    update_qual_matrices(block, iqc, q_type);
+    
+    isl[nblock] = strlen(block->seq.s); //TODO use kseq's length
 
     if (LOGICAL(hash)[0]) {
-      k = kh_get(str, h, block->sequence);
+      k = kh_get(str, h, block->seq.s);
       is_missing = (k == kh_end(h));
       if (is_missing) {
-        k = kh_put(str, h, strdup(block->sequence), &ret);
+        k = kh_put(str, h, strdup(block->seq.s), &ret);
         kh_value(h, k) = 1;
         num_unique_seqs++;
-      } else 
+      } else
         kh_value(h, k) = kh_value(h, k) + 1;
       
       if (LOGICAL(verbose)[0] && nblock % 100000 == 0)
         printf("on block %d, %d entries in hash table\n", nblock, num_unique_seqs);
     }
-    free(block);
     nblock++;
   }
 
@@ -280,13 +205,16 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
 
   SET_VECTOR_ELT(out_list, 0, base_counts);
   SET_VECTOR_ELT(out_list, 1, qual_counts);
-  //SET_VECTOR_ELT(out_list, 2, seq_lengths);
+  SET_VECTOR_ELT(out_list, 2, seq_lengths);
+
   if (LOGICAL(hash)[0]) {
     setAttrib(seq_hash, R_NamesSymbol, seq_hash_names);
     SET_VECTOR_ELT(out_list, 3, seq_hash);
   }
 
-  UNPROTECT(5);
-  fclose(fp);
+  UNPROTECT(6);
+  block = kseq_init(fp);
+  gzclose(fp);
+
   return out_list;
 }
