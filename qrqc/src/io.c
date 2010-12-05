@@ -41,11 +41,9 @@ void update_base_matrices(kseq_t *block, int *base_matrix) {
     Given `fastx_block`, adjust the nucloeotide frequency
     `counts_matrix` accordingly.
   */
-  int i, len;
+  int i;
   
-  len = strlen(block->seq.s);
-
-  for (i = 0; i < len; i++) {
+  for (i = 0; i < block->seq.l; i++) {
     switch ((char) block->seq.s[i]) {
     case 'A':
       base_matrix[5*i]++;
@@ -74,20 +72,16 @@ void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q_type) 
     Given `fastx_block` (must be type FASTQ), adjust the quality
     frequency in `qual_matrix` accordingly.
   */
-  int i, len;
+  int i;
   int q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
   int q_min = quality_contants[q_type][Q_MIN];
   int q_max = quality_contants[q_type][Q_MAX];
   int q_offset = quality_contants[q_type][Q_OFFSET];
 
-  if (!block->qual.s)
+  if (!block->qual.l)
     error("update_qual_matrices only works on FASTQ files");
   
-  len = strlen(block->seq.s);
-  if (len != strlen(block->qual.s))
-    error("improperly formatted FASTQ file; sequence and quality lengths differ");
-
-  for (i = 0; i < len; i++) {
+  for (i = 0; i < block->qual.l; i++) {
     if ((char) block->qual.s[i] - q_offset < q_min || (char) block->qual.s[i] - q_offset > q_max)
       error("base quality out of range (%d < b < %d) encountered: %d", q_min,
             q_max, (char) block->qual.s[i]);
@@ -95,7 +89,6 @@ void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q_type) 
     qual_matrix[(q_range+1)*i + ((char) block->qual.s[i]) - q_offset - q_min]++;
   }
 }
-
 
 void zero_int_matrix(int *matrix, int nx, int ny) {
   int i, j;
@@ -151,19 +144,17 @@ SEXP summarize_fastq_file(SEXP filename, SEXP max_length, SEXP quality_type, SEX
 
   while ((l = kseq_read(block)) >= 0) {
     R_CheckUserInterrupt();
-    
+
+    if (l == -2)
+      error("improperly formatted FASTQ file; truncated quality string");
+
     if (l >= LINE_BUFFER-1)
       error("read in sequence greater than LINE_BUFFER size");
 
-    printf("name: %s\n", block->name.s); 
-    if (block->comment.l) printf("comment: %s\n", block->comment.s);
-    printf("seq: %s\n", block->seq.s);
-    if (block->qual.l) printf("qual: %s\n", block->qual.s);
-    
     update_base_matrices(block, ibc);
     update_qual_matrices(block, iqc, q_type);
     
-    isl[nblock] = strlen(block->seq.s); //TODO use kseq's length
+    isl[nblock] = block->seq.l;
 
     if (LOGICAL(hash)[0]) {
       k = kh_get(str, h, block->seq.s);
