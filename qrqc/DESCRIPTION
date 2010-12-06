@@ -1,6 +1,6 @@
 Package: qrqc
-Version: 0.5
-Date: 2010-11-22
+Version: 0.8
+Date: 2010-12-06
 Title: Quick Read Quality Control
 Author@R: person("Vince", "Buffalo", email = "vsbuffalo@ucdavis.edu")
 Author: Vince Buffalo <vsbuffalo@ucdavis.edu>
@@ -8,6 +8,7 @@ Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Imports: reshape
 Suggests: MASS
 Description: Scans reads quickly and gathers statistics on base and 
-    quality frequencies, read length, and frequent sequences.
+    quality frequencies, read length, and frequent sequences. Produces 
+    graphical output of statistics for use in quality control pipelines.
 License: BSD
-URL: http://www.r-project.org
+URL: http://bioinformatics.ucdavis.edu
