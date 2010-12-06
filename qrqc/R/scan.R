@@ -199,7 +199,15 @@ function(obj, ylim='relative', lowess=TRUE) {
     qmin <- min(d$ymin)
     qmax <- min(d$ymax)
   }
-  
+
+  op <- par(no.readonly=TRUE)
+  nf <- layout(c(1, 2), heights=c(1, 4))
+  layout.show(nf)
+
+  par(mar=c(3, 3, 1, 1))
+  s <- obj$seq.lengths
+  plot(prop.table(s[2:max(which(s != 0))]), type='h') # offset by one, since C uses 0-indexing
+
   plot.new()
   plot.window(xlim=c(0, nrow(d)), ylim=c(qmin, qmax))
 
@@ -222,6 +230,7 @@ function(obj, ylim='relative', lowess=TRUE) {
 
   m <- sprintf("quality distribution by read base (quality type: %s)", obj$quality)
   title(main=m, xlab="position", ylab="quality")
+  par(op)
 }
 
 plotGC <-
