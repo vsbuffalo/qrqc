@@ -39,8 +39,8 @@ static const int quality_contants[3][3] = {
 
 static void update_base_matrices(kseq_t *block, int *base_matrix) {
   /*
-    Given `fastx_block`, adjust the nucloeotide frequency
-    `counts_matrix` accordingly.
+    Given a *kseq_t block containing a sequence, update the
+    *base_matrix to contain this block's bases (by position).
   */
   int i;
   
@@ -70,8 +70,8 @@ static void update_base_matrices(kseq_t *block, int *base_matrix) {
 
 static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q_type) {
   /*
-    Given `fastx_block` (must be type FASTQ), adjust the quality
-    frequency in `qual_matrix` accordingly.
+    Given a *kseq_t block containing qualities, update the
+    *qual_matrix to contain this block's qualities (by position).
   */
   int i;
   int q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
@@ -92,6 +92,9 @@ static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q
 }
 
 static void zero_int_matrix(int *matrix, int nx, int ny) {
+  /*
+    Zero out a matrix of integers.
+  */
   int i, j;
   for (i = 0; i < nx; i++) {
     for (j = 0; j < ny; j++)
@@ -100,6 +103,9 @@ static void zero_int_matrix(int *matrix, int nx, int ny) {
 }
 
 static void zero_int_vector(int *vector, int n) {
+  /*
+    Zero out a vector of integers.
+  */
   int i;
   for (i = 0; i < n; i++) {
     vector[i] = 0;
@@ -107,6 +113,12 @@ static void zero_int_vector(int *vector, int n) {
 }
 
 static void add_seq_to_khash(khash_t(str) *h, kseq_t *block, unsigned int *num_unique_seqs) {
+  /*
+    Given a hash of strings (khash_t(str) *h), a block containing a
+    sequence, update the hash. If the sequence exist, increase its
+    value by 1. If not, add the sequence to the hash and increase
+    num_unique_seqs.
+  */
   khiter_t k;
   int is_missing, ret;
   k = kh_get(str, h, block->seq.s);
@@ -120,6 +132,11 @@ static void add_seq_to_khash(khash_t(str) *h, kseq_t *block, unsigned int *num_u
 }
 
 static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_names) {
+  /*
+    Given a hash with string keys, output values to a given
+    (pre-allocated!) SEXP seq_hash. Then, output keys to
+    seq_hash_names.
+   */
   khiter_t k;
   int i;
   
@@ -139,6 +156,17 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
 }
 
 SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, SEXP verbose) {
+  /*
+    Given a FASTA or FASTQ file, read in sequences and gather
+    statistics on bases, qualities, sequence lengths, and unique
+    sequences (if hash is true). 
+
+    All matrices are pre-allocated to max_length, and then trimmed
+    accordingly in R. This may be (and should be) changed in future
+    versions.
+
+    Note that quality_type is -1 if the file is FASTA.
+   */
   if (!isString(filename))
     error("filename should be a string");
   if (INTEGER(max_length)[0] > INIT_MAX_SEQ)
@@ -225,7 +253,8 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
     SET_VECTOR_ELT(out_list, 3, seq_hash);
   }
 
-  i = IS_FASTQ(quality_type) ? size_out_list + 1 : size_out_list; // One more protected SEXP from qual_counts
+  // One more protected SEXP from qual_counts
+  i = IS_FASTQ(quality_type) ? size_out_list + 1 : size_out_list;
   UNPROTECT(i);
 
   block = kseq_init(fp);
