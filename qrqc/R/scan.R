@@ -143,9 +143,11 @@ binned2boxplot <-
 function(x) {
   f <- binned2quantilefunc(x)
   out <- c(ymin=f(0),
+           alt.lower=f(0.1),
            lower=f(0.25),
            middle=f(0.5),
            upper=f(0.75),
+           alt.upper=f(0.9),
            ymax=f(1))
   return(out)
 }
@@ -223,15 +225,15 @@ function(obj, ylim='relative', lowess=TRUE) {
   axis(2, at=qmin:qmax, las=1)
 
   apply(d, 1, function(x)
-        lines(x=c(x[1], x[1]), y=c(x[2], x[6]), col='grey'))
+        lines(x=c(x[1], x[1]), y=c(x[3], x[7]), col='grey'))
   
   apply(d, 1, function(x)
-        lines(x=c(x[1], x[1]), y=c(x[3], x[5]), lwd=2.5, col='orange'))
+        lines(x=c(x[1], x[1]), y=c(x[4], x[6]), lwd=2.5, col='orange'))
   points(d$position, d$middle, pch=20, col='blue')
 
   lw <- 0.2
   apply(d, 1, function(x)
-        lines(x=c(x[1]-lw, x[1]+lw), y=c(x[7], x[7]), lwd=2.5, col='dark green'))
+        lines(x=c(x[1]-lw, x[1]+lw), y=c(x[9], x[9]), lwd=2.5, col='dark green'))
 
   if (lowess)
     lines(qualMCLowess(obj), col='purple')

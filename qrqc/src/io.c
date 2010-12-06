@@ -225,7 +225,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
     SET_VECTOR_ELT(out_list, 3, seq_hash);
   }
 
-  i = IS_FASTQ(quality_type) ? 6 : 5; // One more protected SEXP from qual_counts
+  i = IS_FASTQ(quality_type) ? size_out_list + 1 : size_out_list; // One more protected SEXP from qual_counts
   UNPROTECT(i);
 
   block = kseq_init(fp);
