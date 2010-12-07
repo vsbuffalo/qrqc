@@ -26,8 +26,39 @@ function(m) {
   return(m[, 1:max(which(cs != 0))])
 }
 
+.trimArray <-
+function(x)
+  x[1:max(which(x != 0))]
+
 sortSequenceHash <- function(seq.hash) {
   return(sort(unlist(seq.hash), decreasing=TRUE))
+}
+
+lengths2weights <-
+# Given a histogram of seq.lengths, create a weighting scheme for
+# estimating mean quality from sequences of different lengths.
+# This converts a histogram to a base-by-base coverage vector.
+function(length.dist) {
+  last <- length(.trimArray(length.dist))
+  l <- length.dist[1:last]
+  s <- numeric(last)
+  for (i in last:1) {
+    s[1:i] <- s[1:i] + l[i]
+  }
+  return(s)
+}
+
+meanFromBins <- 
+# Given binned quality data, return the mean quality.
+function(qual.dist, length.dist=NULL) {
+  means <- numeric(nrow(qual.dist))
+  for (i in 1:ncol(qual.dist)) {
+    vals <- as.integer(colnames(qual.dist[-1]))
+    means[i] <- weighted.mean(vals, w=qual.dist[i, -1])
+  }
+  if (is.null(length.dist))
+    return(mean(means))
+  return(weighted.mean(means, w=lengths2weights(length.dist)))
 }
 
 readSeqFile <-
@@ -53,6 +84,8 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
   names(out) <- c('base.freqs', 'seq.lengths', 'qual.freqs')
 
   obj <- new("SequenceSummary")
+  obj@seq.lengths <- .trimArray(out$seq.lengths[-1]) # from C call, this is 0-indexed
+  
   if (hash) {
     names(out)[4] <- 'hash'
     obj@hash <- sortSequenceHash(out$hash)
@@ -72,15 +105,17 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
       tmp <- cbind(1:nrow(tmp), tmp)
       colnames(tmp)[1] <- 'position'
       return(tmp)})
+    obj@mean.qual <- meanFromBins(obj@qual.freqs, obj@seq.lengths)
   }
   
   obj@base.props <- local({
-    tmp <- prop.table(as.matrix(out$base.freqs[, -1]), margin=1)
+    tmp <- prop.table(as.matrix(obj@base.freqs[, -1]), margin=1)
     tmp <- melt(tmp, id='position')
     colnames(tmp) <- c('position', 'base', 'proportion')
     return(tmp)
   })
 
+  obj@hashed <- hash
   obj@quality <- quality
   obj@type <- type
   return(obj)

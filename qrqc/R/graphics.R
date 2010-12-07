@@ -4,7 +4,7 @@ plotBaseFreqs <-
 # Plot the frequency (absolute counts) of bases across a read.
 function(obj, bases=NULL) { 
   base.freqs <- local({
-    tmp <- melt(obj$base.freqs, id='position')
+    tmp <- melt(obj@base.freqs, id='position')
     colnames(tmp) <- c('position', 'base', 'frequency')
     return(tmp)
   })
@@ -32,7 +32,7 @@ function(obj, bases=NULL) {
 plotBaseProps <-
 # Plot proportions of all nucleotides across a read.
 function(obj) {
-  base.props <- obj$base.props
+  base.props <- obj@base.props
   plot.new()
 
   w <- 1.2
@@ -79,7 +79,7 @@ function(x) {
 qualMCLowess <-
 # Monte Carlo Lowess, or lowess on binned quality data
 function(obj, n=100, f=1/6) {
-  vals <- as.numeric(names(obj$qual.freqs[1, -1]))
+  vals <- as.numeric(names(obj@qual.freqs[1, -1]))
   binsample <- function(x) {
     sample(vals, n, prob=x/sum(x), replace=TRUE)
   }
@@ -87,7 +87,7 @@ function(obj, n=100, f=1/6) {
   # Use binsample() to sample from the binned quality frequency data, then
   # do some data munging to get it in a usable format for lowess.
   d <- local({
-    s <- apply(obj$qual.freqs[, -1], 1, binsample)
+    s <- apply(obj@qual.freqs[, -1], 1, binsample)
     tmp <- t(s)
     nr <- nrow(tmp)
     dim(tmp) <- c(ncol(tmp)*nrow(tmp), 1)
@@ -106,21 +106,21 @@ plotQuals <-
 # which is fit through MC samples though the binned quals with
 # `qualMCLowess`.
 function(obj, ylim='relative', lowess=TRUE) {
-  if (obj$type == 'fasta')
+  if (obj@type == 'fasta')
     stop("plotQuals only works on SeqStat objects with quality (i.e. from a FASTA file)")
   d <- local({
-    tmp <- apply(obj$qual.freqs[, -1], 1, binned2boxplot)
+    tmp <- apply(obj@qual.freqs[, -1], 1, binned2boxplot)
     tmp <- t(tmp)
     tmp <- cbind(1:nrow(tmp), tmp)
-    vals <- as.numeric(names(obj$qual.freqs[, -1]))
-    tmp <- cbind(tmp, apply(obj$qual.freqs[, -1], 1, function(x) weighted.mean(vals, x)))
+    vals <- as.numeric(names(obj@qual.freqs[, -1]))
+    tmp <- cbind(tmp, apply(obj@qual.freqs[, -1], 1, function(x) weighted.mean(vals, x)))
     colnames(tmp)[1] <- 'position'
     colnames(tmp)[9] <- 'means'
     return(as.data.frame(tmp))
   })
 
   if (ylim == 'fixed') {
-    q <- QUALITY.CONSTANTS[[obj$quality]]
+    q <- QUALITY.CONSTANTS[[obj@quality]]
     qmin <- q$min
     qmax <- q$max
   } else {
@@ -134,13 +134,13 @@ function(obj, ylim='relative', lowess=TRUE) {
 
   ## First plot: histogram of sequence lengths
   par(mar=c(0, 4, 3, 1))
-  s <- obj$seq.lengths
+  s <- obj@seq.lengths
   plot.new()
   plot.window(xlim=c(0, nrow(d)), ylim=c(0, 1))
   axis(1, at=1:nrow(d))
   axis(2, at=seq(0, 1, by=0.1))
   lines(prop.table(s[2:max(which(s != 0))]), type='h', col='blue', lwd=2) # offset by one, since C uses 0-indexin
-  m <- sprintf("quality distribution by read base and sequence length histogram (quality type: %s)", obj$quality)
+  m <- sprintf("quality distribution by read base and sequence length histogram (quality type: %s)", obj@quality)
   title(main=m, ylab='density')
 
   ## Second plot: quantile plots
@@ -173,7 +173,7 @@ plotGC <-
 # Plot the proportion of bases that are G or C (the GC content).
 function(obj) {
   gc <- local({
-    d <- subset(obj$base.props, obj$base.props$base %in% c('G', 'C'))
+    d <- subset(obj@base.props, obj@base.props$base %in% c('G', 'C'))
     gc <- aggregate(d$proportion, list(d$position), sum)
     colnames(gc) <- c('position', 'gc')
     return(gc)
@@ -202,7 +202,7 @@ plotSeqLengths <-
 function(obj) {
   plot.new()
 
-  l <- obj$seq.lengths
+  l <- obj@seq.lengths
   x <- unique(l)
   y <- sapply(x, function(a) length(which(a == l))/length(l))
   d <- data.frame(cbind(x, y))
