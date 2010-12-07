@@ -9,6 +9,16 @@ NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
                         'C'='blue', 'G'='black',
                         'N'='purple')
 
+
+setClass("SequenceSummary",
+         representation=representation(
+           base.freqs='data.frame',
+           base.props='data.frame',
+           qual.freqs='data.frame',
+           quality='character',
+           seq.lengths='integer',
+           type='character'))
+
 .setQualityNames <-
 # Given a quality type (as integer), name the matrix output from
 # the C function `summarize_fastq_file` accordingly.
@@ -44,29 +54,29 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
   } else
     qtype <- which(names(QUALITY.CONSTANTS) == quality) - 1
   
-  
   out <- .Call('summarize_file', filename,
                as.integer(max.length),
                as.integer(qtype),
                as.logical(hash),
                as.logical(verbose))
-
+  
   names(out) <- c('base.freqs', 'seq.lengths', 'qual.freqs')
 
+  obj <- new("SequenceSummary")
   if (hash) {
     names(out)[4] <- 'hash'
-    out$hash <- sortSequenceHash(out$hash)
+    obj@hash <- sortSequenceHash(out$hash)
   }
-  
+
   ## Data cleaning
-  out$base.freqs <- local({
+  obj@base.freqs <- local({
     tmp <- as.data.frame(t(.trimRightCols(out$base.freqs)))
     tmp <- cbind(1:nrow(tmp), tmp)
     colnames(tmp) <- c('position', NUCLEOTIDES)
     return(tmp)})
 
   if (type != -1) {
-    out$qual.freqs <- local({
+    obj@qual.freqs <- local({
       tmp <- .trimRightCols(out$qual.freqs)
       tmp <- as.data.frame(t(.setQualityNames(tmp, quality)))
       tmp <- cbind(1:nrow(tmp), tmp)
@@ -74,14 +84,14 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
       return(tmp)})
   }
   
-  out$base.props <- local({
+  obj@base.props <- local({
     tmp <- prop.table(as.matrix(out$base.freqs[, -1]), margin=1)
     tmp <- melt(tmp, id='position')
     colnames(tmp) <- c('position', 'base', 'proportion')
     return(tmp)
   })
 
-  out$quality <- quality
-  out$type <- type
-  return(out)
+  obj@quality <- quality
+  obj@type <- type
+  return(obj)
 }
