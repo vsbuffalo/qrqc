@@ -4,3 +4,11 @@ TODO
   Windows compatability.
 - BAM and SAM support (again, in C). With this branch, much of the number 
   gathering should be outside summarize_fastq_file C function.
+- Right now, summarize_file takes an integer max_length that allocates the
+  quality and base distribution matrices, and sequences that are longer than
+  this cause an error. This variable must be less than the macro INIT_MAX_SEQ in 
+  io.c. This is a bit messy, and should ultimately be replaced with a matrix that 
+  transformed (and expanded) if a sequence longer than the allocated space is 
+  encountered.
+- The only acceptable nucleotides now are A, T, C, G, and N. We could allow 
+  lowercase nucleotides too.

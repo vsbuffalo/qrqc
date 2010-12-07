@@ -244,9 +244,9 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   }
 
   SET_VECTOR_ELT(out_list, 0, base_counts);
-  SET_VECTOR_ELT(out_list, 2, seq_lengths);
+  SET_VECTOR_ELT(out_list, 1, seq_lengths);
   if (IS_FASTQ(quality_type)) 
-    SET_VECTOR_ELT(out_list, 1, qual_counts);
+    SET_VECTOR_ELT(out_list, 2, qual_counts);
   
   if (LOGICAL(hash)[0]) {
     setAttrib(seq_hash, R_NamesSymbol, seq_hash_names);
