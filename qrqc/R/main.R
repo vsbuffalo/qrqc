@@ -9,16 +9,6 @@ NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
                         'C'='blue', 'G'='black',
                         'N'='purple')
 
-
-setClass("SequenceSummary",
-         representation=representation(
-           base.freqs='data.frame',
-           base.props='data.frame',
-           qual.freqs='data.frame',
-           quality='character',
-           seq.lengths='integer',
-           type='character'))
-
 .setQualityNames <-
 # Given a quality type (as integer), name the matrix output from
 # the C function `summarize_fastq_file` accordingly.
@@ -31,9 +21,9 @@ function(matrix, quality) {
 .trimRightCols <-
 # Remove blank cols from right of matrix, which occur because the
 # matrix allocates excess space.
-function(matrix) {
-  cs <- colSums(matrix)
-  return(matrix[, 1:max(which(cs != 0))])
+function(m) {
+  cs <- colSums(m)
+  return(m[, 1:max(which(cs != 0))])
 }
 
 sortSequenceHash <- function(seq.hash) {
@@ -75,7 +65,7 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
     colnames(tmp) <- c('position', NUCLEOTIDES)
     return(tmp)})
 
-  if (type != -1) {
+  if (type == 'fastq') {
     obj@qual.freqs <- local({
       tmp <- .trimRightCols(out$qual.freqs)
       tmp <- as.data.frame(t(.setQualityNames(tmp, quality)))
