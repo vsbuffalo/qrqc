@@ -79,6 +79,7 @@ function(x) {
 qualMCLowess <-
 # Monte Carlo Lowess, or lowess on binned quality data
 function(obj, n=100, f=1/6) {
+  set.seed(0)
   vals <- as.numeric(names(obj@qual.freqs[1, -1]))
   binsample <- function(x) {
     sample(vals, n, prob=x/sum(x), replace=TRUE)
