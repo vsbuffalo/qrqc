@@ -31,14 +31,16 @@
   \item{verbose}{a logical value indicating whether be verbose (in the C
     backend).}
 }
-\seealso{
+\value{
+  An S4 object of class \code{SequenceSummary} containing the summary statistics.
 }
+\author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
-  s.fastq <- readSeqFile(system.file('test.fastq', package='qrqc'))
+  s.fastq <- readSeqFile(system.file('data/test.fastq', package='qrqc'))
 
   ## Load a FASTA file, without sequence hashing.
-  s.fasta <- readSeqFile(system.file('test.fasta', package='qrqc'), hash=FALSE)
+  s.fasta <- readSeqFile(system.file('data/test.fasta', package='qrqc'), hash=FALSE)
 
 }
 \keyword{file}

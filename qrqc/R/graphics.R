@@ -106,7 +106,7 @@ plotQuals <-
 # horizontal line for the mean. If `lowess` is TRUE, add lowess curve,
 # which is fit through MC samples though the binned quals with
 # `qualMCLowess`.
-function(obj, ylim='relative', lowess=TRUE) {
+function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
   if (obj@type == 'fasta')
     stop("plotQuals only works on SeqStat objects with quality (i.e. from a FASTA file)")
   d <- local({
@@ -132,20 +132,24 @@ function(obj, ylim='relative', lowess=TRUE) {
   op <- par(no.readonly=TRUE)
   nf <- layout(c(1, 2), heights=c(1, 4))
   #layout.show(nf)
+  m <- sprintf("quality distribution by read base (quality type: %s)", obj@quality)
+  
+  if (histogram) {
+    ## First plot: histogram of sequence lengths
+    par(mar=c(0, 4, 3, 1))
+    s <- obj@seq.lengths
+    plot.new()
+    plot.window(xlim=c(0, nrow(d)), ylim=c(0, 1))
+    axis(1, at=1:nrow(d))
+    axis(2, at=seq(0, 1, by=0.1))
+    lines(prop.table(s[2:max(which(s != 0))]), type='h', col='blue', lwd=2) # offset by one, since C uses 0-indexin
+    m <- sprintf("quality distribution by read base and sequence length histogram (quality type: %s)", obj@quality)
+    par(mar=c(4.5, 4, 1, 1)) # setup for next plot
+  }
 
-  ## First plot: histogram of sequence lengths
-  par(mar=c(0, 4, 3, 1))
-  s <- obj@seq.lengths
-  plot.new()
-  plot.window(xlim=c(0, nrow(d)), ylim=c(0, 1))
-  axis(1, at=1:nrow(d))
-  axis(2, at=seq(0, 1, by=0.1))
-  lines(prop.table(s[2:max(which(s != 0))]), type='h', col='blue', lwd=2) # offset by one, since C uses 0-indexin
-  m <- sprintf("quality distribution by read base and sequence length histogram (quality type: %s)", obj@quality)
-  title(main=m, ylab='density')
+  title(main=m)
 
-  ## Second plot: quantile plots
-  par(mar=c(4.5, 4, 1, 1))
+  ## Second plot: quantile plots  
   plot.new()
   plot.window(xlim=c(0, nrow(d)), ylim=c(qmin, qmax))
 

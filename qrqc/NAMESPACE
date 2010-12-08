@@ -1,3 +1,15 @@
-exportPattern("^[^\\.]")
+useDynLib(qrqc)
 import(reshape)
-import(testhat)
+import(testthat)
+
+export(readSeqFile)
+export(plotQuals)
+export(plotBaseProps)
+export(plotBaseFreqs)
+export(plotBaseProps)
+export(plotSeqLengths)
+export(QUALITY.CONSTANTS)
+export(binned2quantilefunc)
+export(binned2boxplot)
+export(qualMCLowess)
+

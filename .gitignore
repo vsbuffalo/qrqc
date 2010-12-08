@@ -1,9 +1,12 @@
 \#*
 \.#*
 .Rhistory
+*.Rout
 *.o
 *.so
 .RData
+.tex
+*.tar.gz
 
 *~
 \#*\#
@@ -13,8 +16,7 @@
 auto-save-list
 tramp
 
-.DS_Store?
-Icon?
-
+.DS_Store
+*.pdf
 # Thumbnails
 ._*
