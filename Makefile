@@ -1,15 +1,6 @@
 # R package Makefile template
 # Vince Buffalo <vsbuffaloAAAAA@gmail.com> (with poly-A tail removed)
 #
-# Replace 'package' with the name of your package (which should be a
-# directory). My layout for package development is:
-# package_build
-#  - TODO
-#  - Readme.md (for Github)
-#  - package (actual R package directory)
-#  - Makefile (this)
-#  - test-all.R (but this is just a wrapper around package/tests
-#
 
 DIR=qrqc
 PKG=$(DIR)_*.tar.gz
