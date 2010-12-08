@@ -177,7 +177,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   khash_t(str) *h;
   khiter_t k;
   kseq_t *block;
-  int ret, size_out_list = 3, l;
+  int ret, size_out_list = 4, l;
   unsigned int num_unique_seqs = 0, nblock = 0;
   SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list, seq_lengths;
   int *ibc, *iqc, *isl, i, j, q_type, q_range;
@@ -185,12 +185,13 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   if (IS_FASTQ(quality_type)) {
     q_type = INTEGER(quality_type)[0];
     q_range = quality_contants[q_type][Q_MAX] - quality_contants[q_type][Q_MIN];
+    size_out_list++;
   }
   
   if (LOGICAL(hash)[0]) {
     h = kh_init(str);
     kh_resize(str, h, 1572869);
-    size_out_list = 4;
+    size_out_list++;
   }
 
   gzFile *fp = gzopen(CHAR(STRING_ELT(filename, 0)), "r");
@@ -254,8 +255,8 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   }
 
   // One more protected SEXP from qual_counts
-  i = IS_FASTQ(quality_type) ? size_out_list + 1 : size_out_list;
-  UNPROTECT(i);
+
+  UNPROTECT(size_out_list);
 
   block = kseq_init(fp);
   gzclose(fp);

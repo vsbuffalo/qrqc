@@ -203,12 +203,12 @@ function(obj) {
   plot.new()
 
   l <- obj@seq.lengths
-  x <- unique(l)
-  y <- sapply(x, function(a) length(which(a == l))/length(l))
-  d <- data.frame(cbind(x, y))
-  
-  plot.window(ylim=c(0, 1), xlim=c(min(x)-1, max(x)+1))
-  apply(d, 1, function(x) lines(x[1], x[2], type='h', col='blue'))
+  x <- unique(1:length(l))
+  d <- data.frame(cbind(x, l))
+  d$p <- d$l/sum(d$l)
+
+  plot.window(ylim=c(0, 1), xlim=c(min(x), max(x)))
+  apply(d, 1, function(x) lines(x[1], x[2], type='h', col='blue', lwd=2))
   axis(1, at=(min(x)-1):(max(x)+1))
 
   axis(2, at=seq(0, max(x), by=0.2))

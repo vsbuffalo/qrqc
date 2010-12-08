@@ -56,7 +56,6 @@ function(qual.dist, length.dist=NULL) {
     vals <- as.integer(colnames(qual.dist[-1]))
     means[i] <- weighted.mean(vals, w=qual.dist[i, -1])
   }
-  print(means)
   if (is.null(length.dist))
     return(mean(means))
   return(weighted.mean(means, w=lengths2weights(length.dist)))
@@ -73,8 +72,9 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
   if (type == 'fasta') {
     qtype <- -1
     quality <- NULL
-  } else
+  } else {
     qtype <- which(names(QUALITY.CONSTANTS) == quality) - 1
+  }
   
   out <- .Call('summarize_file', filename,
                as.integer(max.length),
