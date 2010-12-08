@@ -52,10 +52,11 @@ meanFromBins <-
 # Given binned quality data, return the mean quality.
 function(qual.dist, length.dist=NULL) {
   means <- numeric(nrow(qual.dist))
-  for (i in 1:ncol(qual.dist)) {
+  for (i in 1:nrow(qual.dist)) {
     vals <- as.integer(colnames(qual.dist[-1]))
     means[i] <- weighted.mean(vals, w=qual.dist[i, -1])
   }
+  print(means)
   if (is.null(length.dist))
     return(mean(means))
   return(weighted.mean(means, w=lengths2weights(length.dist)))
