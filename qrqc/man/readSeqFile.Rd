@@ -1,0 +1,44 @@
+\name{readSeqFile}
+\alias{readSeqFile}
+\title{Read and Summarize a Sequence (FASTA or FASTQ) File}
+\description{
+  \code{readSeqFile} reads a FASTQ or FASTA file, summarizing the
+  nucleotide distribution across position (cycles) and the sequence
+  length distributions. If \code{type} is `fastq', the distribution
+  of qualities across position will also be recorded. If \code{hash} is
+  \code{TRUE}, the unique sequences will be hashed with counts of their
+  frequency.
+}
+\usage{
+  readSeqFile(filename, type='fastq', max.length=400,
+              quality='illumina', hash=TRUE, verbose=FALSE)
+}
+\arguments{
+  \item{filename}{the name of the file which the sequences are to be
+    read from.}
+  \item{type}{either `fastq' or `fasta', representing the type of the
+    file. FASTQ files will have the quality distribution by position
+    summarized.}
+  \item{max.length}{the largest sequence length likely to be
+    encountered. For efficiency, a matrix larger than the largest
+    sequence is allocated to *this* size in C, populated, and then
+    trimmed in R. Specifying a value too small will lead to an error and
+    the function will need to be re-run.}
+  \item{quality}{either `illumina', `phred', or `solexa', this
+    determines the quality offsets and range. See the values of
+    QUALITY.CONSTANTS for more information.}
+  \item{hash}{a logical value indicating whether to hash sequences}
+  \item{verbose}{a logical value indicating whether be verbose (in the C
+    backend).}
+}
+\seealso{
+}
+\examples{
+  ## Load a FASTQ file, with sequence hashing.
+  s.fastq <- readSeqFile(system.file('test.fastq', package='qrqc'))
+
+  ## Load a FASTA file, without sequence hashing.
+  s.fasta <- readSeqFile(system.file('test.fasta', package='qrqc'), hash=FALSE)
+
+}
+\keyword{file}
