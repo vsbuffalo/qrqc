@@ -22,4 +22,4 @@
   ## Plot Qualities
   plotBaseFreqs(s.fastq)
 }
-\keyword{file}
+\keyword{graphics}

@@ -1,6 +1,6 @@
-## graphics.R - functions to create plots from SeqStats objects
+## plotting-methods.R - functions to create plots from FASTQSummary and FASTASummary objects
 
-plotBaseFreqs <-
+setMethod("plotBaseFreqs", c("obj"="SequenceSummary"),
 # Plot the frequency (absolute counts) of bases across a read.
 function(obj, bases=NULL) { 
   base.freqs <- local({
@@ -27,9 +27,9 @@ function(obj, bases=NULL) {
   axis(1, at=min(base.freqs$position):max(base.freqs$position))
   axis(2)
   title(main="base frequency by position in read", xlab="position", ylab="frequency")
-}
+})
 
-plotBaseProps <-
+setMethod("plotBaseProps", c("obj"="SequenceSummary"),
 # Plot proportions of all nucleotides across a read.
 function(obj) {
   base.props <- obj@base.props
@@ -50,65 +50,14 @@ function(obj) {
   axis(2, at=seq(0, 1, by=0.2))
   abline(h=0.25, col='grey')  
   title(main="base proportion by position in read", xlab="position", ylab="proportion")
-}
+})
 
-binned2quantilefunc <-
-# Assumes names are x values
-function(x) {
-  y <- as.numeric(x[x!=0])
-  x <- as.integer(names(x)[x!=0])
-  t <- approxfun(cumsum(y)/sum(y), x, yleft=min(x), yright=max(x))
-  return(t)
-}
-
-binned2boxplot <-
-# Extract useful quantiles for a boxplot from an empirical qunatile
-# function.
-function(x) {
-  f <- binned2quantilefunc(x)
-  out <- c(ymin=f(0),
-           alt.lower=f(0.1),
-           lower=f(0.25),
-           middle=f(0.5),
-           upper=f(0.75),
-           alt.upper=f(0.9),
-           ymax=f(1))
-  return(out)
-}
-
-qualMCLowess <-
-# Monte Carlo Lowess, or lowess on binned quality data
-function(obj, n=100, f=1/6) {
-  set.seed(0)
-  vals <- as.numeric(names(obj@qual.freqs[1, -1]))
-  binsample <- function(x) {
-    sample(vals, n, prob=x/sum(x), replace=TRUE)
-  }
-
-  # Use binsample() to sample from the binned quality frequency data, then
-  # do some data munging to get it in a usable format for lowess.
-  d <- local({
-    s <- apply(obj@qual.freqs[, -1], 1, binsample)
-    tmp <- t(s)
-    nr <- nrow(tmp)
-    dim(tmp) <- c(ncol(tmp)*nrow(tmp), 1)
-    tmp <- as.data.frame(cbind(1:nr, tmp))    
-    colnames(tmp) <- c('position', 'quality')
-    return(tmp)
-  })
-  l <- lowess(d$position, d$quality, f=f)
-  return(l)
-}
-
-
-plotQuals <-
+setMethod("plotQuals", c("obj"="FASTQSummary", "ylim"="ANY", lowess="ANY", histogram="ANY"), 
 # Make a series of (custom) boxplots, with a point for median and a
 # horizontal line for the mean. If `lowess` is TRUE, add lowess curve,
 # which is fit through MC samples though the binned quals with
 # `qualMCLowess`.
 function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
-  if (obj@type == 'fasta')
-    stop("plotQuals only works on SeqStat objects with quality (i.e. from a FASTA file)")
   d <- local({
     tmp <- apply(obj@qual.freqs[, -1], 1, binned2boxplot)
     tmp <- t(tmp)
@@ -130,11 +79,12 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
   }
 
   op <- par(no.readonly=TRUE)
-  nf <- layout(c(1, 2), heights=c(1, 4))
-  #layout.show(nf)
   m <- sprintf("quality distribution by read base (quality type: %s)", obj@quality)
   
   if (histogram) {
+    nf <- layout(c(1, 2), heights=c(1, 4))
+    #layout.show(nf)
+      
     ## First plot: histogram of sequence lengths
     par(mar=c(0, 4, 3, 1))
     s <- obj@seq.lengths
@@ -142,12 +92,11 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
     plot.window(xlim=c(0, nrow(d)), ylim=c(0, 1))
     axis(1, at=1:nrow(d))
     axis(2, at=seq(0, 1, by=0.1))
-    lines(prop.table(s[2:max(which(s != 0))]), type='h', col='blue', lwd=2) # offset by one, since C uses 0-indexin
+    lines(prop.table(s[1:max(which(s != 0))]), type='h', col='blue', lwd=2)
     m <- sprintf("quality distribution by read base and sequence length histogram (quality type: %s)", obj@quality)
+    title(main=m)
     par(mar=c(4.5, 4, 1, 1)) # setup for next plot
   }
-
-  title(main=m)
 
   ## Second plot: quantile plots  
   plot.new()
@@ -171,10 +120,12 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
     lines(qualMCLowess(obj), col='purple')
 
   title(xlab="position", ylab="quality")
+  if (!histogram)
+    title(main=m)
   par(op)
-}
+})
 
-plotGC <-
+setMethod("plotGC", c("obj"="SequenceSummary"), 
 # Plot the proportion of bases that are G or C (the GC content).
 function(obj) {
   gc <- local({
@@ -198,9 +149,9 @@ function(obj) {
   abline(h=0.5, col='grey')  
   title(main="gc content by position in read", xlab="position", ylab="proportion")
   
-}
+})
 
-plotSeqLengths <-
+setMethod("plotSeqLengths", c("obj"="SequenceSummary"),
 # Plot a histogram of sequence lengths. This is done manually (not
 # using hist) so that the case when there's a single length, the
 # histogram doesn't look ridiculous.
@@ -219,4 +170,4 @@ function(obj) {
   axis(2, at=seq(0, max(x), by=0.2))
   title(ylab='density', xlab='sequence length',
         main='sequence length distribution')
-}
+})

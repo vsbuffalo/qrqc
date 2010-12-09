@@ -177,7 +177,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   khash_t(str) *h;
   khiter_t k;
   kseq_t *block;
-  int ret, size_out_list = 4, l;
+  int ret, size_out_list = 4, l, protects=0;
   unsigned int num_unique_seqs = 0, nblock = 0;
   SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list, seq_lengths;
   int *ibc, *iqc, *isl, i, j, q_type, q_range;
@@ -201,7 +201,9 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
 
   PROTECT(out_list = allocVector(VECSXP, size_out_list));
   PROTECT(base_counts = allocMatrix(INTSXP, NUM_BASES, INTEGER(max_length)[0]));
-  PROTECT(seq_lengths = allocVector(INTSXP, INTEGER(max_length)[0]));  
+  PROTECT(seq_lengths = allocVector(INTSXP, INTEGER(max_length)[0]));
+  protects = 3;
+
   ibc = INTEGER(base_counts);
   isl = INTEGER(seq_lengths);
   zero_int_matrix(ibc, NUM_BASES, INTEGER(max_length)[0]);
@@ -209,6 +211,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
 
   if (IS_FASTQ(quality_type)) {
     PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
+    protects++;
     iqc = INTEGER(qual_counts);
     zero_int_matrix(iqc, q_range + 1, INTEGER(max_length)[0]);  
   }
@@ -237,7 +240,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   if (LOGICAL(hash)[0]) {
     PROTECT(seq_hash = allocVector(VECSXP, num_unique_seqs));
     PROTECT(seq_hash_names = allocVector(VECSXP, num_unique_seqs));
-    
+    protects += 2;
     if (LOGICAL(verbose)[0])
       printf("processing complete... now loading C hash structure to R...\n");
     seq_khash_to_VECSXP(h, seq_hash, seq_hash_names);
@@ -256,7 +259,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
 
   // One more protected SEXP from qual_counts
 
-  UNPROTECT(size_out_list);
+  UNPROTECT(protects);
 
   block = kseq_init(fp);
   gzclose(fp);

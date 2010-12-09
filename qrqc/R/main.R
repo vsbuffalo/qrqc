@@ -73,6 +73,12 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
     qtype <- -1
     quality <- NULL
   } else {
+    tmp <- strsplit(filename, '.', fixed=TRUE)[[1]]
+    if (tmp[length(tmp)] == 'fasta') {
+      ans <- readline(sprintf("%s's extension is '.fasta'.\nAre you sure you want type='fastq'? [y/n] ", filename))
+      if (ans == "n")
+        return()
+    }
     qtype <- which(names(QUALITY.CONSTANTS) == quality) - 1
   }
   
@@ -84,7 +90,9 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
   
   names(out) <- c('base.freqs', 'seq.lengths', 'qual.freqs')
 
-  obj <- new("SequenceSummary")
+  class.types <- c('fasta'="FASTASummary", 'fastq'="FASTQSummary")
+  obj <- new(class.types[type], filename=filename)
+  
   obj@seq.lengths <- .trimArray(out$seq.lengths[-1]) # from C call, this is 0-indexed
   
   if (hash) {
@@ -107,6 +115,7 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
       colnames(tmp)[1] <- 'position'
       return(tmp)})
     obj@mean.qual <- meanFromBins(obj@qual.freqs, obj@seq.lengths)
+    obj@quality <- quality
   }
   
   obj@base.props <- local({
@@ -115,9 +124,6 @@ function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, 
     colnames(tmp) <- c('position', 'base', 'proportion')
     return(tmp)
   })
-
   obj@hashed <- hash
-  obj@quality <- quality
-  obj@type <- type
   return(obj)
 }

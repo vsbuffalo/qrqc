@@ -40,7 +40,8 @@
   s.fastq <- readSeqFile(system.file('data/test.fastq', package='qrqc'))
 
   ## Load a FASTA file, without sequence hashing.
-  s.fasta <- readSeqFile(system.file('data/test.fasta', package='qrqc'), hash=FALSE)
+  s.fasta <- readSeqFile(system.file('data/test.fasta', package='qrqc'),
+                         type='fasta', hash=FALSE)
 
 }
 \keyword{file}
