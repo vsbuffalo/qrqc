@@ -1,13 +1,12 @@
-\name{SequenceSummary-class}
+\name{FASTASummary-class}
 \docType{class}
-\alias{SequenceSummary-class}
-\alias{SequenceSummary}
-\title{"SequenceSummary" class representing the summaries of a sequence file}
+\alias{FASTASummary-class}
+\alias{FASTASummary}
+\title{"FASTASummary" class representing the summaries of a FASTA file}
 \description{
-  A sequence file read in with \code{readSeqFile} is summarized by a C
-  call. This is a base class with slots common to both
-  \code\linkS4class{FASTQSummary}} and  \code{\linkS4class{FASTASummary}}. This is
-  not usually instantiated directly.
+  This class contains the same slots as the
+  \code{\linkS4class{SequenceSummary}}, but is used to indicate a sequence file
+  is a FASTA-formatted file.
 }
 \section{Slots}{
   \describe{
@@ -21,7 +20,6 @@
       position.}
     \item{\code{seq.lengths}}{a vector of the number of sequences of a
       particular length (the position in the vector).}
-    \item{\code{quality}}{a string representing the quality scheme.}
     \item{\code{hash}}{a vector of the frequencies of sequencies (given
       by the name).}
     \item{\code{hashed}}{a logical indicating whether the sequences were
@@ -31,7 +29,7 @@
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
-showClass("SequenceSummary")
+showClass("FASTASummary")
 }
 
 \keyword{classes}

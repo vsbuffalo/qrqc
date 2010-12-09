@@ -8,7 +8,8 @@
   plotSeqLengths(obj)
 }
 \arguments{
-  \item{obj}{an S4 object of class \code{SequenceSummary} from
+  \item{obj}{an S4 object of class that inherits from \code{\linkS4class{SequenceSummary}} (either 
+    \code{\linkS4class{FASTASummary}} or \linkS4class{FASTQSummary}) from
     \code{readSeqFile}.}
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}

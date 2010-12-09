@@ -9,7 +9,9 @@
   plotBaseProps(obj)
 }
 \arguments{
-  \item{obj}{an S4 object of class \code{SequenceSummary} from \code{readSeqFile}.}
+  \item{obj}{an S4 object of class that inherits from \code{\linkS4class{SequenceSummary}} (either 
+    \code\linkS4class{FASTASummary}} or \class{\linkS4class{FASTQSummary}}) from
+    \code{readSeqFile}.}
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{

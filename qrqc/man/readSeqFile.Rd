@@ -32,7 +32,8 @@
     backend).}
 }
 \value{
-  An S4 object of class \code{SequenceSummary} containing the summary statistics.
+  An S4 object of \code{\linkS4class{FASTQSummary}} or
+  \code{\linkS4class{FASTASummary}} containing the summary statistics.
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{

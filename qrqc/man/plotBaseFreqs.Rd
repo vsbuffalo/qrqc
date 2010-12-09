@@ -9,7 +9,8 @@
   plotBaseFreqs(obj, bases=NULL)
 }
 \arguments{
-  \item{obj}{an S4 object of class \code{SequenceSummary} from
+  \item{obj}{an S4 object of class that inherits from \code{\linkS4class{SequenceSummary}} (either 
+    \code{\linkS4class{FASTASummary}} or \code{\linkS4class{FASTQSummary}}) from
     \code{readSeqFile}.}
   \item{bases}{a vector of characters indicating which bases to
     include. The default value \code{NULL} indicates to plot _all_ bases.}

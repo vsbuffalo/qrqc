@@ -94,7 +94,7 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
     axis(2, at=seq(0, 1, by=0.1))
     lines(prop.table(s[1:max(which(s != 0))]), type='h', col='blue', lwd=2)
     m <- sprintf("quality distribution by read base and sequence length histogram (quality type: %s)", obj@quality)
-    title(main=m)
+    title(main=m, ylab="density")
     par(mar=c(4.5, 4, 1, 1)) # setup for next plot
   }
 

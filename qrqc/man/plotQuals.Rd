@@ -13,7 +13,7 @@
   plotQuals(obj, ylim='relative', lowess=TRUE, histogram=TRUE)
 }
 \arguments{
-  \item{obj}{an S4 object of class \code{SequenceSummary} from \code{readSeqFile}.}
+  \item{obj}{an S4 object of class \code{FASTQSummary} from \code{readSeqFile}.}
   \item{ylim}{either `relative' or `fixed', which will scale the y axis
     to either the relative range (from the data) or absolute range of qualities.}
   \item{lowess}{a logical value indicating whether to fit a lowess curve
