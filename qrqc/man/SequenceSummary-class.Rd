@@ -6,7 +6,7 @@
 \description{
   A sequence file read in with \code{readSeqFile} is summarized by a C
   call. This is a base class with slots common to both
-  \code\linkS4class{FASTQSummary}} and  \code{\linkS4class{FASTASummary}}. This is
+  \code{\linkS4class{FASTQSummary}} and  \code{\linkS4class{FASTASummary}}. This is
   not usually instantiated directly.
 }
 \section{Slots}{
@@ -22,8 +22,7 @@
     \item{\code{seq.lengths}}{a vector of the number of sequences of a
       particular length (the position in the vector).}
     \item{\code{quality}}{a string representing the quality scheme.}
-    \item{\code{hash}}{a vector of the frequencies of sequencies (given
-      by the name).}
+    \item{\code{hash}}{a vector of the frequencies of sequences.}
     \item{\code{hashed}}{a logical indicating whether the sequences were
     hased in \code{readSeqFile}.}
   }

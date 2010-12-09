@@ -28,10 +28,9 @@
     \item{\code{quality}}{a string representing the quality scheme.}
     \item{\code{type}}{a string representing the type of file input;
       either `FASTQ' or `FASTA'.}
-    \item{\code{hash}}{a vector of the frequencies of sequencies (given
-      by the name).}
+    \item{\code{hash}}{a vector of the frequencies of sequences.}
     \item{\code{hashed}}{a logical indicating whether the sequences were
-    hased in \code{readSeqFile}.}
+      hased in \code{readSeqFile}.}
   }
 }
 

@@ -20,11 +20,10 @@
       position.}
     \item{\code{seq.lengths}}{a vector of the number of sequences of a
       particular length (the position in the vector).}
-    \item{\code{hash}}{a vector of the frequencies of sequencies (given
-      by the name).}
+    \item{\code{hash}}{a vector of the frequencies of sequences.}
     \item{\code{hashed}}{a logical indicating whether the sequences were
-    hased in \code{readSeqFile}.}
-  }
+      hased in \code{readSeqFile}.}
+}
 }
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}

@@ -1,6 +1,7 @@
 useDynLib(qrqc)
 import(reshape)
 import(testthat)
+import(brew)
 
 export(readSeqFile)
 export(plotQuals)
@@ -13,4 +14,6 @@ export(QUALITY.CONSTANTS)
 export(binned2quantilefunc)
 export(binned2boxplot)
 export(qualMCLowess)
+
+export(makeReport)
 

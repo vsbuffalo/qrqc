@@ -1,6 +1,6 @@
 ## plotting-methods.R - functions to create plots from FASTQSummary and FASTASummary objects
 
-setMethod("plotBaseFreqs", c("obj"="SequenceSummary"),
+setMethod("plotBaseFreqs", c("obj"="SequenceSummary", bases="ANY"),
 # Plot the frequency (absolute counts) of bases across a read.
 function(obj, bases=NULL) { 
   base.freqs <- local({

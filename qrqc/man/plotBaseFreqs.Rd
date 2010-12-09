@@ -18,7 +18,7 @@
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
-  s.fastq <- readSeqFile(system.file('data/test.fastq', package='qrqc'))
+  s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
 
   ## Plot Qualities
   plotBaseFreqs(s.fastq)
