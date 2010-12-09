@@ -1,10 +1,10 @@
 Package: qrqc
-Version: 0.9
+Version: 0.9.5
 Date: 2010-12-06
 Title: Quick Read Quality Control
-Author: Vince Buffalo <vsbuffalo@ucdavis.edu>
+Author: Vince Buffalo
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
-Imports: reshape, testthat
+Imports: reshape, testthat, methods
 Suggests: MASS
 Description: Scans reads quickly and gathers statistics on base and 
     quality frequencies, read length, and frequent sequences. Produces 

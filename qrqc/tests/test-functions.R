@@ -36,3 +36,21 @@ test_that("meanFromBins", {
   expect_that(meanFromBins(m1) - 33.60487 < EPSILON, is_true())
 })
 
+test_that("binned2quantilefunc", {
+  b <- c(0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0)
+  names(b) <- 1:length(b)
+  f <- binned2quantilefunc(b)
+  expect_that(f(0.25), is_equivalent_to(5.45))
+  expect_that(f(0.5), is_equivalent_to(7.5))
+  expect_that(f(0.75), is_equivalent_to(9.55))
+})
+
+test_that("binned2boxplot", {
+  b <- c(0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0)
+  names(b) <- 1:length(b)
+  f <- binned2quantilefunc(b)
+  ans <- structure(c(2, 3.63333333333333, 5.45, 7.5, 9.55, 11.3666666666667, 14),
+                   .Names = c("ymin", "alt.lower", "lower", "middle", "upper", "alt.upper", "ymax"))
+                                                  
+  expect_that(binned2boxplot(b), is_equivalent_to(ans))
+})

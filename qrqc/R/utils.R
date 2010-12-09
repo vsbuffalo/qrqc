@@ -1,4 +1,56 @@
-## utils.R - Utility functions for creating parts of graphics, etc
+## utils.R - Utility functions for creating parts of graphics, loading data, etc.
+
+.setQualityNames <-
+# Given a quality type (as integer), name the matrix output from
+# the C function `summarize_fastq_file` accordingly.
+function(matrix, quality) {
+  constants <- QUALITY.CONSTANTS[[quality]]
+  rownames(matrix) <- constants$min:constants$max
+  return(matrix)
+}
+
+.trimRightCols <-
+# Remove blank cols from right of matrix, which occur because the
+# matrix allocates excess space.
+function(m) {
+  cs <- colSums(m)
+  return(m[, 1:max(which(cs != 0))])
+}
+
+.trimArray <-
+function(x)
+  x[1:max(which(x != 0))]
+
+sortSequenceHash <- function(seq.hash) {
+  return(sort(unlist(seq.hash), decreasing=TRUE))
+}
+
+lengths2weights <-
+# Given a histogram of seq.lengths, create a weighting scheme for
+# estimating mean quality from sequences of different lengths.
+# This converts a histogram to a base-by-base coverage vector.
+function(length.dist) {
+  last <- length(.trimArray(length.dist))
+  l <- length.dist[1:last]
+  s <- numeric(last)
+  for (i in last:1) {
+    s[1:i] <- s[1:i] + l[i]
+  }
+  return(s)
+}
+
+meanFromBins <- 
+# Given binned quality data, return the mean quality.
+function(qual.dist, length.dist=NULL) {
+  means <- numeric(nrow(qual.dist))
+  for (i in 1:nrow(qual.dist)) {
+    vals <- as.integer(colnames(qual.dist[-1]))
+    means[i] <- weighted.mean(vals, w=qual.dist[i, -1])
+  }
+  if (is.null(length.dist))
+    return(mean(means))
+  return(weighted.mean(means, w=lengths2weights(length.dist)))
+}
 
 binned2quantilefunc <-
 # Assumes names are x values
