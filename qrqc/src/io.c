@@ -83,6 +83,7 @@ static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q
     error("update_qual_matrices only works on FASTQ files");
   
   for (i = 0; i < block->qual.l; i++) {
+    R_CheckUserInterrupt();
     if ((char) block->qual.s[i] - q_offset < q_min || (char) block->qual.s[i] - q_offset > q_max)
       error("base quality out of range (%d < b < %d) encountered: %d", q_min,
             q_max, (char) block->qual.s[i]);
@@ -142,6 +143,7 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
   
   i = 0;
   for (k = kh_begin(h); k != kh_end(h); ++k) {
+    R_CheckUserInterrupt();
     if (kh_exist(h, k)) {
       SET_VECTOR_ELT(seq_hash_names, i, mkString(kh_key(h, k)));
       SET_VECTOR_ELT(seq_hash, i, ScalarInteger(kh_value(h, k)));

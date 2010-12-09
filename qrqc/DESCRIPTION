@@ -1,12 +1,12 @@
 Package: qrqc
-Version: 0.9.5
+Version: 0.9.6
 Date: 2010-12-06
 Title: Quick Read Quality Control
 Author: Vince Buffalo
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Imports: reshape, testthat, brew
 Depends: methods, tools, utils
-Description: Scans reads quickly and gathers statistics on base and 
+Description: Quickly scans reads and gathers statistics on base and 
     quality frequencies, read length, and frequent sequences. Produces 
     graphical output of statistics for use in quality control pipelines, 
     and an optional HTML quality report. Generic S4 SequenceSummary 
@@ -14,3 +14,4 @@ Description: Scans reads quickly and gathers statistics on base and
     the data collected.
 License: BSD
 URL: http://bioinformatics.ucdavis.edu
+biocViews: Sequencing, QualityControl, DataImport, Preprocessing, Visualization
