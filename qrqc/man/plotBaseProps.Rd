@@ -1,5 +1,7 @@
 \name{plotBaseProps}
 \alias{plotBaseProps}
+\alias{plotBaseProps,SequenceSummary-method}
+\alias{plotBaseProps,SequenceSummary-method}
 \title{Plot Proportions of Bases by Position}
 \description{
   \code{plotBaseProps} plots the proporition of bases by position

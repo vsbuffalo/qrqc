@@ -1,5 +1,8 @@
 \name{plotQuals}
 \alias{plotQuals}
+\alias{plotQuals,FASTQSummary,character,logical,logical-method}
+\alias{plotQuals,FASTQSummary,missing,missing,missing-method}
+\alias{plotQuals,FASTQSummary-method}
 \title{Plot a Base Quality Boxplot by Position}
 \description{
   \code{plotQuals} plots quality statistics by position.

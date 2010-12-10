@@ -50,7 +50,15 @@ s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
 s.fastq@filename <- 'test.fastq' # otherwise a long temp dir will be here
 @
 
-This produces a \texttt{FASTQSummary} object, which inherits from the
+Note that there is a maximum sequence length argument in
+\texttt{readSeqFile}, \texttt{max.length}. By default, this is
+1,000. It is used to pre-allocate the matrices in C, and could be much
+larger than the largest sequence encountered without many downsides
+(its memory usage is relatively low). If a sequence larger than
+\texttt{max.length} is encountered, the function will stop, and the
+user can call the function again with a larger \texttt{max.length}.
+
+\texttt{Readseqfile} produces a \texttt{FASTQSummary} object, which inherits from the
 \texttt{SequenceSummary} class. Printing the object lists a very short summary:
 
 <<echo=TRUE>>=
@@ -185,6 +193,13 @@ Additionally, \texttt{FASTQSummary} provides:
 \item \texttt{qual.freqs}: a dataframe containing the counts of bases of a particular quality by position.
 \item \texttt{mean.qual}: a numeric giving the mean quality, weighted by sequence lengths.
 \end{itemize}
+
+\section{Acknowledgements}
+Thanks to Simon Andrews for his work on
+\href{http://www.bioinformatics.bbsrc.ac.uk/projects/fastqc/}{FastQC}
+(a similar program written in Java) from which this project was
+inspired. Also thanks to Joseph Fass and Dawei Lin for their advice
+and helpful comments.
 
 \section{Session Info}
 <<>>=

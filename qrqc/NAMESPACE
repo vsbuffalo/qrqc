@@ -11,10 +11,5 @@ export(plotBaseFreqs)
 export(plotBaseProps)
 export(plotSeqLengths)
 export(plotGC)
-export(QUALITY.CONSTANTS)
-export(binned2quantilefunc)
-export(binned2boxplot)
-export(qualMCLowess)
-
 export(makeReport)
 

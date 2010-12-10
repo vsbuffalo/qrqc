@@ -10,7 +10,7 @@
   frequency.
 }
 \usage{
-  readSeqFile(filename, type='fastq', max.length=400,
+  readSeqFile(filename, type='fastq', max.length=1000,
               quality='illumina', hash=TRUE, verbose=FALSE)
 }
 \arguments{

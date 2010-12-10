@@ -190,13 +190,8 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
    */
   if (!isString(filename))
     error("filename should be a string");
-  if (INTEGER(max_length)[0] > INIT_MAX_SEQ)
-    error("You have specified a max_length less than the C buffer size. "
-          "Adjust the 'INIT_MAX_SEQ' macro and recompile to run sequences"
-          " greater than %d.", INIT_MAX_SEQ);
 
-  khash_t(str) *h;
-  khiter_t k;
+  khash_t(str) *h=NULL;
   kseq_t *block;
   int size_out_list = 4, l, protects=0;
   unsigned int num_unique_seqs = 0, nblock = 0;
@@ -242,8 +237,8 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
     R_CheckUserInterrupt();
     if (IS_FASTQ(quality_type) && l == -2)
       error("improperly formatted FASTQ file; truncated quality string");
-    if (l >= INIT_MAX_SEQ-1)
-      error("read in sequence greater than INIT_MAX_SEQ size");
+    if (l >= INTEGER(max_length)[0]-1)
+      error("read in sequence greater than max.length");
 
     update_base_matrices(block, ibc);
     if (IS_FASTQ(quality_type))

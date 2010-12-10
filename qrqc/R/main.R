@@ -12,7 +12,7 @@ NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
 readSeqFile <-
 # Use the C function summarize_file to create matrices of base
 # and quality counts, per position along all reads.
-function(filename, type='fastq', max.length=400, quality='illumina', hash=TRUE, verbose=FALSE) {
+function(filename, type='fastq', max.length=1000, quality='illumina', hash=TRUE, verbose=FALSE) {
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
 
