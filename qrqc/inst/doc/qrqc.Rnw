@@ -29,7 +29,7 @@
   Many projects in bioinformatics begin with raw sequences from a
   high-throughput sequencer that must be quality checked before
   additional analysis steps can proceed. The ``qrqc'' (Quick Read
-  Quality Control) package is an fast and extensible package that
+  Quality Control) package is a fast and extensible package that
   reports basic quality and summary statistics on FASTQ and FASTA
   files, including base and quality distribution by position, sequence
   length distribution, and common sequences.
@@ -80,7 +80,7 @@ class), quality information by position can be plotted with
 plotQuals(s.fastq)
 @ 
 
-By default quality plots include a histogram of sequence lengths. This
+By default, quality plots include a histogram of sequence lengths. This
 is recommended, as low quality at a particular base position is less
 worrisome if there are few reads with this sequence length. The grey
 lines indicate the 10\% and 90\% quantiles, orange lines indicate the
@@ -152,26 +152,27 @@ plotGC(s.fastq)
 
 \section{HTML Report Generation}
 
-With the help of \Rpackage{brew}, and \Rpackage{xtable},
+With the help of \Rpackage{brew} and \Rpackage{xtable},
 \Rpackage{qrqc} can generate an HTML summary report. This is created
 with \texttt{makeReport}. Image files are kept under `images/' and the
 report is created with a filename of the format:
-``\emph{seqfilename}-report.html''.
+``\emph{seqfilename}-report.html'' by default. A specific filename can
+be passed through the \texttt{filename} argument. 
 
 \section{Working with the FASTQSummary and FASTASummary classes}
-\Rpackage(qrqc) provides the \texttt{FASTQSummary} and
-\texttt{FASTASummary} objects for users to build functions and
+\Rpackage{qrqc} provides the \texttt{FASTQSummary} and
+\texttt{FASTASummary} classes for users to build functions and
 applications around. Both inherit from \texttt{SequenceSummary}, which
 should not be used directly.
 
-\texttt{FASTASummary} provides the same slots as
-\texttt{FASTQSummary}, except the latter provides additional slots for
-quality information. Both contain: 
+\texttt{FASTASummary} has the same slots as \texttt{FASTQSummary},
+except the latter provides additional slots for quality
+information. Both contain:
 
 \begin{itemize}
 \item \texttt{filename}: the filename of the file read and summarized with \texttt{readSeqFile}.
-\item \texttt{base.freqs}: a dataframe containing position by row, and frequencies of each base by column.
-\item \texttt{base.props}: a ``long'' dataframe, with each bases proportion and position by row.
+\item \texttt{base.freqs}: a dataframe containing the frequency counts of each base.
+\item \texttt{base.props}: a ``long'' dataframe, with each base proportion and position by row.
 \item \texttt{seq.lengths}: a numeric vector containing the sequences lengths (counts by position).
 \item \texttt{hash}: a numeric vector containing the counts of unique
   sequences (the actual sequences are the names attribute).

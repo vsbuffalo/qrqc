@@ -19,20 +19,24 @@ makeHashTable <- function(obj, n=16) {
 }
   
 setMethod(makeReport, "FASTASummary",
-          function(obj) {
+          function(obj, filename=NULL) {
             if (!file.exists('images'))
               dir.create('images')
             type <- "FASTA"
             sl.range <- seqLengthRange(obj)
-            brew(system.file('extdata/fasta-report-template.html', package='qrqc'), output=reportName(obj))
+            if (is.null(filename))
+              filename <- reportName(obj)            
+            brew(system.file('extdata/fasta-report-template.html', package='qrqc'), output=filename)
           })
 
 setMethod(makeReport, "FASTQSummary",
-          function(obj) {
+          function(obj, filename=NULL) {
             if (!file.exists('images'))
               dir.create('images')
             type <- "FASTQ"
             sl.range <- seqLengthRange(obj)
-            brew(system.file('extdata/fastq-report-template.html', package='qrqc'), output=reportName(obj))
+            if (is.null(filename))
+              filename <- reportName(obj)
+            brew(system.file('extdata/fastq-report-template.html', package='qrqc'), output=filename)
           })
 
