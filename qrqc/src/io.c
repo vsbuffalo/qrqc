@@ -198,10 +198,11 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   khash_t(str) *h;
   khiter_t k;
   kseq_t *block;
-  int ret, size_out_list = 4, l, protects=0;
+  int size_out_list = 4, l, protects=0;
   unsigned int num_unique_seqs = 0, nblock = 0;
-  SEXP base_counts, qual_counts, seq_hash, seq_hash_names, out_list, seq_lengths;
-  int *ibc, *iqc, *isl, i, j, q_type, q_range;
+  /* Note: NULL and 0 initializations to stop warnings on Windows systems */
+  SEXP base_counts, out_list, seq_lengths, qual_counts=NULL, seq_hash=NULL, seq_hash_names=NULL;
+  int *ibc, *isl, *iqc=NULL, q_type=0, q_range=0;
 
   if (IS_FASTQ(quality_type)) {
     q_type = INTEGER(quality_type)[0];
