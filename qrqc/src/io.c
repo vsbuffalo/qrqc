@@ -11,7 +11,8 @@
 
 #ifdef _WIN32
 int gzreadclone(FILE *file, void *buf, unsigned int len) {
-  unsigned int i, c;
+  unsigned int i;
+  char c;
   for (i = 0; i < len; i++) {
     c = getc(file);
     if (c == EOF) return i;
