@@ -1,0 +1,193 @@
+%\VignetteIndexEntry{Analysing RNA-Seq data with the "DESeq" package}
+%\VignettePackage{DESeq}
+
+\documentclass{article}
+
+\usepackage{Sweave}
+\usepackage[a4paper]{geometry}
+\usepackage{hyperref,graphicx}
+
+\SweaveOpts{keep.source=TRUE,eps=FALSE,include=FALSE,width=4,height=4.5} 
+\newcommand{\Robject}[1]{\texttt{#1}}
+\newcommand{\Rpackage}[1]{\textit{#1}}
+\newcommand{\Rclass}[1]{\textit{#1}}
+\newcommand{\Rfunction}[1]{{\small\texttt{#1}}}
+
+\author{Vince Buffalo\\[1em]Bioinformatics Core\\ UC Davis Genome Center\\[1em]
+\texttt{vsbuffalo@ucdavis.edu}}
+
+\title{\textsf{\textbf{Using the ``qrqc'' package to gather information about sequence qualities}}}
+
+\date{2010-01-19}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+  Many projects in bioinformatics begin with raw sequences from a
+  high-throughput sequencer that must be quality checked before
+  additional analysis steps can proceed. The ``qrqc'' (Quick Read
+  Quality Control) package is an fast and extensible package that
+  reports basic quality and summary statistics on FASTQ and FASTA
+  files, including base and quality distribution by position, sequence
+  length distribution, and common sequences.
+\end{abstract}
+
+\section{Reading in a Sequence File}
+
+The \Rpackage{qrqc} package reads and processes FASTA and FASTQ files
+in C for speed, through the function \texttt{readSeqFile}. Optionally,
+sequences can be hashed (also done at the C level), to see the most
+frequent sequences in the file.
+
+<<echo=TRUE>>=
+library(qrqc)
+s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
+@ 
+<<echo=FALSE>>=
+s.fastq@filename <- 'test.fastq' # otherwise a long temp dir will be here
+@
+
+This produces a \texttt{FASTQSummary} object, which inherits from the
+\texttt{SequenceSummary} class. Printing the object lists a very short summary:
+
+<<echo=TRUE>>=
+s.fastq
+@
+
+Optionally, \texttt{readSeqFile} can be run without hashing, with
+\texttt{hash=FALSE}. \texttt{readSeqFile} also works on FASTA files,
+but \texttt{type=FASTA} must be specified.
+
+\section{Plotting Quality of FASTQSummary Objects}
+
+If the file read and summarized with \texttt{readSeqFile} is a FASTQ
+file (and thus the resulting object is from the \texttt{FASTQSummary}
+class), quality information by position can be plotted with
+\texttt{plotQuals}:
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figPlotQuals}
+\caption{A plot of quality by base position, with sequence length
+  histogram.}
+\label{figPlotQuals}
+\end{figure}
+
+<<figPlotQuals,fig=TRUE,width=7,height=6>>=
+plotQuals(s.fastq)
+@ 
+
+By default quality plots include a histogram of sequence lengths. This
+is recommended, as low quality at a particular base position is less
+worrisome if there are few reads with this sequence length. The grey
+lines indicate the 10\% and 90\% quantiles, orange lines indicate the
+lower and upper quartiles, the blue dot is the median, and the green
+dash the mean. A purple lowess curve is fit through the
+distributions. This line is fit by first randomly drawing values from
+the empirical (binned) distribution of qualities at a particular base, then
+fitting through these points.
+
+\section{Other Plots of FASTQSummary and FASTASummary Objects}
+The following S4 methods work for FASTQSummary and FASTASummary
+objects. Base frequencies (counts) by position can be plotted with
+\texttt{plotBaseFreqs}:
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figPlotBaseFreqs}
+\caption{Base frequencies by position in sequence.}
+\label{figPlotBaseFreqs}
+\end{figure}
+
+<<figPlotBaseFreqs,fig=TRUE,width=7,height=6>>=
+plotBaseFreqs(s.fastq)
+@ 
+
+\texttt{plotBaseFreqs} also accepts a \texttt{bases} parameter, which
+can be used to specify specific bases. This is useful for plotting
+just the frequency of `N'.
+
+Base proportions by position can be plotted with
+\texttt{plotBaseProps}. This plot is basically identical to
+\texttt{plotBaseFreqs} with a different y scale:
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figPlotBaseProps}
+\caption{Base proportions by position in sequence.}
+\label{figPlotBaseProps}
+\end{figure}
+
+<<figPlotBaseProps,fig=TRUE,width=7,height=6>>=
+plotBaseProps(s.fastq)
+@
+
+Sequence length distribution can be plotted with \texttt{plotSeqLengths}:
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figPlotSeqLengths}
+\caption{Histogram of sequence lengths.}
+\label{figPlotSeqLengths}
+\end{figure}
+
+<<figPlotSeqLengths,fig=TRUE,width=7,height=6>>=
+plotSeqLengths(s.fastq)
+@
+
+The GC content can be plotted with \texttt{plotGC}:
+\begin{figure}
+\centering
+\includegraphics{qrqc-figPlotGC}
+\caption{GC content by position}
+\label{figPlotGC}
+\end{figure}
+
+<<figPlotGC,fig=TRUE,width=7,height=6>>=
+plotGC(s.fastq)
+@
+
+\section{HTML Report Generation}
+
+With the help of \Rpackage{brew}, and \Rpackage{xtable},
+\Rpackage{qrqc} can generate an HTML summary report. This is created
+with \texttt{makeReport}. Image files are kept under `images/' and the
+report is created with a filename of the format:
+``\emph{seqfilename}-report.html''.
+
+\section{Working with the FASTQSummary and FASTASummary classes}
+\Rpackage(qrqc) provides the \texttt{FASTQSummary} and
+\texttt{FASTASummary} objects for users to build functions and
+applications around. Both inherit from \texttt{SequenceSummary}, which
+should not be used directly.
+
+\texttt{FASTASummary} provides the same slots as
+\texttt{FASTQSummary}, except the latter provides additional slots for
+quality information. Both contain: 
+
+\begin{itemize}
+\item \texttt{filename}: the filename of the file read and summarized with \texttt{readSeqFile}.
+\item \texttt{base.freqs}: a dataframe containing position by row, and frequencies of each base by column.
+\item \texttt{base.props}: a ``long'' dataframe, with each bases proportion and position by row.
+\item \texttt{seq.lengths}: a numeric vector containing the sequences lengths (counts by position).
+\item \texttt{hash}: a numeric vector containing the counts of unique
+  sequences (the actual sequences are the names attribute).
+\item \texttt{hashed}: a logical indicating whether sequence hashing to count unique sequences was done.
+\end{itemize}
+
+Additionally, \texttt{FASTQSummary} provides:
+
+\begin{itemize}
+\item \texttt{qual.freqs}: a dataframe containing the counts of bases of a particular quality by position.
+\item \texttt{mean.qual}: a numeric giving the mean quality, weighted by sequence lengths.
+\end{itemize}
+
+\section{Session Info}
+<<>>=
+sessionInfo()
+@
+
+\end{document}
