@@ -6,12 +6,11 @@ Author: Vince Buffalo
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Imports: reshape, testthat, brew, xtable
 Depends: methods, tools, utils
-Description: Quickly scans reads and gathers statistics on base and 
-    quality frequencies, read length, and frequent sequences. Produces 
-    graphical output of statistics for use in quality control pipelines, 
-    and an optional HTML quality report. Generic S4 SequenceSummary 
-    objects allow specific tests and functionality to be written around 
-    the data collected.
-License: BSD
+Description: Quickly scans reads and gathers statistics on base and quality
+ frequencies, read length, and frequent sequences. Produces graphical output
+ of statistics for use in quality control pipelines, and an optional HTML
+ quality report. S4 SequenceSummary objects allow specific tests and
+ functionality to be written around the data collected.
+License: GPL
 URL: http://bioinformatics.ucdavis.edu
 biocViews: Sequencing, QualityControl, DataImport, Preprocessing, Visualization

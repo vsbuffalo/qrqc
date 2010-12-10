@@ -2,7 +2,7 @@
 \alias{plotGC}
 \title{Plot per Base GC Content by Position}
 \description{
-  \code{plotGC} plots the GC proportion by position (cycle).
+  \code{plotGC} plots the GC proportion by position.
 }
 \usage{
   plotGC(obj)

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <zlib.h>
 #include <R.h>
 #include <R_ext/Utils.h>
 #include <Rinternals.h>
@@ -10,9 +9,29 @@
 #include "khash.h"
 #include "kseq.h"
 
-KHASH_MAP_INIT_STR(str, int)
-
+#ifdef _WIN32
+int gzreadclone(FILE *file, void *buf, unsigned int len) {
+  unsigned int i, c;
+  for (i = 0; i < len; i++) {
+    c = getc(file);
+    if (c == EOF) return i;
+    ((char *)buf)[i] = c;
+  }
+  return i;
+}
+#define FILE_TYPE FILE
+#define FILE_OPEN(x, m) (fopen(x, m))
+#define FILE_CLOSE(x) (fclose(x))
+KSEQ_INIT(FILE_TYPE*, gzreadclone)
+#else
+#include <zlib.h>
+#define FILE_TYPE gzFile
+#define FILE_OPEN(x, m) (gzopen(x, m))
+#define FILE_CLOSE(x) (gzclose(x))
 KSEQ_INIT(gzFile, gzread)
+#endif
+
+KHASH_MAP_INIT_STR(str, int)
 
 #define INIT_MAX_SEQ 500
 #define NUM_BASES 5 // includes N
@@ -196,7 +215,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
     size_out_list++;
   }
 
-  gzFile *fp = gzopen(CHAR(STRING_ELT(filename, 0)), "r");
+  FILE_TYPE *fp = FILE_OPEN(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
   block = kseq_init(fp);
@@ -264,7 +283,7 @@ SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash
   UNPROTECT(protects);
 
   block = kseq_init(fp);
-  gzclose(fp);
+  FILE_CLOSE(fp);
 
   return out_list;
 }

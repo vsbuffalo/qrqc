@@ -2,8 +2,8 @@
 \alias{plotQuals}
 \title{Plot a Base Quality Boxplot by Position}
 \description{
-  \code{plotQuals} plots quality statistics by position
-  (cycle). Optionally, it adds a lowess curve through the qualities,
+  \code{plotQuals} plots quality statistics by position.
+  Optionally, it adds a lowess curve through the qualities,
   which is fit with data randomly drawn from the distribution of
   qualities at each position. A histogram of the sequence length
   distribution is plotted above the quality plot when \code{histogram}

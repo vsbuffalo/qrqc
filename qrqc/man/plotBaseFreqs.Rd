@@ -2,8 +2,8 @@
 \alias{plotBaseFreqs}
 \title{Plot Frequencies of Bases by Position}
 \description{
-  \code{plotBaseFreqs} plots the proportion of bases by position
-  (cycle) in the read.
+  \code{plotBaseFreqs} plots the proportion of bases by position in the
+  read.
 }
 \usage{
   plotBaseFreqs(obj, bases=NULL)

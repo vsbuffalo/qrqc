@@ -3,7 +3,7 @@
 \title{Plot Proportions of Bases by Position}
 \description{
   \code{plotBaseProps} plots the proporition of bases by position
-  (cycle) in the read.
+  in the read.
 }
 \usage{
   plotBaseProps(obj)
