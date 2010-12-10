@@ -2,6 +2,7 @@ useDynLib(qrqc)
 import(reshape)
 import(testthat)
 import(brew)
+import(xtable)
 
 export(readSeqFile)
 export(plotQuals)

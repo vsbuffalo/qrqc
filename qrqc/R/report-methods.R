@@ -9,6 +9,14 @@ seqLengthRange <- function(obj) {
   s <- which(obj@seq.lengths > 0)
   return(c(min(s), max(s)))
 }
+
+makeHashTable <- function(obj, n=16) {
+  d <- obj@hash[1:n]
+  tbl <- as.table(cbind(sequence=names(d), count=d, 'proportion of total'=d/sum(obj@seq.lengths)))
+  rownames(tbl) <- NULL
+  x.tbl <- xtable(tbl)
+  return(x.tbl)
+}
   
 setMethod(makeReport, "FASTASummary",
           function(obj) {

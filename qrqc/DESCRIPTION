@@ -4,7 +4,7 @@ Date: 2010-12-06
 Title: Quick Read Quality Control
 Author: Vince Buffalo
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
-Imports: reshape, testthat, brew
+Imports: reshape, testthat, brew, xtable
 Depends: methods, tools, utils
 Description: Quickly scans reads and gathers statistics on base and 
     quality frequencies, read length, and frequent sequences. Produces 

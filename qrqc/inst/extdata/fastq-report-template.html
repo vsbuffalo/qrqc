@@ -22,6 +22,12 @@
       .fixed-font {
       font-family: monospace;
       }
+
+      table, td, th {
+      font-family: monospace;
+      border: 0;
+      padding-right: 1.2em;
+      }
     </style>
   </head>
   <body>
@@ -97,6 +103,20 @@
          %>
       <img src='images/seqlengths.png' />
     </div>
+
+
+    <div class="section">
+      <h2>Most Frequent Sequences</h2>
+      <%
+         if (obj@hashed) {
+           x <- makeHashTable(obj)
+           print(x, type="html")         
+         } else {
+           cat("No sequence frequency information available - readSeqFile() run with hash=FALSE")
+         }
+         %>
+    </div>
+
     <div style="font-size: 0.8em; margin-left: 280px;">Report produced by the R package <span class="fixed-font">qrqc</span></div>
   </body>
 </html>
