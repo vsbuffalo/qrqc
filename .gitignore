@@ -20,3 +20,4 @@ tramp
 *.pdf
 # Thumbnails
 ._*
+auto/
