@@ -177,7 +177,7 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
   }
 }
 
-SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, SEXP verbose) {
+extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, SEXP verbose) {
   /*
     Given a FASTA or FASTQ file, read in sequences and gather
     statistics on bases, qualities, sequence lengths, and unique
