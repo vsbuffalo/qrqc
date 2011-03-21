@@ -26,7 +26,7 @@ setMethod(makeReport, "FASTASummary",
             sl.range <- seqLengthRange(obj)
             if (is.null(filename))
               filename <- reportName(obj)            
-            brew(system.file('extdata/fasta-report-template.html', package='qrqc'), output=filename)
+            brew(system.file('extdata', 'fasta-report-template.html', package='qrqc'), output=filename)
           })
 
 setMethod(makeReport, "FASTQSummary",
@@ -37,6 +37,6 @@ setMethod(makeReport, "FASTQSummary",
             sl.range <- seqLengthRange(obj)
             if (is.null(filename))
               filename <- reportName(obj)
-            brew(system.file('extdata/fastq-report-template.html', package='qrqc'), output=filename)
+            brew(system.file('extdata', 'fastq-report-template.html', package='qrqc'), output=filename)
           })
 

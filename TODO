@@ -12,3 +12,240 @@ TODO
   encountered.
 - The only acceptable nucleotides now are A, T, C, G, and N. We could allow 
   lowercase nucleotides too.
+
+## Herve's Bioconductor comments
+
+1. Please specify the version of the GPL that applies.
+Status: Done. But I may consider a BSD license.
+
+2. Use the BioC recommended x.y.z format for the version of the package.
+  Note that if you want the package to be released as version 1.0.0
+  when we make our next BioC release (BioC 2.8, April 2011), you should
+  make it version 0.99.z now.
+Status: Done.
+
+3. My first attempt to build the package on my Linux system (Ubuntu 10.04)
+  produced the following linking error:
+
+  hpages@latitude:~/PackagePreviews$ R-2.13 CMD build qrqc
+  * checking for file ‘qrqc/DESCRIPTION’ ... OK
+  * preparing ‘qrqc’:
+  * checking DESCRIPTION meta-information ... OK
+  * cleaning src
+  * installing the package to re-build vignettes
+        -----------------------------------
+  * installing *source* package ‘qrqc’ ...
+  ** libs
+  gcc -std=gnu99 -I/home/hpages/R-2.13/include  -I/usr/local/include    -fpic
+-g -O2 -Wall -c io.c -o io.o
+  gcc -std=gnu99 -shared -L/usr/local/lib64 -o qrqc.so io.o
+-L/home/hpages/R-2.13/lib -lR
+  installing to /tmp/RtmpvqoEHk/Rinst27235f17/qrqc/libs
+  ** R
+  ** inst
+  ** preparing package for lazy loading
+  ** help
+  *** installing help indices
+  ** building package indices ...
+  ** testing if installed package can be loaded
+  Error in dyn.load(file, DLLpath = DLLpath, ...) :
+    unable to load shared object '/tmp/RtmpvqoEHk/Rinst27235f17/qrqc/libs/qrqc.so':
+    /tmp/RtmpvqoEHk/Rinst27235f17/qrqc/libs/qrqc.so: undefined symbol: gzopen
+  ERROR: loading failed
+  * removing ‘/tmp/RtmpvqoEHk/Rinst27235f17/qrqc’
+        -----------------------------------
+  ERROR: Installation failed
+  Removing installation dir
+
+ You might want to make the compilation a little bit more portable by
+ adding a src/Makevars file with the line:
+   PKG_LIBS += -lz
+ and a src/Makevars.win file with the line:
+   PKG_LIBS += -lRzlib
+Status: partial. Made changes; but need to test on Linux machine.
+
+4. This is not portable (won't work on Windows):
+    system.file('extdata/test.fastq', package='qrqc')
+  The portable version is:
+    system.file('extdata', 'test.fastq', package='qrqc')
+Status: done.
+
+5. Most of the times, when a generic function dispatches on its first arg,
+  this arg is named 'x' or 'object'. There is nothing wrong with 'obj',
+  just thought I would mention this though.
+Status: partial. I may change this, but it's a lot of tinkering.
+
+6. When a generic function has more than 1 argument but dispatching on the
+  first argument only is desired, then this can be requested with:
+
+    setGeneric("plotQuals", signature="obj",
+        function(obj, ylim='relative', lowess=TRUE, histogram=TRUE)
+            standardGeneric("plotQuals"))
+
+  Then the method definitions can be simplified a little bit:
+
+    setMethod("plotQuals", "FASTQSummary",
+        function(obj, ylim='relative', lowess=TRUE, histogram=TRUE)
+        {
+            ...
+        }
+    )
+
+  Also the man page doesn't need to contain several aliases for the same
+  method, one is enough:
+
+    \alias{plotQuals,FASTQSummary-method}
+
+  And finally, this might make the dispatch a little bit faster (I've
+  not tested this though, just my feeling).
+Status: done.
+
+7. Since the SequenceSummary class is the common parent of FASTASummary
+  and FASTQSummary but is not aimed at being used directly (in the sense
+  that no instances of this class will ever be created), it can (and
+  actually should) be made a virtual class. This is simply done with:
+
+    setClass("SequenceSummary",
+        representation=representation(
+          "VIRTUAL",
+          filename='character',
+          base.freqs='data.frame',
+          base.props='data.frame',
+          seq.lengths='integer',
+          hash='integer',
+          hashed='logical'))
+
+  This has no other consequences than making it impossible to instanciate
+  the class:
+
+    > new("SequenceSummary")
+    Error in new("SequenceSummary") :
+      trying to generate an object from a virtual class ("SequenceSummary")
+
+  and is considered good practise as it makes the design of the class
+  hierarchy cleaner and easier to understand.
+Status: done.
+
+8. I've tried to plot the quals of the following toy file (only 3 reads):
+
+    @ID000001
+    TGGCTCCTGCTGAGGTCCCCTTTCC
+    +ID000001
+    ;;@;;;;;;;;;;;;;;;;;;;;;;
+    @ID000002
+    GGCTGTGAATTCCTGTACATATTTC
+    +ID000002
+    AAA;;;;;;;;;;;;;;;;;;;;;;
+    @ID000003
+    GCTTCAATTCCATTATGTTTTAATG
+    +ID000003
+    zX;;;;;;;;;;;;;;;;;;;;;;;
+
+  and got an error:
+
+    > p.fastq <- readSeqFile("probes3.fastq", quality="solexa")
+    > plotQuals(p.fastq)
+    Error in approxfun(cumsum(y)/sum(y), x, yleft = min(x), yright = max(x)) :
+      need at least two non-NA values to interpolate
+
+  Of course it's not a realistic example. However, could plotQuals()
+  support some simple edge cases like this one, and, if not, could
+  the error handling be improved so it displays a more informative
+  error message?
+
+9. Cosmetic: the title of the plot generated by plotQuals() doesn't fit
+  in the plot.
+
+10. The text of the vignette makes no references to the Figures so there
+   is no way for the reader to guess which command produced which plot!
+   (one can probably guess but still).
+
+11. The plots make nice use of different colors to represent different
+   things but there is no legend and the man pages don't explain what
+   the colors mean. For example, for plotBaseFreqs() or plotBaseProps(),
+   there is no way to know what color is associated with what base
+   (no legend, nothing in the man page and nothing in the vignette).
+
+12. Since plotBaseFreqs and plotBaseProps are plotting basically the same
+   thing, why not have just one function with an extra argument to switch
+   between freqs and props? The switch could also allow the user to have
+   2 vertical exes, 1 on the left with the freqs and 1 on the right with
+   the props. That way, all the information is in a single plot.
+
+13. The base.freqs and base.props slots are redundant. The information in
+   the latter can be easily and very efficiently inferred from the
+   former.
+
+14. No support for IUPAC ambiguity letters other than N?
+     > readSeqFile("test.fastq", quality="solexa")
+     Error in readSeqFile("probes3.fastq", quality = "solexa") :
+       Sequence character encountered that is not A, T, C, G, or N: 'D', from
+GCTTCAATTCCATTATGTDTTANNN
+
+15. Isn't it confusing that you associate the same color (red) to T and GC
+   content?
+Status: Done.
+
+16. makeReport() doesn't work properly if I specify a filename that is a
+   path pointing to a place that is not the current working directory.
+   Then, when I open the report in my browser, I don't have any image.
+
+17. What will happen if I generate the report for 2 files during the same
+   session. Seems like the images of the latest report will override the
+   images of any previous report isn't it?
+
+18. Small suggestions/improvements for makeReport():
+     a) If the user didn't specify a filename, have makeReport() print a
+        message showing the filename that was used.
+     b) Could the General Information section at the top of the report
+        also display the number of sequences and unique sequences (like
+        the show methods for FASTQSummary and FASTASummary do?
+     c) Instead of displaying the legend in plain text for the Quality by
+        Position plot, put the legend in the plot itself.
+     d) Also the 2 following plots (Nucleotide Frequency by Position and
+        Nucleotide Proportion by Position) have no legend at all.
+     e) You would save space by merging those 2 plots into a single plot
+        (see 12. above).
+
+19. Typo in man pages for SequenceSummary, FASTASummary and FASTQSummary:
+   base.prop should be base.props
+Status: Done.
+
+20. The filename slot is missing in the man pages for the 3 classes and
+   the quality slot is missing in the man page for FASTQSummary and in
+   the section 5 of the vignette.
+
+21. You don't need to describe all the slots of the SequenceSummary class
+   3 times (in 3 different man pages).
+   It's enough to do this once in the man page for SequenceSummary.
+   Then in the man pages for FASTASummary and FASTQSummary, you just
+   need to say that those classes inherit the slots from SequenceSummary
+   and you describe the additional slots only.
+   You can also put the 3 classes in the same man page.
+
+22. Please add \seealso sections to your man pages. For example:
+     - The man page for readSeqFile could have a \seealso section with
+       links to the FASTASummary and FASTQSummary man pages.
+     - The man pages for those classes could have links to the methods
+       available for objects of those classes.
+     - The man pages for plotBaseFreqs and plotBaseProps could link one
+       to each other (but, as mentioned before, maybe those 2 functions
+       could be merged into a single function, or at least, the 2 man
+       pages could be merged into a single man page).
+     - etc...
+
+23. What's the qrqc/inst/doc/auto folder? Is it needed?
+Status: done. This was in .gitignore, but now it's in the clean target
+of the Makefile.
+
+24. C code: please register the .Call entry point as specified in our
+   guidelines.
+
+25. Wouldn't it be appropriate to mention somewhere where the kseq.h and
+   khash.h files (both with an MIT license) are coming from? It seems
+   that they are coming from the Samtools project but I'm not sure.
+
+
+26. You might want to add HighThroughputSequencing to the biocViews field
+   of the DESCRIPTION file.
+Status: Done.

@@ -15,6 +15,7 @@ all: build install
 
 clean: clean-pdf
 	rm -f qrqc_*.tar.gz
+	rm -rf qrqc/inst/doc/auto
 
 clean-pdf:
 	rm -f $(DIR).pdf

@@ -1,6 +1,4 @@
 \name{plotSeqLengths}
-\alias{plotSeqLengths}
-\alias{plotSeqLengths,SequenceSummary-method}
 \alias{plotSeqLengths,SequenceSummary-method}
 \title{Plot Histogram of Sequence Lengths}
 \description{
@@ -17,7 +15,7 @@
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
-  s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
+  s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Plot Qualities
   plotSeqLengths(s.fastq)

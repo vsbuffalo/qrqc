@@ -1,9 +1,5 @@
 \name{makeReport}
-\alias{makeReport}
 \alias{makeReport,FASTASummary-method}
-\alias{makeReport,FASTQSummary-method}
-\alias{makeReport,FASTASummary,character-method}
-\alias{makeReport,FASTQSummary,character-method}
 \title{Make an HTML report from a FASTASummary of FASTQSummary object}
 \description{
   \code{makeReport} takes a \code{FASTQSummary} or \code{FASTASummary}
@@ -22,7 +18,7 @@
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
-  s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
+  s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Make and save a report
   makeReport(s.fastq)

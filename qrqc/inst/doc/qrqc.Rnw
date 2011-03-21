@@ -44,7 +44,7 @@ frequent sequences in the file.
 
 <<echo=TRUE>>=
 library(qrqc)
-s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
+s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 @ 
 <<echo=FALSE>>=
 s.fastq@filename <- 'test.fastq' # otherwise a long temp dir will be here

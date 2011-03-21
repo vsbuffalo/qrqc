@@ -1,6 +1,6 @@
 ## plotting-methods.R - functions to create plots from FASTQSummary and FASTASummary objects
 
-setMethod("plotBaseFreqs", c("obj"="SequenceSummary", bases="ANY"),
+setMethod("plotBaseFreqs", "SequenceSummary",
 # Plot the frequency (absolute counts) of bases across a read.
 function(obj, bases=NULL) { 
   base.freqs <- local({
@@ -29,7 +29,7 @@ function(obj, bases=NULL) {
   title(main="base frequency by position in read", xlab="position", ylab="frequency")
 })
 
-setMethod("plotBaseProps", c("obj"="SequenceSummary"),
+setMethod("plotBaseProps", "SequenceSummary",
 # Plot proportions of all nucleotides across a read.
 function(obj) {
   base.props <- obj@base.props
@@ -52,7 +52,7 @@ function(obj) {
   title(main="base proportion by position in read", xlab="position", ylab="proportion")
 })
 
-setMethod("plotQuals", c("obj"="FASTQSummary", "ylim"="ANY", lowess="ANY", histogram="ANY"), 
+setMethod("plotQuals", "FASTQSummary",
 # Make a series of (custom) boxplots, with a point for median and a
 # horizontal line for the mean. If `lowess` is TRUE, add lowess curve,
 # which is fit through MC samples though the binned quals with
@@ -64,9 +64,10 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
     tmp <- cbind(1:nrow(tmp), tmp)
     vals <- as.numeric(names(obj@qual.freqs[, -1]))
     tmp <- cbind(tmp, apply(obj@qual.freqs[, -1], 1, function(x) weighted.mean(vals, x)))
-    colnames(tmp)[1] <- 'position'
-    colnames(tmp)[9] <- 'means'
-    return(as.data.frame(tmp))
+    tmp <- as.data.frame(tmp)
+    colnames(tmp) <- c('position', 'ymin', 'alt.lower', 'lower',
+                       'middle', 'upper', 'alt.upper', 'ymax', 'mean')
+    return(tmp)
   })
 
   if (ylim == 'fixed') {
@@ -75,7 +76,7 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
     qmax <- q$max
   } else {
     qmin <- min(d$ymin)
-    qmax <- min(d$ymax)
+    qmax <- max(d$ymax)
   }
 
   op <- par(no.readonly=TRUE)
@@ -125,7 +126,7 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
   par(op)
 })
 
-setMethod("plotGC", c("obj"="SequenceSummary"), 
+setMethod("plotGC", "SequenceSummary",
 # Plot the proportion of bases that are G or C (the GC content).
 function(obj) {
   gc <- local({
@@ -151,7 +152,7 @@ function(obj) {
   
 })
 
-setMethod("plotSeqLengths", c("obj"="SequenceSummary"),
+setMethod("plotSeqLengths", "SequenceSummary",
 # Plot a histogram of sequence lengths. This is done manually (not
 # using hist) so that the case when there's a single length, the
 # histogram doesn't look ridiculous.

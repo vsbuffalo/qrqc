@@ -2,6 +2,7 @@
 
 setClass("SequenceSummary",
          representation=representation(
+           "VIRTUAL",
            filename='character',
            base.freqs='data.frame',
            base.props='data.frame',

@@ -1,5 +1,4 @@
 \name{plotGC}
-\alias{plotGC}
 \alias{plotGC,SequenceSummary-method}
 \title{Plot per Base GC Content by Position}
 \description{
@@ -16,7 +15,7 @@
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
-  s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
+  s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Plot Qualities
   plotGC(s.fastq)

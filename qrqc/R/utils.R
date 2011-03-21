@@ -57,6 +57,10 @@ binned2quantilefunc <-
 function(x) {
   y <- as.numeric(x[x!=0])
   x <- as.integer(names(x)[x!=0])
+  if (length(x) < 10) {
+    # too few values to interpolate ECDF
+    return(NULL)
+  }
   t <- approxfun(cumsum(y)/sum(y), x, yleft=min(x), yright=max(x))
   return(t)
 }
@@ -66,6 +70,23 @@ binned2boxplot <-
 # function.
 function(x) {
   f <- binned2quantilefunc(x)
+  if (is.null(f)) {
+    # Too few values to interpolate; build actual vector (since it's
+    # small enough to do so) and find certain percentiles.
+    y <- as.numeric(x[x!=0])
+    x <- as.integer(names(x)[x!=0])
+    d <- quantile(rep(x, times=y), probs=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
+    out <- c(ymin=d[1],
+             alt.lower=d[2],
+             lower=d[3],
+             middle=d[4],
+             upper=d[5],
+             alt.upper=d[6],
+             ymax=d[7])
+    return(out)
+  }
+
+  # binned2quantilefunc had enough values to interpolate ECDF.
   out <- c(ymin=f(0),
            alt.lower=f(0.1),
            lower=f(0.25),

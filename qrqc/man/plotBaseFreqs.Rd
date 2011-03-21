@@ -1,8 +1,5 @@
 \name{plotBaseFreqs}
-\alias{plotBaseFreqs}
 \alias{plotBaseFreqs,SequenceSummary-method}
-\alias{plotBaseFreqs,SequenceSummary,character-method}
-\alias{plotBaseFreqs,SequenceSummary,missing-method}
 \title{Plot Frequencies of Bases by Position}
 \description{
   \code{plotBaseFreqs} plots the proportion of bases by position in the
@@ -21,7 +18,7 @@
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
-  s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
+  s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Plot Qualities
   plotBaseFreqs(s.fastq)

@@ -1,6 +1,4 @@
 \name{plotBaseProps}
-\alias{plotBaseProps}
-\alias{plotBaseProps,SequenceSummary-method}
 \alias{plotBaseProps,SequenceSummary-method}
 \title{Plot Proportions of Bases by Position}
 \description{
@@ -18,7 +16,7 @@
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
-  s.fastq <- readSeqFile(system.file('extdata/test.fastq', package='qrqc'))
+  s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Plot Qualities
   plotBaseProps(s.fastq)
