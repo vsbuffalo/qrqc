@@ -36,6 +36,8 @@
       File: <span class="fixed-font"><%=obj@filename%></span><br/>
       Type: <span class="fixed-font">FASTQ</span><br/>
       Sequence Length Range: <span class="fixed-font"><%=sl.range[1]%> to <%=sl.range[2]%></span><br/>
+      Total Sequences: <span class="fixed-font"><%=sum(obj@seq.lengths)%></span><br/>
+      Unique Sequences: <span class="fixed-font"><%=length(obj@hash)%></span><br/>
     </div>
     
     <div class="section">

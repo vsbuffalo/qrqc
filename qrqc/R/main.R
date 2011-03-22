@@ -9,6 +9,10 @@ NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N', 'R', 'Y', 'S',
 NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
                         'C'='blue', 'G'='black',
                         'N'='purple')
+other.iupac <- c('R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V', '-')
+other.iupac.colors <- brewer.pal(length(other.iupac), "Set3")
+names(other.iupac.colors) <- other.iupac
+NUCLEOTIDES.COLORS <- c(NUCLEOTIDES.COLORS, other.iupac.colors)
 
 readSeqFile <-
 # Use the C function summarize_file to create matrices of base

@@ -37,6 +37,8 @@
       Type: <span class="fixed-font">FASTA</span><br/>
       Sequence Length Range: <span class="fixed-font"><%=sl.range[1]%></span> to 
       <span class="fixed-font"><%=sl.range[2]%></span> bases<br/>
+      Total Sequences: <span class="fixed-font"><%=sum(obj@seq.lengths)%></span><br/>
+      Unique Sequences: <span class="fixed-font"><%=length(obj@hash)%></span><br/>
     </div>
 
     <div class="section">

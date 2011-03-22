@@ -3,7 +3,7 @@
 setMethod("plotBases", "SequenceSummary",
 # Plot the frequency (absolute counts) and proportion of bases across
 # a read.
-function(obj, bases=NULL, type="freq") {
+function(obj, type="freq", bases=NULL, legend=TRUE) {
   if (!(type %in% c("freq", "prop")))
     stop("'type' must be either 'freq' or 'prop'.")
 
@@ -32,6 +32,15 @@ function(obj, bases=NULL, type="freq") {
     axis(1, at=min(base.freqs$position):max(base.freqs$position))
     axis(2)
     title(main="base frequency by position in read", xlab="position", ylab="frequency")
+
+    if (legend) {
+      # add legend
+      legend.bases <- levels(base.freqs$base[which(base.freqs$frequency > 0), drop=TRUE])
+      legend.colors <- NUCLEOTIDES.COLORS[as.character(legend.bases)]
+      legend("topright",
+             legend.bases, col=legend.colors, lwd=2, box.lwd=0.6)
+    }
+    
   } else if (type == "prop") {
     base.props <- getBaseProps(obj)
     
@@ -43,17 +52,26 @@ function(obj, bases=NULL, type="freq") {
       levs <- levels(base.props$base)
     else
       levs = bases
-    
-    for (base in levs) {
+
+    for (i in 1:length(levs)) {
+      base <- levs[i]
       lines(base.props$position[base.props$base == base],
             base.props$proportion[base.props$base == base],
             col=NUCLEOTIDES.COLORS[as.character(base)])
-    }
+      }
     
     axis(1, at=min(base.props$position):max(base.props$position))
     axis(2, at=seq(0, 1, by=0.2))
     abline(h=0.25, col='grey')  
     title(main="base proportion by position in read", xlab="position", ylab="proportion")
+
+    if (legend) {
+      # add legend
+      legend.bases <- levels(base.props$base[which(base.props$proportion > 0), drop=TRUE])
+      legend.colors <- NUCLEOTIDES.COLORS[as.character(legend.bases)]
+      legend("topright",
+             legend.bases, col=legend.colors, lwd=2, box.lwd=0.6)
+    }
   }
   
 })

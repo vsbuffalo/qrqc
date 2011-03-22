@@ -202,9 +202,13 @@ Status: Done.
    path pointing to a place that is not the current working directory.
    Then, when I open the report in my browser, I don't have any image.
 
+Status: done.
+
 17. What will happen if I generate the report for 2 files during the same
    session. Seems like the images of the latest report will override the
    images of any previous report isn't it?
+
+Status: done.
 
 18. Small suggestions/improvements for makeReport():
      a) If the user didn't specify a filename, have makeReport() print a
@@ -218,6 +222,8 @@ Status: Done.
         Nucleotide Proportion by Position) have no legend at all.
      e) You would save space by merging those 2 plots into a single plot
         (see 12. above).
+
+Status: done.
 
 19. Typo in man pages for SequenceSummary, FASTASummary and FASTQSummary:
    base.prop should be base.props
