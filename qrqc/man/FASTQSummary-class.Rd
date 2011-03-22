@@ -9,21 +9,14 @@
   information.
 }
 \section{Slots}{
-  \describe{
-    \item{\code{base.freqs}}{a dataframe of base frequencies by
-      position. Each column is a nucleotide (there is a column for
-      position too), and each row contains the count frequencies of bases for that
-      position.}
-    \item{\code{base.props}}{a dataframe of base proportions by
-      position. This dataframe is stacked, so each row contains a
-      single nucleotide, its position, and its proportion for that
-      position.}
-    \item{\code{seq.lengths}}{a numeric vector of the number of sequences of a
-      particular length (the length is the position in the vector).}
-    \item{\code{hash}}{a numeric vector of the count frequencies of
-      sequences (the sequences are in the name attribute).}
-    \item{\code{hashed}}{a logical indicating whether the sequences were
-      hashed in \code{readSeqFile}.}
+  In addition to the slots inherited from
+  \code{\linkS4class{SequenceSummary}},
+  \code{\linkS4class{FASTQSummary}} contains:
+  
+  \describe{ \item{\code{quality}}{a string indicating the type of
+    quality (used to convert ASCII characters to quality
+    integers). Either "phred", "solexa", or "illumina".}
+
     \item{\code{qual.freqs}}{a dataframe of quality frequencies by
       position, if the file was a FASTQ file.}
     \item{\code{mean.qual}}{a numeric that is the mean quality across
@@ -36,6 +29,16 @@
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
 showClass("FASTQSummary")
+}
+
+
+\seealso{
+
+  \code{\link[=FASTASummary-class]{FASTASummary}} is the
+  counterpart of this class for FASTA data.
+
+  \code{\link{readSeqFile}} is the function that takes a FASTQ file and
+  returns a \code{FASTQSummary} object.
 }
 
 \keyword{classes}

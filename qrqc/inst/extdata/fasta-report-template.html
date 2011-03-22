@@ -42,8 +42,8 @@
     <div class="section">
       <h2>Nucleotide Frequency by Position</h2>
       <%
-         png('images/basefreqs.png', width=WIDTH, height=HEIGHT)
-         plotBaseFreqs(obj)
+         png(file.path(dir, 'images', 'basefreqs.png'), width=WIDTH, height=HEIGHT)
+         plotBases(obj)
          dev.off()
          %>
       <img src='images/basefreqs.png' />
@@ -52,8 +52,8 @@
     <div class="section">
       <h2>Nucleotide Proportion by Position</h2>
       <%
-         png('images/baseprops.png', width=WIDTH, height=HEIGHT)
-         plotBaseProps(obj)
+         png(file.path(dir, 'images', 'baseprops.png'), width=WIDTH, height=HEIGHT)
+         plotBases(obj, type="prop")
          dev.off()
          %>
       <img src='images/baseprops.png' />
@@ -63,8 +63,8 @@
     <div class="section">
       <h2>N Frequency by Position</h2>
       <%
-         png('images/nfreq.png', width=WIDTH, height=HEIGHT)
-         plotBaseFreqs(obj, bases='N')
+         png(file.path(dir, 'images', 'nfreq.png'), width=WIDTH, height=HEIGHT)
+         plotBases(obj, bases='N')
          dev.off()
          %>
       <img src='images/nfreq.png' />
@@ -73,7 +73,7 @@
     <div class="section">
       <h2>GC Content by Position</h2>
       <%
-         png('images/gc.png', width=WIDTH, height=HEIGHT)
+         png(file.path(dir, 'images', 'gc.png'), width=WIDTH, height=HEIGHT)
          plotGC(obj)
          dev.off()
          %>
@@ -83,7 +83,7 @@
     <div class="section">
       <h2>Sequence Length Distribution</h2>
       <%
-         png('images/seqlengths.png', width=WIDTH, height=HEIGHT)
+         png(file.path(dir, 'images', 'seqlengths.png'), width=WIDTH, height=HEIGHT)
          plotSeqLengths(obj)
          dev.off()
          %>

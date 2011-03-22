@@ -10,6 +10,7 @@
 }
 \section{Slots}{
   \describe{
+    \item{\code{filename}}{the filename processed by \code{readSeqFile}.}
    \item{\code{base.freqs}}{a dataframe of base frequencies by
       position. Each column is a nucleotide (there is a column for
       position too), and each row contains the count frequencies of bases for that
@@ -31,5 +32,19 @@
 \examples{
 showClass("SequenceSummary")
 }
+
+
+\seealso{
+
+  \code{\link[=FASTQSummary-class]{FASTQSummary}} and
+  \code{\link[=FASTASummary-class]{FASTASummary}} are the classes that
+  inherit from \code{SequenceSummary}.
+
+  \code{\link{readSeqFile}} is the function that takes a FASTQ or FASTA
+  file and returns a \code{FASTQSummary} object or \code{FASTASummary}
+  object.
+
+}
+
 
 \keyword{classes}

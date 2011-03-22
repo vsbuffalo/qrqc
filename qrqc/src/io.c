@@ -8,6 +8,7 @@
 
 #include "khash.h"
 #include "kseq.h"
+#include "io.h"
 
 #ifdef _WIN32
 int gzreadclone(FILE *file, void *buf, unsigned int len) {
@@ -35,7 +36,7 @@ KSEQ_INIT(gzFile, gzread)
 KHASH_MAP_INIT_STR(str, int)
 
 #define INIT_MAX_SEQ 500
-#define NUM_BASES 5 // includes N
+#define NUM_BASES 16 /* includes all IUPAC codes. */
 
 #define IS_FASTQ(quality_type) INTEGER(quality_type)[0] >= 0
 
@@ -50,10 +51,10 @@ typedef enum {
 #define Q_MAX 2
 
 static const int quality_contants[3][3] = {
-  // offset, min, max
-  {33, 0, 93}, // SANGER
-  {64, -5, 62}, // SOLEXA
-  {64, 0, 62} // ILLUMINA
+  /* offset, min, max */
+  {33, 0, 93}, /* SANGER */
+  {64, -5, 62}, /* SOLEXA */
+  {64, 0, 62} /* ILLUMINA */
 };
 
 
@@ -67,23 +68,57 @@ static void update_base_matrices(kseq_t *block, int *base_matrix) {
   for (i = 0; i < block->seq.l; i++) {
     switch ((char) block->seq.s[i]) {
     case 'A':
-      base_matrix[5*i]++;
+      base_matrix[NUM_BASES*i]++;
       break;
     case 'T':
-      base_matrix[5*i + 1]++;
+      base_matrix[NUM_BASES*i + 1]++;
       break;
     case 'C':
-      base_matrix[5*i + 2]++;
+      base_matrix[NUM_BASES*i + 2]++;
       break;
     case 'G':
-      base_matrix[5*i + 3]++;
+      base_matrix[NUM_BASES*i + 3]++;
       break;
     case 'N':
-      base_matrix[5*i + 4]++;
+      base_matrix[NUM_BASES*i + 4]++;
+      break;
+    case 'R':
+      base_matrix[NUM_BASES*i + 5]++;
+      break;
+    case 'Y':
+      base_matrix[NUM_BASES*i + 6]++;
+      break;
+    case 'S':
+      base_matrix[NUM_BASES*i + 7]++;
+      break;
+    case 'W':
+      base_matrix[NUM_BASES*i + 8]++;
+      break;
+    case 'K':
+      base_matrix[NUM_BASES*i + 9]++;
+      break;
+    case 'M':
+      base_matrix[NUM_BASES*i + 10]++;
+      break;
+    case 'B':
+      base_matrix[NUM_BASES*i + 11]++;
+      break;
+    case 'D':
+      base_matrix[NUM_BASES*i + 12]++;
+      break;
+    case 'H':
+      base_matrix[NUM_BASES*i + 13]++;
+      break;
+    case 'V':
+      base_matrix[NUM_BASES*i + 14]++;
+      break;
+    case '.':
+    case '-':
+      base_matrix[NUM_BASES*i + 15]++;
       break;
     default:
       error("Sequence character encountered that is not"
-            " A, T, C, G, or N: '%c', from %s", block->seq.s[i], block->seq.s);
+            "a IUPAC code: '%c', from %s", block->seq.s[i], block->seq.s);
     }
   }
 }
@@ -275,7 +310,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     SET_VECTOR_ELT(out_list, 3, seq_hash);
   }
 
-  // One more protected SEXP from qual_counts
+  /* One more protected SEXP from qual_counts */
 
   UNPROTECT(protects);
 

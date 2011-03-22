@@ -8,27 +8,22 @@
   data originated from a FASTA file.
 }
 \section{Slots}{
-  \describe{
-    \item{\code{base.freqs}}{a dataframe of base frequencies by
-      position. Each column is a nucleotide (there is a column for
-      position too), and each row contains the count frequencies of bases for that
-      position.}
-    \item{\code{base.props}}{a dataframe of base proportions by
-      position. This dataframe is stacked, so each row contains a
-      single nucleotide, its position, and its proportion for that
-      position.}
-    \item{\code{seq.lengths}}{a numeric vector of the number of sequences of a
-      particular length (the length is the position in the vector).}
-    \item{\code{hash}}{a numeric vector of the count frequencies of
-      sequences (the sequences are in the name attribute).}
-    \item{\code{hashed}}{a logical indicating whether the sequences were
-      hashed in \code{readSeqFile}.}
-  }
+  \code{\linkS4class{FASTASummary}} has the slots inherited from 
+  \code{\linkS4class{SequenceSummary}}.
 }
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
 showClass("FASTASummary")
+}
+
+\seealso{
+
+  \code{\link[=FASTQSummary-class]{FASTQSummary}} is the
+  counterpart of this class for FASTQ data.
+
+  \code{\link{readSeqFile}} is the function that takes a FASTA file and
+  returns a \code{FASTASummary} object.
 }
 
 \keyword{classes}

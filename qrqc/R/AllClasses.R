@@ -5,7 +5,6 @@ setClass("SequenceSummary",
            "VIRTUAL",
            filename='character',
            base.freqs='data.frame',
-           base.props='data.frame',
            seq.lengths='integer',
            hash='integer',
            hashed='logical'))

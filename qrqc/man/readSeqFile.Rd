@@ -45,4 +45,9 @@
                          type='fasta', hash=FALSE)
 
 }
+
+\seealso{ \code{\link[=FASTQSummary-class]{FASTQSummary}} and
+  \code{\link[=FASTASummary-class]{FASTASummary}} are the classes used
+  by the objects returned by \code{readSeqFile}.}
+
 \keyword{file}

@@ -1,56 +1,63 @@
 ## plotting-methods.R - functions to create plots from FASTQSummary and FASTASummary objects
 
-setMethod("plotBaseFreqs", "SequenceSummary",
-# Plot the frequency (absolute counts) of bases across a read.
-function(obj, bases=NULL) { 
-  base.freqs <- local({
-    tmp <- melt(obj@base.freqs, id='position')
-    colnames(tmp) <- c('position', 'base', 'frequency')
-    return(tmp)
-  })
+setMethod("plotBases", "SequenceSummary",
+# Plot the frequency (absolute counts) and proportion of bases across
+# a read.
+function(obj, bases=NULL, type="freq") {
+  if (!(type %in% c("freq", "prop")))
+    stop("'type' must be either 'freq' or 'prop'.")
 
   plot.new()
-  plot.window(ylim=c(min(base.freqs$frequency)*1.2, max(base.freqs$frequency)*1.2),
-              xlim=c(1, max(base.freqs$position)))
 
-  if (is.null(bases))
-    levs <- levels(base.freqs$base)
-  else
-    levs = bases
+  if (type == "freq") {
+    base.freqs <- local({
+      tmp <- melt(obj@base.freqs, id='position')
+      colnames(tmp) <- c('position', 'base', 'frequency')
+      return(tmp)
+    })
 
-  for (base in levs) {
-    lines(base.freqs$position[base.freqs$base == base],
-          base.freqs$frequency[base.freqs$base == base],
-          col=NUCLEOTIDES.COLORS[as.character(base)])
+    plot.window(ylim=c(min(base.freqs$frequency)*1.2, max(base.freqs$frequency)*1.2),
+                xlim=c(1, max(base.freqs$position)))
+
+    if (is.null(bases))
+      levs <- levels(base.freqs$base)
+    else
+      levs = bases
+
+    for (base in levs) {
+      lines(base.freqs$position[base.freqs$base == base],
+            base.freqs$frequency[base.freqs$base == base],
+            col=NUCLEOTIDES.COLORS[as.character(base)])
+    }
+    axis(1, at=min(base.freqs$position):max(base.freqs$position))
+    axis(2)
+    title(main="base frequency by position in read", xlab="position", ylab="frequency")
+  } else if (type == "prop") {
+    base.props <- getBaseProps(obj)
+    
+    w <- 1.2
+    plot.window(ylim=c(min(base.props$proportion)*w, max(base.props$proportion)*w),
+                xlim=c(1, max(base.props$position)))
+    
+    if (is.null(bases))
+      levs <- levels(base.props$base)
+    else
+      levs = bases
+    
+    for (base in levs) {
+      lines(base.props$position[base.props$base == base],
+            base.props$proportion[base.props$base == base],
+            col=NUCLEOTIDES.COLORS[as.character(base)])
+    }
+    
+    axis(1, at=min(base.props$position):max(base.props$position))
+    axis(2, at=seq(0, 1, by=0.2))
+    abline(h=0.25, col='grey')  
+    title(main="base proportion by position in read", xlab="position", ylab="proportion")
   }
-
-  axis(1, at=min(base.freqs$position):max(base.freqs$position))
-  axis(2)
-  title(main="base frequency by position in read", xlab="position", ylab="frequency")
+  
 })
 
-setMethod("plotBaseProps", "SequenceSummary",
-# Plot proportions of all nucleotides across a read.
-function(obj) {
-  base.props <- obj@base.props
-  plot.new()
-
-  w <- 1.2
-  plot.window(ylim=c(min(base.props$proportion)*w, max(base.props$proportion)*w),
-              xlim=c(1, max(base.props$position)))
-  
-  
-  for (base in levels(base.props$base)) {
-    lines(base.props$position[base.props$base == base],
-          base.props$proportion[base.props$base == base],
-          col=NUCLEOTIDES.COLORS[as.character(base)])
-  }
-
-  axis(1, at=min(base.props$position):max(base.props$position))
-  axis(2, at=seq(0, 1, by=0.2))
-  abline(h=0.25, col='grey')  
-  title(main="base proportion by position in read", xlab="position", ylab="proportion")
-})
 
 setMethod("plotQuals", "FASTQSummary",
 # Make a series of (custom) boxplots, with a point for median and a
@@ -80,7 +87,7 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
   }
 
   op <- par(no.readonly=TRUE)
-  m <- sprintf("quality distribution by read base (quality type: %s)", obj@quality)
+  m <- sprintf("quality distribution by read base\n(quality type: %s)", obj@quality)
   
   if (histogram) {
     nf <- layout(c(1, 2), heights=c(1, 4))
@@ -94,7 +101,7 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
     axis(1, at=1:nrow(d))
     axis(2, at=seq(0, 1, by=0.1))
     lines(prop.table(s[1:max(which(s != 0))]), type='h', col='blue', lwd=2)
-    m <- sprintf("quality distribution by read base and sequence length histogram (quality type: %s)", obj@quality)
+    m <- sprintf("quality distribution by read base and sequence length histogram\n(quality type: %s)", obj@quality)
     title(main=m, ylab="density")
     par(mar=c(4.5, 4, 1, 1)) # setup for next plot
   }
@@ -130,7 +137,8 @@ setMethod("plotGC", "SequenceSummary",
 # Plot the proportion of bases that are G or C (the GC content).
 function(obj) {
   gc <- local({
-    d <- subset(obj@base.props, obj@base.props$base %in% c('G', 'C'))
+    base.props <- getBaseProps(obj)
+    d <- subset(base.props, base.props$base %in% c('G', 'C'))
     gc <- aggregate(d$proportion, list(d$position), sum)
     colnames(gc) <- c('position', 'gc')
     return(gc)

@@ -4,7 +4,8 @@ QUALITY.CONSTANTS <- list(phred=list(offset=33, min=0, max=93),
                           solexa=list(offset=64, min=-5, max=62),
                           illumina=list(offset=64, min=0, max=62))
 
-NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N')
+NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N', 'R', 'Y', 'S',
+                 'W', 'K', 'M', 'B', 'D', 'H', 'V', '-')
 NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
                         'C'='blue', 'G'='black',
                         'N'='purple')
@@ -64,13 +65,6 @@ function(filename, type='fastq', max.length=1000, quality='illumina', hash=TRUE,
     obj@mean.qual <- meanFromBins(obj@qual.freqs, obj@seq.lengths)
     obj@quality <- quality
   }
-  
-  obj@base.props <- local({
-    tmp <- prop.table(as.matrix(obj@base.freqs[, -1]), margin=1)
-    tmp <- melt(tmp, id='position')
-    colnames(tmp) <- c('position', 'base', 'proportion')
-    return(tmp)
-  })
   obj@hashed <- hash
   return(obj)
 }

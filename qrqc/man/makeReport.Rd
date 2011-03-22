@@ -23,4 +23,5 @@
   ## Make and save a report
   makeReport(s.fastq)
 }
+
 \keyword{file}

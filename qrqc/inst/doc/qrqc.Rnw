@@ -74,14 +74,14 @@ but \texttt{type=FASTA} must be specified.
 If the file read and summarized with \texttt{readSeqFile} is a FASTQ
 file (and thus the resulting object is from the \texttt{FASTQSummary}
 class), quality information by position can be plotted with
-\texttt{plotQuals}:
+\texttt{plotQuals}, which produces a graphic as in Figure \ref{fig:PlotQuals}:
 
 \begin{figure}
 \centering
 \includegraphics{qrqc-figPlotQuals}
 \caption{A plot of quality by base position, with sequence length
   histogram.}
-\label{figPlotQuals}
+\label{fig:PlotQuals}
 \end{figure}
 
 <<figPlotQuals,fig=TRUE,width=7,height=6>>=
@@ -100,58 +100,68 @@ fitting through these points.
 
 \section{Other Plots of FASTQSummary and FASTASummary Objects}
 The following S4 methods work for FASTQSummary and FASTASummary
-objects. Base frequencies (counts) by position can be plotted with
-\texttt{plotBaseFreqs}:
+objects. Base frequencies (counts) and base proportions by position
+can be plotted with \texttt{plotBases}. When used with
+\texttt{type='freq'}, \texttt{plotBases} produces a graphic as in Figure
+\ref{fig:PlotBase-freqs}:
 
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotBaseFreqs}
+\includegraphics{qrqc-figPlotBase-freqs}
 \caption{Base frequencies by position in sequence.}
-\label{figPlotBaseFreqs}
+\label{fig:PlotBase-freqs}
 \end{figure}
 
-<<figPlotBaseFreqs,fig=TRUE,width=7,height=6>>=
-plotBaseFreqs(s.fastq)
+<<figPlotBase-freqs,fig=TRUE,width=7,height=6>>=
+plotBases(s.fastq, type="freq")
 @ 
 
-\texttt{plotBaseFreqs} also accepts a \texttt{bases} parameter, which
+\texttt{plotBases} uses the Sanger base color scheme: blue is
+Cytosine, green is Adenine, black is Guanine, red is Thymine, and
+purple in N (any base). When further IUPAC nucleotides are found in
+the sequences, a legend is added.
+
+\texttt{plotBases} also accepts a \texttt{bases} parameter, which
 can be used to specify specific bases. This is useful for plotting
 just the frequency of `N'.
 
-Base proportions by position can be plotted with
-\texttt{plotBaseProps}. This plot is basically identical to
-\texttt{plotBaseFreqs} with a different y scale:
+Base proportions by position can be plotted with \texttt{plotBases},
+with \texttt{type='prop'}. This plot is basically identical to
+the plot produced with \texttt{type='freq'} with a different y scale:
 
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotBaseProps}
+\includegraphics{qrqc-figPlotBase-prop}
 \caption{Base proportions by position in sequence.}
-\label{figPlotBaseProps}
+\label{fig:PlotBase-prop}
 \end{figure}
 
-<<figPlotBaseProps,fig=TRUE,width=7,height=6>>=
-plotBaseProps(s.fastq)
+<<figPlotBase-prop,fig=TRUE,width=7,height=6>>=
+plotBases(s.fastq, type="prop")
 @
 
-Sequence length distribution can be plotted with \texttt{plotSeqLengths}:
+Sequence length distribution can be plotted with
+\texttt{plotSeqLengths} (graphic shown in Figure \ref{fig:PlotSeqLengths}):
 
 \begin{figure}
 \centering
 \includegraphics{qrqc-figPlotSeqLengths}
 \caption{Histogram of sequence lengths.}
-\label{figPlotSeqLengths}
+\label{fig:PlotSeqLengths}
 \end{figure}
 
 <<figPlotSeqLengths,fig=TRUE,width=7,height=6>>=
 plotSeqLengths(s.fastq)
 @
 
-The GC content can be plotted with \texttt{plotGC}:
+The GC content can be plotted with \texttt{plotGC} (graphic shown
+in Figure \ref{fig:PlotGC}):
+
 \begin{figure}
 \centering
 \includegraphics{qrqc-figPlotGC}
 \caption{GC content by position}
-\label{figPlotGC}
+\label{fig:PlotGC}
 \end{figure}
 
 <<figPlotGC,fig=TRUE,width=7,height=6>>=
@@ -178,20 +188,27 @@ except the latter provides additional slots for quality
 information. Both contain:
 
 \begin{itemize}
-\item \texttt{filename}: the filename of the file read and summarized with \texttt{readSeqFile}.
-\item \texttt{base.freqs}: a dataframe containing the frequency counts of each base.
-\item \texttt{base.props}: a ``long'' dataframe, with each base proportion and position by row.
-\item \texttt{seq.lengths}: a numeric vector containing the sequences lengths (counts by position).
+\item \texttt{filename}: the filename of the file read and summarized
+  with \texttt{readSeqFile}.
+\item \texttt{base.freqs}: a dataframe containing the frequency counts
+  of each base.
+\item \texttt{base.props}: a ``long'' dataframe, with each base
+  proportion and position by row.
+\item \texttt{seq.lengths}: a numeric vector containing the sequences
+  lengths (counts by position).
 \item \texttt{hash}: a numeric vector containing the counts of unique
   sequences (the actual sequences are the names attribute).
-\item \texttt{hashed}: a logical indicating whether sequence hashing to count unique sequences was done.
+\item \texttt{hashed}: a logical indicating whether sequence hashing
+  to count unique sequences was done.
 \end{itemize}
 
 Additionally, \texttt{FASTQSummary} provides:
 
 \begin{itemize}
-\item \texttt{qual.freqs}: a dataframe containing the counts of bases of a particular quality by position.
-\item \texttt{mean.qual}: a numeric giving the mean quality, weighted by sequence lengths.
+\item \texttt{qual.freqs}: a dataframe containing the counts of bases
+  of a particular quality by position.
+\item \texttt{mean.qual}: a numeric giving the mean quality, weighted
+  by sequence lengths.
 \end{itemize}
 
 \section{Acknowledgements}
@@ -200,6 +217,12 @@ Thanks to Simon Andrews for his work on
 (a similar program written in Java) from which this project was
 inspired. Also thanks to Joseph Fass and Dawei Lin for their advice
 and helpful comments.
+
+Thanks to Heng Li for his work on \texttt{kseq.h} \texttt{khash.h}
+(both MIT License) which this package uses. More on these header files
+can be found at
+\url{http://lh3lh3.users.sourceforge.net/kseq.shtml} and
+\url{http://attractivechaos.awardspace.com/khash.h.html}.
 
 \section{Session Info}
 <<>>=

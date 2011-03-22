@@ -120,3 +120,16 @@ function(obj, n=100, f=1/6) {
   l <- lowess(d$position, d$quality, f=f)
   return(l)
 }
+
+getBaseProps <-
+# Given an object that inherits from SummarySequence, return the bases
+# by proportion.
+function(obj) {
+  base.props <- local({
+    tmp <- prop.table(as.matrix(obj@base.freqs[, -1]), margin=1)
+    tmp <- melt(tmp, id='position')
+    colnames(tmp) <- c('position', 'base', 'proportion')
+    return(tmp)
+  })
+  return(base.props)
+}
