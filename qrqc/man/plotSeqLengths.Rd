@@ -1,5 +1,5 @@
 \name{plotSeqLengths}
-\alias{plotSeqLengths,SequenceSummary-method}
+\alias{plotSeqLengths}
 \title{Plot Histogram of Sequence Lengths}
 \description{
   \code{plotSeqLengths} plots histogram of sequence lengths.

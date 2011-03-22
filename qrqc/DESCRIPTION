@@ -5,7 +5,8 @@ Title: Quick Read Quality Control
 Author: Vince Buffalo
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Imports: reshape, testthat, brew, xtable
-Depends: methods, tools, utils
+Depends: Rsamtools (>= 1.3.28), methods, tools, utils
+LinkingTo: Rsamtools
 Description: Quickly scans reads and gathers statistics on base and quality
  frequencies, read length, and frequent sequences. Produces graphical output
  of statistics for use in quality control pipelines, and an optional HTML

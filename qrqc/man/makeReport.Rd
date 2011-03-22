@@ -1,5 +1,5 @@
 \name{makeReport}
-\alias{makeReport,FASTASummary-method}
+\alias{makeReport}
 \title{Make an HTML report from a FASTASummary of FASTQSummary object}
 \description{
   \code{makeReport} takes a \code{FASTQSummary} or \code{FASTASummary}

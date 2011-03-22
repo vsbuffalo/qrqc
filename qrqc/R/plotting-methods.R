@@ -82,7 +82,7 @@ setMethod("plotQuals", "FASTQSummary",
 # horizontal line for the mean. If `lowess` is TRUE, add lowess curve,
 # which is fit through MC samples though the binned quals with
 # `qualMCLowess`.
-function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
+function(obj, ylim='relative', lowess=TRUE, histogram=TRUE, legend=FALSE) {
   d <- local({
     tmp <- apply(obj@qual.freqs[, -1], 1, binned2boxplot)
     tmp <- t(tmp)
@@ -149,6 +149,12 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE) {
   if (!histogram)
     title(main=m)
   par(op)
+
+  if (legend) {
+    legend("bottomleft",
+           c("10% - 90%", "25% - 75%", "median", "mean", "lowess"),
+           col=c("grey", "orange", "blue", "dark green", "purple"), lwd=2, box.lwd=0.6)
+  }
 })
 
 setMethod("plotGC", "SequenceSummary",

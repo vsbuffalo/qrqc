@@ -172,10 +172,12 @@ plotGC(s.fastq)
 
 With the help of \Rpackage{brew} and \Rpackage{xtable},
 \Rpackage{qrqc} can generate an HTML summary report. This is created
-with \texttt{makeReport}. Image files are kept under `images/' and the
-report is created with a filename of the format:
-``\emph{seqfilename}-report.html'' by default. A specific filename can
-be passed through the \texttt{filename} argument. 
+with \texttt{makeReport}. Reports are stored in their own directories,
+with images kept under `images/' and the report is ``report.html''. A
+specific output directory can be passed through the \texttt{outputDir}
+argument, but the present directory is used as a default. Multiple
+reports generated in the same directory will have an incremental
+naming scheme.
 
 \section{Working with the FASTQSummary and FASTASummary classes}
 \Rpackage{qrqc} provides the \texttt{FASTQSummary} and

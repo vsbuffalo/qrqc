@@ -8,12 +8,11 @@
 
   \code{plotBases} uses the Sanger base color scheme: blue is Cytosine,
   green is Adenine, black is Guanine, red is Thymine, and purple in N
-  (any base). When further IUPAC nucleotides are found in the sequences,
-  a legend is added.
+  (any base). Other IUPAC nucleotides are colored using \pkg{RColorBrewer}.
   
 }
 \usage{
-  plotBases(obj, bases=NULL, type="freq")
+  plotBases(obj, type="freq", bases=NULL, legend=TRUE)
 }
 \arguments{
   
@@ -22,13 +21,17 @@
     \code{\linkS4class{FASTASummary}} or
     \code{\linkS4class{FASTQSummary}}) from \code{readSeqFile}.}
   
+  \item{type}{a character string that is either "freq" or "prop"
+    indicating whether to plot frequencies or proportions on the
+    y-axis.}
+  
   \item{bases}{a vector of characters indicating which bases to
     include. The default value \code{NULL} indicates to plot _all_
     bases.}
   
-  \item{type}{a character string that is either "freq" or "prop"
-    indicating whether to plot frequencies or proportions on the
-    y-axis.}
+  \item{legend}{a logical indicating whether to include a legend on the
+  top right.}
+  
 
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}

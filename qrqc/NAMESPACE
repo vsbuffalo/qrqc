@@ -2,6 +2,7 @@ useDynLib(qrqc, .registration=TRUE)
 import(reshape)
 import(testthat)
 import(RColorBrewer)
+import(Rsamtools)
 import(brew)
 import(xtable)
 

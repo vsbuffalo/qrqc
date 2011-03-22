@@ -5,9 +5,8 @@
 #include <R.h>
 #include <R_ext/Utils.h>
 #include <Rinternals.h>
-
-#include "khash.h"
-#include "kseq.h"
+#include "samtools/khash.h"
+#include "samtools/kseq.h"
 #include "io.h"
 
 #ifdef _WIN32

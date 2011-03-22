@@ -1,5 +1,5 @@
 \name{plotQuals}
-\alias{plotQuals,FASTQSummary-method}
+\alias{plotQuals}
 \title{Plot a Base Quality Boxplot by Position}
 \description{
   \code{plotQuals} plots quality statistics by position.
@@ -8,9 +8,18 @@
   qualities at each position. A histogram of the sequence length
   distribution is plotted above the quality plot when \code{histogram}
   is \code{TRUE}.
+
+  A legend is plotted on the bottom left if \code{legend} is
+  \code{TRUE} (this location is used because this where the bases are
+  likely to be of highest quality, and thus not overlap the legend). The
+  grey lines indicate the range of the 10\% and 90\% quantiles, the
+  orange lines indicate the range of the 25\% and 75\% quartiles, the
+  blue point is the median, the green dash is the mean, and the purple
+  line is the lowess curve if \code{lowess} is \code{TRUE}.
+  
 }
 \usage{
-  plotQuals(obj, ylim='relative', lowess=TRUE, histogram=TRUE)
+  plotQuals(obj, ylim='relative', lowess=TRUE, histogram=TRUE, legend=FALSE)
 }
 \arguments{
   \item{obj}{an S4 object of class \code{FASTQSummary} from \code{readSeqFile}.}
