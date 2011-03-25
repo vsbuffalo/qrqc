@@ -10,7 +10,11 @@ NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
                         'C'='blue', 'G'='black',
                         'N'='purple')
 other.iupac <- c('R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V', '-')
-other.iupac.colors <- brewer.pal(length(other.iupac), "Set3")
+
+# These are from RColorBrewer, but I include them manually to remove a
+# depedency for one call.
+other.iupac.colors <- c("#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462", 
+                        "#B3DE69", "#FCCDE5", "#D9D9D9", "#BC80BD", "#CCEBC5")
 names(other.iupac.colors) <- other.iupac
 NUCLEOTIDES.COLORS <- c(NUCLEOTIDES.COLORS, other.iupac.colors)
 
