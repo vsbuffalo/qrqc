@@ -1,5 +1,8 @@
-\name{plotGC}
+\name{plotGC-methods}
+\docType{methods}
 \alias{plotGC}
+\alias{plotGC-methods}
+\alias{plotGC,SequenceSummary-method}
 \title{Plot per Base GC Content by Position}
 \description{
   \code{plotGC} plots the GC proportion by position.

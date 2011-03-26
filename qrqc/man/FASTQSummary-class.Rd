@@ -1,8 +1,10 @@
 \name{FASTQSummary-class}
+\Rdversion{1.1}
 \docType{class}
 \alias{FASTQSummary-class}
-\alias{FASTQSummary}
-\title{"FASTQSummary" class representing the summaries of a FASTQ file}
+\alias{makeReport,FASTQSummary-method}
+\alias{plotQuals,FASTQSummary-method}
+\title{\code{FASTQSummary} class representing the summaries of a FASTQ file}
 \description{
   This class contains the same slots as the
   \code{\linkS4class{SequenceSummary}}, as well as additional slots for quality

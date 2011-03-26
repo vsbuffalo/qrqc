@@ -1,7 +1,12 @@
 \name{SequenceSummary-class}
+\Rdversion{1.1}
 \docType{class}
-\alias{SequenceSummary,SequenceSummary-class}
-\title{"SequenceSummary" class representing the summaries of a sequence file}
+\alias{SequenceSummary-class}
+\alias{plotBases,SequenceSummary-method}
+\alias{plotGC,SequenceSummary-method}
+\alias{plotSeqLengths,SequenceSummary-method}
+
+\title{\code{SequenceSummary} class representing the summaries of a sequence file}
 \description{
   A sequence file read in with \code{readSeqFile} is summarized by a C
   call. This is a base class with slots common to both
@@ -14,10 +19,6 @@
    \item{\code{base.freqs}}{a dataframe of base frequencies by
       position. Each column is a nucleotide (there is a column for
       position too), and each row contains the count frequencies of bases for that
-      position.}
-    \item{\code{base.props}}{a dataframe of base proportions by
-      position. This dataframe is stacked, so each row contains a
-      single nucleotide, its position, and its proportion for that
       position.}
     \item{\code{seq.lengths}}{a numeric vector of the number of sequences of a
       particular length (the length is the position in the vector).}

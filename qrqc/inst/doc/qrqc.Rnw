@@ -16,7 +16,7 @@
 \author{Vince Buffalo\\[1em]Bioinformatics Core\\ UC Davis Genome Center\\[1em]
 \texttt{vsbuffalo@ucdavis.edu}}
 
-\title{\textsf{\textbf{Using the ``qrqc'' package to gather information about sequence qualities}}}
+\title{\textsf{\textbf{Using the \Rpackage{qrqc} package to gather information about sequence qualities}}}
 
 \date{2010-01-19}
 
@@ -28,7 +28,7 @@
 \begin{abstract}
   Many projects in bioinformatics begin with raw sequences from a
   high-throughput sequencer that must be quality checked before
-  additional analysis steps can proceed. The ``qrqc'' (Quick Read
+  additional analysis steps can proceed. The \Rpackage{qrqc} (Quick Read
   Quality Control) package is a fast and extensible package that
   reports basic quality and summary statistics on FASTQ and FASTA
   files, including base and quality distribution by position, sequence

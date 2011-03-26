@@ -1,7 +1,9 @@
 \name{FASTASummary-class}
+\Rdversion{1.1}
 \docType{class}
-\alias{FASTASummary,FASTASummary-class}
-\title{"FASTASummary" class representing the summaries of a FASTA file}
+\alias{FASTASummary-class}
+\alias{makeReport,FASTASummary-method}
+\title{\code{FASTASummary} class representing the summaries of a FASTA file}
 \description{
   This class contains the same slots as the
   \code{\linkS4class{SequenceSummary}}, but it is used to indicate the

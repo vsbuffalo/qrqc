@@ -1,5 +1,8 @@
-\name{plotBases}
+\name{plotBases-methods}
+\docType{methods}
 \alias{plotBases}
+\alias{plotBases-methods}
+\alias{plotBases,SequenceSummary-method}
 \title{Plot Bases by Position}
 \description{
   
@@ -29,7 +32,7 @@
     include. The default value \code{NULL} indicates to plot _all_
     bases.}
   
-  \item{legend}{a logical indicating whether to include a legend on the
+  \item{legend}{a logical value indicating whether to include a legend on the
   top right.}
   
 

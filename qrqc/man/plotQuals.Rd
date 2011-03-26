@@ -1,5 +1,9 @@
-\name{plotQuals}
+\name{plotQuals-methods}
+\docType{methods}
 \alias{plotQuals}
+\alias{plotQuals-methods}
+\alias{plotQuals,FASTQSummary-method}
+
 \title{Plot a Base Quality Boxplot by Position}
 \description{
   \code{plotQuals} plots quality statistics by position.
@@ -19,7 +23,7 @@
   
 }
 \usage{
-  plotQuals(obj, ylim='relative', lowess=TRUE, histogram=TRUE, legend=FALSE)
+  plotQuals(obj, ylim='relative', lowess=TRUE, histogram=TRUE, legend=TRUE)
 }
 \arguments{
   \item{obj}{an S4 object of class \code{FASTQSummary} from \code{readSeqFile}.}
@@ -28,7 +32,8 @@
   \item{lowess}{a logical value indicating whether to fit a lowess curve
     through the quality plot.}
   \item{histogram}{a logical value indicating whether to add a histogram
-  of the sequence length distribution above the quality plot.}
+    of the sequence length distribution above the quality plot.}
+  \item{legend}{a logical value indicating whether a legend is to be included.}
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
@@ -39,3 +44,4 @@
   plotQuals(s.fastq)
 }
 \keyword{graphics}
+\keyword{methods}
