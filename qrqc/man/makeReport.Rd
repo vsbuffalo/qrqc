@@ -2,8 +2,6 @@
 \docType{methods}
 \alias{makeReport}
 \alias{makeReport-methods}
-\alias{makeReport,FASTASummary-method}
-\alias{makeReport,FASTQSummary-method}
 \title{Make an HTML report from a FASTASummary of FASTQSummary object}
 \description{
   \code{makeReport} takes a \code{FASTQSummary} or \code{FASTASummary}

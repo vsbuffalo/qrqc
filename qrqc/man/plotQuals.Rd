@@ -2,7 +2,6 @@
 \docType{methods}
 \alias{plotQuals}
 \alias{plotQuals-methods}
-\alias{plotQuals,FASTQSummary-method}
 
 \title{Plot a Base Quality Boxplot by Position}
 \description{

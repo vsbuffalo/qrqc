@@ -2,7 +2,6 @@
 \docType{methods}
 \alias{plotSeqLengths}
 \alias{plotSeqLengths-methods}
-\alias{plotSeqLengths,SequenceSummary-method}
 \title{Plot Histogram of Sequence Lengths}
 \description{
   \code{plotSeqLengths} plots histogram of sequence lengths.

@@ -2,7 +2,6 @@
 \docType{methods}
 \alias{plotBases}
 \alias{plotBases-methods}
-\alias{plotBases,SequenceSummary-method}
 \title{Plot Bases by Position}
 \description{
   
