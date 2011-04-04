@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Quality Report for "<%=basename(obj@filename)%>"</title>
+    <meta http-equiv="content-type" 
+	  content="text/html;charset=utf-8" />
+    <style type="text/css" media="screen">
+      body {
+      font-family: arial, sans-serif;
+      }
+      .section {
+      width: 920px;
+      border-style: solid;
+      border-width: 0 0 1px 0;
+      border-color: grey;
+      padding: 1.4em;
+      }
+      .section h2 {
+      color: #444444;
+      }
+      .fixed-font {
+      font-family: monospace;
+      }
+
+      table, td, th {
+      font-family: monospace;
+      border: 0;
+      padding-right: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <h2>General Information</h2>
+      File: <span class="fixed-font"><%=obj@filename%></span><br/>
+      Type: <span class="fixed-font">FASTA</span><br/>
+      Sequence Length Range: <span class="fixed-font"><%=sl.range[1]%></span> to 
+      <span class="fixed-font"><%=sl.range[2]%></span> bases<br/>
+      Total Sequences: <span class="fixed-font"><%=sum(obj@seq.lengths)%></span><br/>
+      Unique Sequences: <span class="fixed-font"><%=length(obj@hash)%></span><br/>
+    </div>
+
+    <div class="section">
+      <h2>Nucleotide Frequency by Position</h2>
+      <%
+         png(file.path(dir, 'images', 'basefreqs.png'), width=WIDTH, height=HEIGHT)
+         plotBases(obj)
+         dev.off()
+         %>
+      <img src='images/basefreqs.png' />
+    </div>
+
+    <div class="section">
+      <h2>Nucleotide Proportion by Position</h2>
+      <%
+         png(file.path(dir, 'images', 'baseprops.png'), width=WIDTH, height=HEIGHT)
+         plotBases(obj, type="prop")
+         dev.off()
+         %>
+      <img src='images/baseprops.png' />
+    </div>
+
+
+    <div class="section">
+      <h2>N Frequency by Position</h2>
+      <%
+         png(file.path(dir, 'images', 'nfreq.png'), width=WIDTH, height=HEIGHT)
+         plotBases(obj, bases='N')
+         dev.off()
+         %>
+      <img src='images/nfreq.png' />
+    </div>
+
+    <div class="section">
+      <h2>GC Content by Position</h2>
+      <%
+         png(file.path(dir, 'images', 'gc.png'), width=WIDTH, height=HEIGHT)
+         plotGC(obj)
+         dev.off()
+         %>
+      <img src='images/gc.png' />
+    </div>
+
+    <div class="section">
+      <h2>Sequence Length Distribution</h2>
+      <%
+         png(file.path(dir, 'images', 'seqlengths.png'), width=WIDTH, height=HEIGHT)
+         plotSeqLengths(obj)
+         dev.off()
+         %>
+      <img src='images/seqlengths.png' />
+    </div>
+    
+    <div class="section">
+      <h2>Most Frequent Sequences</h2>
+      <%
+         if (obj@hashed) {
+           x <- makeHashTable(obj)
+           print(x, type="html")         
+         } else {
+           cat("No sequence frequency information available - readSeqFile() run with hash=FALSE")
+         }
+         %>
+    </div>
+
+    <div style="font-size: 0.8em; margin-left: 280px;">Report produced by the R package <span class="fixed-font">qrqc</span></div>
+  </body>
+</html>
