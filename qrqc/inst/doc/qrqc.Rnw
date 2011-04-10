@@ -1,5 +1,5 @@
-%\VignetteIndexEntry{Analysing RNA-Seq data with the "DESeq" package}
-%\VignettePackage{DESeq}
+%\VignetteIndexEntry{Using the qrqc package to gather information about sequence qualities}
+%\VignettePackage{qrqc}
 
 \documentclass{article}
 
@@ -194,8 +194,6 @@ information. Both contain:
   with \texttt{readSeqFile}.
 \item \texttt{base.freqs}: a dataframe containing the frequency counts
   of each base.
-\item \texttt{base.props}: a ``long'' dataframe, with each base
-  proportion and position by row.
 \item \texttt{seq.lengths}: a numeric vector containing the sequences
   lengths (counts by position).
 \item \texttt{hash}: a numeric vector containing the counts of unique

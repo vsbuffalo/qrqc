@@ -41,6 +41,18 @@ showClass("FASTQSummary")
 
   \code{\link{readSeqFile}} is the function that takes a FASTQ file and
   returns a \code{FASTQSummary} object.
+
+  \code{\link{plotBases}} is a function that plots the distribution of
+  bases over sequence length for a particular \code{FASTQSummary}
+  object. \code{\link{plotGC}} combines and plots the GC proportion.
+  
+  \code{\link{plotQuals}} is a function that plots the distribution of
+  qualities over sequence length for a particular \code{FASTQSummary}
+  object.
+
+  \code{\link{plotSeqLengths}} is a function that plots a histogram of
+  sequence lengths for a particular \code{FASTQSummary} object.
+  
 }
 
 \keyword{classes}

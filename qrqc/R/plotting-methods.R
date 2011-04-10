@@ -175,7 +175,7 @@ function(obj) {
               xlim=c(1, max(gc$position)))
   
   
-  lines(gc$position, gc$gc, col='red')
+  lines(gc$position, gc$gc, col='pink')
 
   axis(1, at=min(gc$position):max(gc$position))
   axis(2, at=seq(0, 1, by=0.2))
