@@ -46,8 +46,28 @@
 
 }
 
-\seealso{ \code{\link[=FASTQSummary-class]{FASTQSummary}} and
-  \code{\link[=FASTASummary-class]{FASTASummary}} are the classes used
-  by the objects returned by \code{readSeqFile}.}
+\seealso{
+
+  \code{\link[=FASTQSummary-class]{FASTQSummary}} and
+  \code{\link[=FASTASummary-class]{FASTASummary}} are the classes of the
+  objects returned by \code{readSeqFile}.
+
+  \code{\link{plotBases}} is a function that plots the distribution of
+  bases over sequence length for a particular \code{FASTASummary} or
+  \code{FASTQSummary} object. \code{\link{plotGC}} combines and plots
+  the GC proportion.
+  
+    
+  \code{\link{plotQuals}} is a function that plots the distribution of
+  qualities over sequence length for a particular \code{FASTASummary}
+  or \code{FASTQSummary} object.
+
+  \code{\link{plotSeqLengths}} is a function that plots a histogram of
+  sequence lengths for a particular \code{FASTASummary} or
+  \code{FASTQSummary} object.
+
+}
+
+
 
 \keyword{file}
