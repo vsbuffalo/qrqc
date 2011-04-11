@@ -98,6 +98,23 @@ distributions. This line is fit by first randomly drawing values from
 the empirical (binned) distribution of qualities at a particular base, then
 fitting through these points.
 
+\texttt{plotQuals} can be very useful in inspecting base qualities
+before and after read quality control pipelines. For example, the
+package contains \texttt{test-trimmed.fastq}, which has the same
+sequences as \texttt{test.fastq} after being trimmed with Nik Joshi's
+\texttt{Sickle}, a windowed adaptive quality trimmer.
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figPlotQuals-trimmed}
+\caption{A plot of quality by base position after being trimmed with \texttt{Sickle}.}
+\label{fig:PlotQuals-trimmed}
+\end{figure}
+<<figPlotQuals-trimmed,fig=TRUE,width=7,height=6>>=
+s.trimmed.fastq <- readSeqFile(system.file('extdata', 'test-trimmed.fastq', package='qrqc'))
+plotQuals(s.trimmed.fastq)
+@ 
+
 \section{Other Plots of FASTQSummary and FASTASummary Objects}
 The following S4 methods work for FASTQSummary and FASTASummary
 objects. Base frequencies (counts) and base proportions by position
@@ -146,12 +163,12 @@ Sequence length distribution can be plotted with
 \begin{figure}
 \centering
 \includegraphics{qrqc-figPlotSeqLengths}
-\caption{Histogram of sequence lengths.}
+\caption{Histogram of sequence lengths after quality trimming.}
 \label{fig:PlotSeqLengths}
 \end{figure}
 
 <<figPlotSeqLengths,fig=TRUE,width=7,height=6>>=
-plotSeqLengths(s.fastq)
+plotSeqLengths(s.trimmed.fastq)
 @
 
 The GC content can be plotted with \texttt{plotGC} (graphic shown
@@ -219,10 +236,14 @@ inspired. Also thanks to Joseph Fass and Dawei Lin for their advice
 and helpful comments.
 
 Thanks to Heng Li for his work on \texttt{kseq.h} \texttt{khash.h}
-(both MIT License) which this package uses. More on these header files
-can be found at
+(both MIT License) which this package uses through
+\Rpackage{RSamtools}. More on these header files can be found at
 \url{http://lh3lh3.users.sourceforge.net/kseq.shtml} and
 \url{http://attractivechaos.awardspace.com/khash.h.html}.
+
+\texttt{Sickle} can be downloaded or cloned from the UC Davis
+Bioinformatics Github repository:
+\url{https://github.com/ucdavis-bioinformatics/sickle}.
 
 \section{Session Info}
 <<>>=
