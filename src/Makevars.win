@@ -1,2 +1,2 @@
-PKG_LIBS += -lRzlib
+PKG_LIBS += $(ZLIB_LIBS)
 
