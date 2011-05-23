@@ -1,6 +1,7 @@
 ## main.R - functions to handle sequence files and interface with io.c
 
-QUALITY.CONSTANTS <- list(phred=list(offset=33, min=0, max=93),
+QUALITY.CONSTANTS <- list(phred=list(offset=0, min=4, max=60),
+                          sanger=list(offset=33, min=0, max=93),
                           solexa=list(offset=64, min=-5, max=62),
                           illumina=list(offset=64, min=0, max=62))
 

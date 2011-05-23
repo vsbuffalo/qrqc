@@ -133,13 +133,13 @@ static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q
   int q_max = quality_contants[q_type][Q_MAX];
   int q_offset = quality_contants[q_type][Q_OFFSET];
 
-  if (!block->qual.l)
+  if (!block->qual.l && block->seq.l > 0)
     error("update_qual_matrices only works on FASTQ files");
   
   for (i = 0; i < block->qual.l; i++) {
     R_CheckUserInterrupt();
-    if ((char) block->qual.s[i] - q_offset < q_min || (char) block->qual.s[i] - q_offset > q_max)
-      error("base quality out of range (%d < b < %d) encountered: %d", q_min,
+    if ((char) block->qual.s[i] - q_offset <= q_min || (char) block->qual.s[i] - q_offset >= q_max)
+      error("base quality out of range (%d <= b <= %d) encountered: %d", q_min,
             q_max, (char) block->qual.s[i]);
     
     qual_matrix[(q_range+1)*i + ((char) block->qual.s[i]) - q_offset - q_min]++;

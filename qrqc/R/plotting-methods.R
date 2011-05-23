@@ -195,7 +195,6 @@ function(obj) {
   x <- unique(1:length(l))
   d <- data.frame(cbind(x, l))
   d$p <- d$l/sum(d$l)
-  browser()
   plot.window(ylim=c(0, 1), xlim=c(min(x), max(x)))
   apply(d, 1, function(x) lines(x[1], x[3], type='h', col='blue', lwd=2))
   axis(1, at=(min(x)-1):(max(x)+1))
