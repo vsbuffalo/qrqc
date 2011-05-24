@@ -22,6 +22,7 @@ clean: clean-pdf
 	rm -f qrqc/src/*.o qrqc/src/*.so
 	rm -rf .DS_Store
 	find . | grep .DS_Store | xargs rm
+	rm -rf qrqc.Rcheck
 
 clean-pdf:
 	rm -f $(DIR).pdf
