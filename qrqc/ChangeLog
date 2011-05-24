@@ -1,0 +1,8 @@
+2011-05-24	Vince Buffalo	<vsbuffalo@ucdavis.edu>
+	* io.c (quality_type, quality_constants): Added Phred quality to
+	lists, with proper min, max, and offset.
+	* main.R (QUALITY.CONSTANTS): Added Phred quality, corrected bug
+	in which Sanger was Phred.
+	* plotting-methods.R (plotSeqLengths): removed call to browser().
+
+

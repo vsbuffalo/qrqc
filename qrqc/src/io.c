@@ -40,6 +40,7 @@ KHASH_MAP_INIT_STR(str, int)
 #define IS_FASTQ(quality_type) INTEGER(quality_type)[0] >= 0
 
 typedef enum {
+  PHRED,
   SANGER,
   SOLEXA,
   ILLUMINA
@@ -49,8 +50,9 @@ typedef enum {
 #define Q_MIN 1
 #define Q_MAX 2
 
-static const int quality_contants[3][3] = {
+static const int quality_contants[4][3] = {
   /* offset, min, max */
+  {0, 4, 60}, /* PHRED */
   {33, 0, 93}, /* SANGER */
   {64, -5, 62}, /* SOLEXA */
   {64, 0, 62} /* ILLUMINA */
