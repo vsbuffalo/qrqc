@@ -9,8 +9,8 @@ setGeneric("makeReport", signature="obj", function(obj, outputDir=".") standardG
 
 ## ggplot2 generics
 setGeneric("qualPlot", signature="x",
-           function(x, smooth=TRUE, extreme.color="grey", quantile.color="orange",
-                    mean.color="blue", median.color=NULL, ...) standardGeneric("qualPlot"))
+           function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
+                    mean.color="blue", median.color=NULL) standardGeneric("qualPlot"))
 setGeneric("gcPlot", signature="x", function(x, color="red") standardGeneric("gcPlot"))
 setGeneric("basePlot", signature="x", function(x, geom=c("line", "bar", "dodge"), type=c("freq", "prop"),
                          bases=names(DNA_BASES_N), colorvalues=getBioColor("DNA_BASES_N")) standardGeneric("basePlot"))
