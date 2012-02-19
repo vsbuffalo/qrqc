@@ -5,6 +5,9 @@ QUALITY.CONSTANTS <- list(phred=list(offset=0, min=4, max=60),
                           solexa=list(offset=64, min=-5, max=62),
                           illumina=list(offset=64, min=0, max=62))
 
+## for new ggplot2 functions REMOVE
+DNA_BASES_N <- c("A", "T", "G", "C", "N")
+
 NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N', 'R', 'Y', 'S',
                  'W', 'K', 'M', 'B', 'D', 'H', 'V', '-')
 NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',

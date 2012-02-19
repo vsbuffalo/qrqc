@@ -2,11 +2,7 @@
 ## with existing qrqc plotting functions (however these others will
 ## warn that they are deprecated).
 
-## Methods for plotting FASTQSummary, FASTASummary, and
-## SequenceSummary objects
-
-
-getQual <- 
+setMethod("getQual", signature(x="FASTQSummary"), 
 # Given a FASTQSummary object, extract a dataframe of quality
 # distribution statistics using binned2boxplot.
 function(x) {
@@ -19,9 +15,9 @@ function(x) {
   colnames(tmp) <- c('position', 'ymin', 'alt.lower', 'lower',
                      'middle', 'upper', 'alt.upper', 'ymax', 'mean')
   return(tmp)
-}
+})
 
-getGC <-
+setMethod("getGC", signature(x="SequenceSummary"), 
 # Given a SequenceSummary object, extract a dataframe of GC content.
 function(x) {
   gcd <- local({
@@ -31,9 +27,9 @@ function(x) {
     colnames(gc) <- c('position', 'gc')
     return(gc)
   })
-}
+})
 
-getBase <-
+setMethod("getBase", signature(x="SequenceSummary"), 
 # Given a SequenceSummary object, extract a dataframe of base content.
 function(x) {
   base.freqs <- local({
@@ -42,9 +38,9 @@ function(x) {
     return(tmp)
   })
   base.freqs
-}
+})
 
-getBaseProp <-
+setMethod("getBaseProp", signature(x="SequenceSummary"),
 # Given an object that inherits from SummarySequence, return the bases
 # by proportion.
 function(x) {
@@ -55,17 +51,16 @@ function(x) {
     return(tmp)
   })
   return(base.props)
-}
+})
 
-getSeqlen <-
+setMethod("getSeqlen", signature(x="SequenceSummary"),
 # Get sequence length dataframe from object that inherits from
 # SequenceSummary.
 function(x) {
   l <- x@seq.lengths
   x <- 1:length(l)
   data.frame(position=x, count=l)
-}
-
+})
 
 list2df <-
 # Use mapply
@@ -123,12 +118,21 @@ function(x, color="red") {
 
 setMethod("basePlot", signature(x="SequenceSummary"),
 # Plot Bases by read position.
-function(x, type=c("frequency", "proportion"), bases=names(DNA_BASES_N),
-         colorvalues=getBioColor("DNA_BASES_N")) {
+function(x, geom=c("line", "bar"), type=c("frequency", "proportion"), 
+         bases=DNA_BASES_N, colorvalues=getBioColor("DNA_BASES_N")) {
+  # get the type
   type <- match.arg(type)
   fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
+
+  # get the geom
+  geom <- match.arg(geom)
+  geom.list <- list(line=geom_line(aes_string(x="position", y=type, color="base")),
+                    bar=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity"))
+  g <- geom.list[[geom]]
+
   bd <- fun(x)
-  p <- ggplot(bd) + geom_line(aes_string(x="position", y=type, color="base"))
+
+  p <- ggplot(subset(bd, base %in% bases)) + g
   p <- p + scale_colour_manual(values=colorvalues)
   p
 })
@@ -141,7 +145,7 @@ function(x, type=c("frequency", "proportion"), bases=names(DNA_BASES_N),
   type <- match.arg(type)
   fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
   bd <- list2df(x, fun)
-  p <- ggplot(bd) + geom_line(aes_string(x="position", y=type, color="base"))
+  p <- ggplot(subset(bd, base %in% bases)) + geom_line(aes_string(x="position", y=type, color="base"))
   p <- p + scale_colour_manual(values=colorvalues) + facet_grid(. ~ sample)
   p
 })
@@ -149,20 +153,18 @@ function(x, type=c("frequency", "proportion"), bases=names(DNA_BASES_N),
 setMethod("seqlenPlot", signature(x="SequenceSummary"),
 # Plot sequence lengths.
 function(x) {
-  l <- x@seq.lengths
-  x <- 1:length(l)
-  ld <- data.frame(position=x, count=l)
-  
+  ld <- getSeqlen(x)
   p <- ggplot(ld, aes(x=position, y=count)) + geom_bar(stat="identity")
   p
 })
 
 
-setMethod("seqlenPlot", signature(x="SequenceSummary"),
+setMethod("seqlenPlot", signature(x="list"),
 # Plot sequence lengths.
 function(x) {
-  ld <- getSeqlen(x)
+  ld <- list2df(x, getSeqlen)
   p <- ggplot(ld, aes(x=position, y=count)) + geom_bar(stat="identity")
+  p <- p + facet_grid(. ~ sample)
   p
 })
 
