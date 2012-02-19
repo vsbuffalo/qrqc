@@ -18,7 +18,7 @@
 
 \title{\textsf{\textbf{Using the \Rpackage{qrqc} package to gather information about sequence qualities}}}
 
-\date{2010-01-19}
+\date{2012-02-19}
 
 \begin{document}
 
@@ -85,7 +85,7 @@ class), quality information by position can be plotted with
 \end{figure}
 
 <<figPlotQuals,fig=TRUE,width=7,height=6>>=
-plotQuals(s.fastq)
+qualPlot(s.fastq)
 @ 
 
 By default, quality plots include a histogram of sequence lengths. This

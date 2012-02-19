@@ -59,7 +59,7 @@ setMethod("getSeqlen", signature(x="SequenceSummary"),
 function(x) {
   l <- x@seq.lengths
   x <- 1:length(l)
-  data.frame(position=x, count=l)
+  data.frame(length=x, count=l)
 })
 
 setMethod("getMCQual", signature(x="FASTQSummary"),
@@ -196,7 +196,7 @@ setMethod("seqlenPlot", signature(x="SequenceSummary"),
 # Plot sequence lengths.
 function(x) {
   ld <- getSeqlen(x)
-  p <- ggplot(ld, aes(x=position, y=count)) + geom_bar(stat="identity")
+  p <- ggplot(ld, aes(x=length, y=count)) + geom_bar(stat="identity")
   p
 })
 
@@ -205,7 +205,7 @@ setMethod("seqlenPlot", signature(x="list"),
 # Plot sequence lengths.
 function(x) {
   ld <- list2df(x, getSeqlen)
-  p <- ggplot(ld, aes(x=position, y=count)) + geom_bar(stat="identity")
+  p <- ggplot(ld, aes(x=length, y=count)) + geom_bar(stat="identity")
   p <- p + facet_wrap( ~ sample)
   p
 })

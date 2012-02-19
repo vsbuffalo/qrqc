@@ -6,7 +6,7 @@ setMethod("plotBases", "SequenceSummary",
 function(obj, type="freq", bases=NULL, legend=TRUE) {
   if (!(type %in% c("freq", "prop")))
     stop("'type' must be either 'freq' or 'prop'.")
-
+  .Deprecated("basePlot")
   plot.new()
 
   if (type == "freq") {
@@ -83,6 +83,7 @@ setMethod("plotQuals", "FASTQSummary",
 # which is fit through MC samples though the binned quals with
 # `qualMCLowess`.
 function(obj, ylim='relative', lowess=TRUE, histogram=TRUE, legend=FALSE) {
+  .Deprecated("qualPlot")
   d <- local({
     tmp <- apply(obj@qual.freqs[, -1], 1, binned2boxplot)
     tmp <- t(tmp)
@@ -160,6 +161,7 @@ function(obj, ylim='relative', lowess=TRUE, histogram=TRUE, legend=FALSE) {
 setMethod("plotGC", "SequenceSummary",
 # Plot the proportion of bases that are G or C (the GC content).
 function(obj) {
+  .Deprecated("gcPlot")
   gc <- local({
     base.props <- getBaseProps(obj)
     d <- subset(base.props, base.props$base %in% c('G', 'C'))
@@ -189,6 +191,7 @@ setMethod("plotSeqLengths", "SequenceSummary",
 # using hist) so that the case when there's a single length, the
 # histogram doesn't look ridiculous.
 function(obj) {
+  .Deprecated("seqlenPlot")
   plot.new()
 
   l <- obj@seq.lengths
