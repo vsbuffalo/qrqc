@@ -31,25 +31,37 @@ function(x) {
 
 setMethod("getBase", signature(x="SequenceSummary"), 
 # Given a SequenceSummary object, extract a dataframe of base content.
-function(x) {
+function(x, drop=TRUE) {
   base.freqs <- local({
     tmp <- melt(x@base.freqs, id='position')
     colnames(tmp) <- c('position', 'base', 'frequency')
     return(tmp)
   })
+  if (drop) {
+    # is zero for all bases?
+    bt <- aggregate(base.freqs$frequency, list(base=base.freqs$base), sum)
+    base.keep <- bt$base[bt$x > 0]
+    return(subset(base.freqs, base %in% base.keep))
+  }
   base.freqs
 })
 
 setMethod("getBaseProp", signature(x="SequenceSummary"),
 # Given an object that inherits from SummarySequence, return the bases
 # by proportion.
-function(x) {
+function(x, drop=TRUE) {
   base.props <- local({
     tmp <- prop.table(as.matrix(x@base.freqs[, -1]), margin=1)
     tmp <- melt(tmp, id='position')
     colnames(tmp) <- c('position', 'base', 'proportion')
     return(tmp)
   })
+  if (drop) {
+    # is zero for all bases?
+    bt <- aggregate(base.props$proportion, list(base=base.props$base), sum)
+    base.keep <- bt$base[bt$x > 0]
+    return(subset(base.props, base %in% base.keep))
+  }
   return(base.props)
 })
 
@@ -163,8 +175,8 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
   bd <- fun(x)
 
   p <- ggplot(subset(bd, base %in% bases)) + g
-  p <- p + scale_colour_manual(values=colorvalues, labels=names(colorvalues))
-  p <- p + scale_fill_manual(values=colorvalues, labels=names(colorvalues))
+  p <- p + scale_colour_manual(values=colorvalues)
+  p <- p + scale_fill_manual(values=colorvalues)
   p
 })
 
@@ -187,8 +199,8 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
   g <- geom.list[[geom]]
 
   p <- ggplot(subset(bd, base %in% bases)) + g + facet_wrap( ~ sample)
-  p <- p + scale_colour_manual(values=colorvalues, labels=names(colorvalues))
-  p <- p + scale_fill_manual(values=colorvalues, labels=names(colorvalues))
+  p <- p + scale_colour_manual(values=colorvalues)
+  p <- p + scale_fill_manual(values=colorvalues)
   p
 })
 
