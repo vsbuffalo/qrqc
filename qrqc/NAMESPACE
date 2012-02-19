@@ -1,5 +1,7 @@
 useDynLib(qrqc, .registration=TRUE)
 import(reshape)
+import(ggplot2)
+import(biovizBase)
 import(testthat)
 import(Rsamtools)
 import(brew)

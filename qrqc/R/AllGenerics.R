@@ -5,3 +5,10 @@ setGeneric("plotBases", signature="obj", function(obj, type="freq", bases=NULL, 
 setGeneric("plotSeqLengths", signature="obj", function(obj) standardGeneric("plotSeqLengths"))
 setGeneric("plotGC", signature="obj", function(obj) standardGeneric("plotGC"))
 setGeneric("makeReport", signature="obj", function(obj, outputDir=".") standardGeneric("makeReport"))
+
+
+## ggplot2 generics
+setGeneric("qualPlot", signature="x",
+           function(x, extreme.color="grey", quantile.color="orange",
+                    mean.color="blue", median.color=NULL, ...) standardGeneric("qualPlot"))
+setGeneric("gcPlot", signature="x", function(x, color="red") standardGeneric("gcPlot"))
