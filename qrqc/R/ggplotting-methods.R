@@ -22,7 +22,7 @@ function(x) {
 }
 
 getGC <-
-# Give a SequenceSummary object, extract a dataframe of GC content
+# Given a SequenceSummary object, extract a dataframe of GC content.
 function(x) {
   gcd <- local({
     base.props <- getBaseProps(x)
@@ -32,6 +32,40 @@ function(x) {
     return(gc)
   })
 }
+
+getBase <-
+# Given a SequenceSummary object, extract a dataframe of base content.
+function(x) {
+  base.freqs <- local({
+    tmp <- melt(x@base.freqs, id='position')
+    colnames(tmp) <- c('position', 'base', 'frequency')
+    return(tmp)
+  })
+  base.freqs
+}
+
+getBaseProp <-
+# Given an object that inherits from SummarySequence, return the bases
+# by proportion.
+function(x) {
+  base.props <- local({
+    tmp <- prop.table(as.matrix(x@base.freqs[, -1]), margin=1)
+    tmp <- melt(tmp, id='position')
+    colnames(tmp) <- c('position', 'base', 'proportion')
+    return(tmp)
+  })
+  return(base.props)
+}
+
+getSeqlen <-
+# Get sequence length dataframe from object that inherits from
+# SequenceSummary.
+function(x) {
+  l <- x@seq.lengths
+  x <- 1:length(l)
+  data.frame(position=x, count=l)
+}
+
 
 list2df <-
 # Use mapply
@@ -71,19 +105,64 @@ function(x, extreme.color="grey", quantile.color="orange",
 })
 
 
-setMethod("gcPlot", signature=(x="SequenceSummary"),
-# Plot GC by base
+setMethod("gcPlot", signature(x="SequenceSummary"),
+# Plot GC by read position.
 function(x, color="red") {
   gcd <- getGC(x)
   p <- ggplot(gcd) + geom_line(aes(x=position, y=gc), color=color)
   p
 })
 
-setMethod("gcPlot", signature=(x="list"),
-# Plot GC by base
+setMethod("gcPlot", signature(x="list"),
+# Plot GC by read position.
 function(x, color="red") {
   gcd <- list2df(x, getGC)
   p <- ggplot(gcd) + geom_line(aes(x=position, y=gc), color=color) + facet_grid(. ~ sample)
+  p
+})
+
+setMethod("basePlot", signature(x="SequenceSummary"),
+# Plot Bases by read position.
+function(x, type=c("frequency", "proportion"), bases=names(DNA_BASES_N),
+         colorvalues=getBioColor("DNA_BASES_N")) {
+  type <- match.arg(type)
+  fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
+  bd <- fun(x)
+  p <- ggplot(bd) + geom_line(aes_string(x="position", y=type, color="base"))
+  p <- p + scale_colour_manual(values=colorvalues)
+  p
+})
+
+
+setMethod("basePlot", signature(x="list"),
+# Plot Bases by read position for a list.
+function(x, type=c("frequency", "proportion"), bases=names(DNA_BASES_N),
+         colorvalues=getBioColor("DNA_BASES_N")) {
+  type <- match.arg(type)
+  fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
+  bd <- list2df(x, fun)
+  p <- ggplot(bd) + geom_line(aes_string(x="position", y=type, color="base"))
+  p <- p + scale_colour_manual(values=colorvalues) + facet_grid(. ~ sample)
+  p
+})
+
+setMethod("seqlenPlot", signature(x="SequenceSummary"),
+# Plot sequence lengths.
+function(x) {
+  l <- x@seq.lengths
+  x <- 1:length(l)
+  ld <- data.frame(position=x, count=l)
+  
+  p <- ggplot(ld, aes(x=position, y=count)) + geom_bar(stat="identity")
+  p
+})
+
+
+setMethod("seqlenPlot", signature(x="SequenceSummary"),
+# Plot sequence lengths.
+function(x) {
+  ld <- getSeqlen(x)
+  p <- ggplot(ld, aes(x=position, y=count)) + geom_bar(stat="identity")
   p
 })
 
@@ -99,8 +178,3 @@ function(extreme.color="grey", quantile.color="orange", mean.color="blue", media
   keep <- sapply(names(l), function(n) !is.null(get(n)))
   l[keep]
 }
-
-
-
-
-

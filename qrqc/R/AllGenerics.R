@@ -12,3 +12,5 @@ setGeneric("qualPlot", signature="x",
            function(x, extreme.color="grey", quantile.color="orange",
                     mean.color="blue", median.color=NULL, ...) standardGeneric("qualPlot"))
 setGeneric("gcPlot", signature="x", function(x, color="red") standardGeneric("gcPlot"))
+setGeneric("basePlot", signature="x", function(x, type=c("freq", "prop"), bases=names(DNA_BASES_N), colorvalues=getBioColor("DNA_BASES_N")) standardGeneric("basePlot"))
+setGeneric("seqlenPlot", signature="x", function(x) standardGeneric("seqlenPlot"))
