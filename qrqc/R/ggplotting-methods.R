@@ -236,3 +236,15 @@ function(extreme.color="grey", quantile.color="orange", mean.color="blue", media
   keep <- sapply(names(l), function(n) !is.null(get(n)))
   l[keep]
 }
+
+scale_color_dna <-
+# Make a color scheme using biovizBase's good choices.
+function() {
+  scale_color_manual(values=getBioColor("DNA_BASES_N"))
+}
+
+scale_color_iupac <-
+# Make a color scheme using biovizBase's good choices.
+function() {
+  scale_color_manual(values=getBioColor("IUPAC_CODE_MAP"))
+}

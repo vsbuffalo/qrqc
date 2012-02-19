@@ -12,7 +12,6 @@
   custom \code{ggplot2} aesthetics.
 }
 
-
 \usage{
   getQual(x)
 }
@@ -23,7 +22,7 @@
 }
 
 \value{
-  \code{qualPlot} returns a \code{data.frame} with columns:
+  \code{getQual} returns a \code{data.frame} with columns:
 
   \item{position}{the position in the read.}
   \item{ymin}{the minimum quality found per a position in the read.}
@@ -38,12 +37,12 @@
 }
 
 \section{Methods}{
-\describe{
-\item{\code{signature(x = "FASTQSummary")}}{
-  \code{getQual} is an accessor function that only works if there is
-  quality data, thus it only works with objects of class
-  \code{FASTQSummary}.   
-}
+  \describe{
+    \item{\code{signature(x = "FASTQSummary")}}{
+      \code{getQual} is an accessor function that only works if there is
+      quality data, thus it only works with objects of class
+      \code{FASTQSummary}.   
+    }
 }}
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
@@ -58,6 +57,11 @@
   p
   p <- p + scale_y_continuous(limits=c(0, 42))
   p
+
+  ## A different type of quality plot
+  ggplot(getQual(s.fastq)) + geom_linerange(aes(x=position, ymin=lower,
+    ymax=upper, color=mean)) + scale_color_gradient("mean quality",
+    low="red", high="green") + scale_y_continuous("quality")
 }
 \seealso{getQual}
 \seealso{list2df}
