@@ -62,6 +62,25 @@ function(x) {
   data.frame(position=x, count=l)
 })
 
+setMethod("getMCQual", signature(x="FASTQSummary"),
+# Generate random draws from a FASTQSummary object so that a lowess
+# can be fit to quickly view the general trend of a quality summary.
+function(x, n=100) {
+  set.seed(0)
+  vals <- as.numeric(colnames(x@qual.freqs)[-1])
+  binsample <- function(x) {
+    sample(vals, n, prob=x/sum(x), replace=TRUE)
+  }
+
+  # Use binsample() to sample from the binned quality frequency data, then
+  # do some data munging to get it in a usable format.
+  s <- apply(x@qual.freqs[, -1], 1, binsample)
+  tmp <- t(s)
+  nr <- nrow(tmp)
+  dim(tmp) <- c(ncol(tmp)*nrow(tmp), 1)
+  data.frame(position=1:nr, quality=tmp)
+})
+
 list2df <-
 # Use mapply
 function(x, fun) {
@@ -75,19 +94,23 @@ function(x, fun) {
   
 setMethod("qualPlot", signature(x="FASTQSummary"),
 # Plot a single FASTQSummary object.
-function(x, extreme.color="grey", quantile.color="orange",
+function(x, smooth=TRUE, extreme.color="grey", quantile.color="orange",
          mean.color="blue", median.color=NULL, ...) {
   qd <- getQual(x)
   p <- ggplot(qd)
   p <- p + geom_qlinerange(extreme.color=extreme.color, quantile.color=quantile.color,
                            mean.color=mean.color, median.color=median.color)
   p <- p + scale_y_continuous("quality")
+  if (smooth) {
+    mcd <- getMCQual(x)
+    p <- p + geom_smooth(aes(x=position, y=quality), data=mcd, se=FALSE)
+  }
   p
 })
 
 setMethod("qualPlot", signature(x="list"),
 # Plot a list of FASTQSummary objects as facets.
-function(x, extreme.color="grey", quantile.color="orange",
+function(x, smooth=TRUE, extreme.color="grey", quantile.color="orange",
          mean.color="blue", median.color=NULL, ...) {
   if (!length(names(x)))
     stop("A list pased into qualPlot must have named elements.")
@@ -95,7 +118,12 @@ function(x, extreme.color="grey", quantile.color="orange",
   p <- ggplot(qd)
   p <- p + geom_qlinerange(extreme.color=extreme.color, quantile.color=quantile.color,
                            mean.color=mean.color, median.color=median.color)
-  p <- p + facet_grid(. ~ sample) + scale_y_continuous("quality")
+  p <- p + scale_y_continuous("quality")
+  if (smooth) {
+    mcd <- list2df(x, getMCQual)
+    p <- p + geom_smooth(aes(x=position, y=quality), data=mcd, se=FALSE)
+  }
+  p <- p + facet_wrap( ~ sample)
   p
 })
 
@@ -112,14 +140,15 @@ setMethod("gcPlot", signature(x="list"),
 # Plot GC by read position.
 function(x, color="red") {
   gcd <- list2df(x, getGC)
-  p <- ggplot(gcd) + geom_line(aes(x=position, y=gc), color=color) + facet_grid(. ~ sample)
+  p <- ggplot(gcd) + geom_line(aes(x=position, y=gc), color=color) + facet_wrap( ~ sample)
   p
 })
 
 setMethod("basePlot", signature(x="SequenceSummary"),
 # Plot Bases by read position.
-function(x, geom=c("line", "bar"), type=c("frequency", "proportion"), 
+function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"), 
          bases=DNA_BASES_N, colorvalues=getBioColor("DNA_BASES_N")) {
+  colorvalues <- colorvalues[bases]
   # get the type
   type <- match.arg(type)
   fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
@@ -127,26 +156,39 @@ function(x, geom=c("line", "bar"), type=c("frequency", "proportion"),
   # get the geom
   geom <- match.arg(geom)
   geom.list <- list(line=geom_line(aes_string(x="position", y=type, color="base")),
-                    bar=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity"))
+                    bar=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity"),
+                    dodge=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity", position="dodge"))
   g <- geom.list[[geom]]
 
   bd <- fun(x)
 
   p <- ggplot(subset(bd, base %in% bases)) + g
-  p <- p + scale_colour_manual(values=colorvalues)
+  p <- p + scale_colour_manual(values=colorvalues, labels=names(colorvalues))
+  p <- p + scale_fill_manual(values=colorvalues, labels=names(colorvalues))
   p
 })
 
 
 setMethod("basePlot", signature(x="list"),
 # Plot Bases by read position for a list.
-function(x, type=c("frequency", "proportion"), bases=names(DNA_BASES_N),
-         colorvalues=getBioColor("DNA_BASES_N")) {
+function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
+         bases=DNA_BASES_N, colorvalues=getBioColor("DNA_BASES_N")) {
+  colorvalues <- colorvalues[bases]
+  # get the type
   type <- match.arg(type)
   fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
   bd <- list2df(x, fun)
-  p <- ggplot(subset(bd, base %in% bases)) + geom_line(aes_string(x="position", y=type, color="base"))
-  p <- p + scale_colour_manual(values=colorvalues) + facet_grid(. ~ sample)
+
+  # get the geom
+  geom <- match.arg(geom)
+  geom.list <- list(line=geom_line(aes_string(x="position", y=type, color="base")),
+                    bar=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity"),
+                    dodge=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity", position="dodge"))
+  g <- geom.list[[geom]]
+
+  p <- ggplot(subset(bd, base %in% bases)) + g + facet_wrap( ~ sample)
+  p <- p + scale_colour_manual(values=colorvalues, labels=names(colorvalues))
+  p <- p + scale_fill_manual(values=colorvalues, labels=names(colorvalues))
   p
 })
 
@@ -164,7 +206,7 @@ setMethod("seqlenPlot", signature(x="list"),
 function(x) {
   ld <- list2df(x, getSeqlen)
   p <- ggplot(ld, aes(x=position, y=count)) + geom_bar(stat="identity")
-  p <- p + facet_grid(. ~ sample)
+  p <- p + facet_wrap( ~ sample)
   p
 })
 
