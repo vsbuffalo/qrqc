@@ -14,7 +14,7 @@ makeHashTable <- function(obj, n=16) {
   d <- obj@hash[1:n]
   tbl <- as.table(cbind(sequence=names(d), count=d, 'proportion of total'=d/sum(obj@seq.lengths)))
   rownames(tbl) <- NULL
-  x.tbl <- xtable(tbl)
+  x.tbl <- xtable::xtable(tbl)
   return(x.tbl)
 }
 
@@ -48,7 +48,7 @@ setMethod(makeReport, "FASTASummary",
             type <- "FASTA"
             sl.range <- seqLengthRange(obj)
             dir <- file.path(makeReportDir(obj, outputDir))
-            brew(system.file('extdata', 'fasta-report-template.html', package='qrqc'),
+            brew::brew(system.file('extdata', 'fasta-report-template.html', package='qrqc'),
                  output=file.path(dir, "report.html"))
             message(sprintf("Report written to directory '%s'.", dir))
           })
@@ -58,7 +58,7 @@ setMethod(makeReport, "FASTQSummary",
             type <- "FASTQ"
             sl.range <- seqLengthRange(obj)
             dir <- file.path(makeReportDir(obj, outputDir))
-            brew(system.file('extdata', 'fastq-report-template.html', package='qrqc'),
+            brew::brew(system.file('extdata', 'fastq-report-template.html', package='qrqc'),
                  output=file.path(dir, "report.html"))
             message(sprintf("Report written to directory '%s'.", dir))
           })

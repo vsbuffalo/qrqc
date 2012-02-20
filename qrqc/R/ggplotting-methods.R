@@ -34,7 +34,7 @@ setMethod("getBase", signature(x="SequenceSummary"),
 # Given a SequenceSummary object, extract a dataframe of base content.
 function(x, drop=TRUE) {
   base.freqs <- local({
-    tmp <- melt(x@base.freqs, id='position')
+    tmp <- reshape::melt(x@base.freqs, id='position')
     colnames(tmp) <- c('position', 'base', 'frequency')
     return(tmp)
   })
@@ -53,7 +53,7 @@ setMethod("getBaseProp", signature(x="SequenceSummary"),
 function(x, drop=TRUE) {
   base.props <- local({
     tmp <- prop.table(as.matrix(x@base.freqs[, -1]), margin=1)
-    tmp <- melt(tmp, id='position')
+    tmp <- reshape::melt(tmp, id='position')
     colnames(tmp) <- c('position', 'base', 'proportion')
     return(tmp)
   })
@@ -97,6 +97,8 @@ function(x, n=100) {
 list2df <-
 # Use mapply
 function(x, fun) {
+  if (!length(names(x)))
+    stop("list 'x' must have named elements.")
   d <- mapply(function(x, n) {
     d.tmp <- fun(x)
     d.tmp$sample <- n
@@ -111,7 +113,7 @@ function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
          mean.color="blue", median.color=NULL) {
   qd <- getQual(x)
   p <- ggplot(qd)
-  p <- p + geom_qlinerange(extreme.color=extreme.color, quantile.color=quantile.color,
+  p <- p + geom_qlinerange(extreme.color=extreme.color, quartile.color=quartile.color,
                            mean.color=mean.color, median.color=median.color)
   p <- p + scale_y_continuous("quality")
   if (smooth) {
@@ -131,7 +133,7 @@ function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
     stop("All items in list must have class FASTQSummary.")
   qd <- list2df(x, getQual)
   p <- ggplot(qd)
-  p <- p + geom_qlinerange(extreme.color=extreme.color, quantile.color=quantile.color,
+  p <- p + geom_qlinerange(extreme.color=extreme.color, quartile.color=quartile.color,
                            mean.color=mean.color, median.color=median.color)
   p <- p + scale_y_continuous("quality")
   if (smooth) {
@@ -227,10 +229,10 @@ function(x) {
 
 geom_qlinerange <- 
 # Add a series of geoms to plot quality statistics.
-function(extreme.color="grey", quantile.color="orange", mean.color="blue", median.color=NULL) {
+function(extreme.color="grey", quartile.color="orange", mean.color="blue", median.color=NULL) {
   args <- as.list(match.call(call = sys.call(sys.parent()))[-1])
   l <- list(extreme.color=geom_linerange(aes(x=position, ymin=alt.lower, ymax=alt.upper), color=extreme.color),
-            quantile.color=geom_linerange(aes(x=position, ymin=lower, ymax=upper, y=mean), color=quantile.color, size=1.2),
+            quartile.color=geom_linerange(aes(x=position, ymin=lower, ymax=upper, y=mean), color=quartile.color, size=1.2),
             mean.color=geom_point(aes(x=position, y=mean), color=mean.color),
             median.color=geom_point(aes(x=position, y=middle), color=median.color))
 

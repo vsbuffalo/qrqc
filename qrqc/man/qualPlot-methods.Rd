@@ -1,5 +1,6 @@
 \name{qualPlot-methods}
 \docType{methods}
+\alias{qualPlot}
 \alias{qualPlot-methods}
 \alias{qualPlot,FASTQSummary-method}
 \alias{qualPlot,list-method}
@@ -41,15 +42,14 @@
 
 \section{Methods}{
 \describe{
-
-\item{\code{signature(x = "FASTQSummary")}}{
-  \code{qualPlot} will plot the qualities for a single object of class \code{FASTQSummary}.
-}
-
-\item{\code{signature(x = "list")}}{
-  \code{qualPlot} will plot the qualities for each of the
-  \code{FASTQSummary} items in the list and display them in a series of
-  panels.}
+  \item{\code{signature(x = "FASTQSummary")}}{
+    \code{qualPlot} will plot the qualities for a single object of class \code{FASTQSummary}.
+  }
+  
+  \item{\code{signature(x = "list")}}{
+    \code{qualPlot} will plot the qualities for each of the
+    \code{FASTQSummary} items in the list and display them in a series of
+    panels.}
 }}
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}

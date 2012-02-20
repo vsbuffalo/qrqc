@@ -1,5 +1,6 @@
 \name{getBase-methods}
 \docType{methods}
+\alias{getBase}
 \alias{getBase-methods}
 \alias{getBase,SequenceSummary-method}
 \title{Get a Data Frame of Base Frequency Data from a \code{SequenceSummary} object}
@@ -56,12 +57,6 @@
 }
 
 
-\seealso{getGC}
-\seealso{getSeqlen}
-\seealso{getBaseProp}
-\seealso{getQual}
-\seealso{getMCQual}
-\seealso{basePlot}
-
+\seealso{getGC,getSeqlen,getBaseProp,getQual,getMCQual,basePlot}
 \keyword{methods}
 \keyword{accessor}

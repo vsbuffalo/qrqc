@@ -1,5 +1,6 @@
 \name{getSeqlen-methods}
 \docType{methods}
+\alias{getSeqlen}
 \alias{getSeqlen-methods}
 \alias{getSeqlen,SequenceSummary-method}
 \title{Get a Data Frame of Sequence Lengths from a \code{SequenceSummary} object}
@@ -41,6 +42,8 @@
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
+  library(ggplot2)
+
   ## Load a FASTQ file, with sequence hashing.
   s.trimmed.fastq <- readSeqFile(system.file('extdata', 'test-trimmed.fastq',
     package='qrqc'))
@@ -53,12 +56,7 @@
     color="blue") + scale_y_continuous("quality/count") + theme_bw()
 }
 
-\seealso{getGC}
-\seealso{getBase}
-\seealso{getBaseProp}
-\seealso{getQual}
-\seealso{getMCQual}
-\seealso{seqlenPlot}
+\seealso{getGC,getBase,getBaseProp,getQual,getMCQual,seqlenPlot}
 
 \keyword{methods}
 \keyword{accessor}

@@ -1,5 +1,6 @@
 \name{gcPlot-methods}
 \docType{methods}
+\alias{gcPlot}
 \alias{gcPlot-methods}
 \alias{gcPlot,list-method}
 \alias{gcPlot,SequenceSummary-method}
@@ -49,8 +50,7 @@
   gcPlot(s.trimmed.fastq) + geom_hline(yintercept=0.5, color="purple")
 }
 
-\seealso{getBase}
-\seealso{getBaseProp}
+\seealso{getBase,getBaseProp}
 \keyword{methods}
 \keyword{graphics}
 

@@ -1,5 +1,6 @@
 \name{getMCQual-methods}
 \docType{methods}
+\alias{getMCQual}
 \alias{getMCQual-methods}
 \alias{getMCQual,FASTQSummary-method}
 \title{Get a Data Frame of Simulated Qualitied from a \code{FASTQSummary} object}
@@ -53,13 +54,7 @@
     data=getMCQual(s.fastq), color="blue", se=FALSE)
 }
 
-\seealso{getGC}
-\seealso{getSeqlen}
-\seealso{getBase}
-\seealso{getBaseProp}
-\seealso{getQual}
-
-\seealso{qualPlot}
+\seealso{getGC,getSeqlen,getBase,getBasePropgetQual,qualPlot}
 
 \keyword{methods}
 \keyword{accessor}

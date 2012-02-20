@@ -1,5 +1,6 @@
 \name{getBaseProp-methods}
 \docType{methods}
+\alias{getBaseProp}
 \alias{getBaseProp-methods}
 \alias{getBaseProp,SequenceSummary-method}
 \title{Get a Data Frame of Base Proportion Data from a \code{SequenceSummary} object}
@@ -55,12 +56,6 @@
     color=base)) + facet_grid(. ~ base) + scale_color_dna()
 }
 
-\seealso{getGC}
-\seealso{getSeqlen}
-\seealso{getBase}
-\seealso{getQual}
-\seealso{getMCQual}
-\seealso{basePlot}
-
+\seealso{getGC,getSeqlen,getBase,getQual,getMCQual,basePlot}
 \keyword{methods}
 \keyword{accessor}

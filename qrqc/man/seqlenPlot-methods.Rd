@@ -1,5 +1,6 @@
 \name{seqlenPlot-methods}
 \docType{methods}
+\alias{seqlenPlot}
 \alias{seqlenPlot-methods}
 \alias{seqlenPlot,list-method}
 \alias{seqlenPlot,SequenceSummary-method}

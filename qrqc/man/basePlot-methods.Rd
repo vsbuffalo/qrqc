@@ -1,5 +1,6 @@
 \name{basePlot-methods}
 \docType{methods}
+\alias{basePlot}
 \alias{basePlot-methods}
 \alias{basePlot,list-method}
 \alias{basePlot,SequenceSummary-method}
@@ -75,8 +76,7 @@
     geom_hline(yintercept=0.25, color="purple")
 }
 
-\seealso{getBase}
-\seealso{getBaseProp}
+\seealso{getBase,getBaseProp}
 \keyword{methods}
 \keyword{graphics}
 

@@ -1,5 +1,6 @@
 \name{getGC-methods}
 \docType{methods}
+\alias{getGC}
 \alias{getGC-methods}
 \alias{getGC,SequenceSummary-method}
 \title{Get a Data Frame of GC Content from a \code{SequenceSummary} object}
@@ -55,12 +56,6 @@
   p
 }
 
-\seealso{getSeqlen}
-\seealso{getBase}
-\seealso{getBaseProp}
-\seealso{getQual}
-\seealso{getMCQual}
-
-\seealso{gcPlot}
+\seealso{getSeqlen,getBase,getBaseProp,getQual,getMCQual,cPlot}
 \keyword{methods}
 \keyword{accessor}

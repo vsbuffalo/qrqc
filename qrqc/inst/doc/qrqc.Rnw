@@ -85,7 +85,7 @@ class), quality information by position can be plotted with
 \end{figure}
 
 <<figPlotQuals,fig=TRUE,width=7,height=6>>=
-qualPlot(s.fastq)
+plotQuals(s.fastq)
 @ 
 
 By default, quality plots include a histogram of sequence lengths. This

@@ -1,5 +1,6 @@
 \name{getQual-methods}
 \docType{methods}
+\alias{getQual}
 \alias{getQual-methods}
 \alias{getQual,FASTQSummary-method}
 \title{Get a Data Frame of Quality Data from a \code{FASTQSummary} object}
@@ -63,12 +64,6 @@
     ymax=upper, color=mean)) + scale_color_gradient("mean quality",
     low="red", high="green") + scale_y_continuous("quality")
 }
-\seealso{getGC}
-\seealso{getSeqlen}
-\seealso{getBase}
-\seealso{getBaseProp}
-\seealso{getMCQual}
-
-\seealso{qualPlot}
+\seealso{getGC,getSeqlen,getBase,getBaseProp,getMCQual,qualPlot}
 \keyword{methods}
 \keyword{accessor}
