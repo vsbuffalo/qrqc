@@ -177,7 +177,7 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
                     dodge=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity", position="dodge"))
   g <- geom.list[[geom]]
 
-  bd <- fun(x)
+  bd <- fun(x, drop=FALSE) # drop is FALSE if a user asks just to see N, and there are none
 
   p <- ggplot(subset(bd, base %in% bases)) + g
   p <- p + scale_colour_manual(values=colorvalues)
@@ -230,11 +230,10 @@ function(x) {
 geom_qlinerange <- 
 # Add a series of geoms to plot quality statistics.
 function(extreme.color="grey", quartile.color="orange", mean.color="blue", median.color=NULL) {
-  args <- as.list(match.call(call = sys.call(sys.parent()))[-1])
-  l <- list(extreme.color=geom_linerange(aes(x=position, ymin=alt.lower, ymax=alt.upper), color=extreme.color),
-            quartile.color=geom_linerange(aes(x=position, ymin=lower, ymax=upper, y=mean), color=quartile.color, size=1.2),
-            mean.color=geom_point(aes(x=position, y=mean), color=mean.color),
-            median.color=geom_point(aes(x=position, y=middle), color=median.color))
+  l <- list(extreme.color=geom_linerange(aes_string(x="position", ymin="alt.lower", ymax="alt.upper"), color=extreme.color),
+            quartile.color=geom_linerange(aes_string(x="position", ymin="lower", ymax="upper", y="mean"), color=quartile.color, size=1.2),
+            mean.color=geom_point(aes_string(x="position", y="mean"), color=mean.color),
+            median.color=geom_point(aes_string(x="position", y="middle"), color=median.color))
 
   keep <- sapply(names(l), function(n) !is.null(get(n)))
   l[keep]

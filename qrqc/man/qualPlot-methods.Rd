@@ -54,7 +54,7 @@
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
-  ## Load a FASTQ file, with sequence hashing.
+  ## Load a FASTQ file
   s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Plot qualities

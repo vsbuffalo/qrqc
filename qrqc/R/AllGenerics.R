@@ -4,7 +4,7 @@ setGeneric("plotQuals", signature="obj", function(obj, ylim='relative', lowess=T
 setGeneric("plotBases", signature="obj", function(obj, type="freq", bases=NULL, legend=TRUE) standardGeneric("plotBases"))
 setGeneric("plotSeqLengths", signature="obj", function(obj) standardGeneric("plotSeqLengths"))
 setGeneric("plotGC", signature="obj", function(obj) standardGeneric("plotGC"))
-setGeneric("makeReport", signature="obj", function(obj, outputDir=".") standardGeneric("makeReport"))
+setGeneric("makeReport", signature="x", function(x, outputDir=".") standardGeneric("makeReport"))
 
 
 ## ggplot2 generics

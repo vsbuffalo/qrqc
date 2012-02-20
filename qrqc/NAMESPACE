@@ -4,7 +4,7 @@ importClassesFrom(methods, character, data.frame, integer, list,
                   logical, numeric)
 importMethodsFrom(Biostrings, quality)
 importMethodsFrom(methods, show)
-importFrom(biovizBase, getBioColor)
+import(biovizBase)
 import(ggplot2)
 import(reshape)
 importFrom(graphics, abline, axis, layout, lines, par, plot.new,

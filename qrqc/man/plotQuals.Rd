@@ -36,11 +36,14 @@
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
+\dontrun{
   ## Load a FASTQ file, with sequence hashing.
   s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Plot Qualities
   plotQuals(s.fastq)
 }
+}
+\seealso{qualPlot}
 \keyword{graphics}
 \keyword{methods}
