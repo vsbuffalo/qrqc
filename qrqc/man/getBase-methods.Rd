@@ -2,15 +2,16 @@
 \docType{methods}
 \alias{getBase-methods}
 \alias{getBase,SequenceSummary-method}
-\title{Get a Data Frame of Bae Frequency Data from a \code{SequenceSummary} object}
+\title{Get a Data Frame of Base Frequency Data from a \code{SequenceSummary} object}
 \description{
   An object that inherits from class \code{SequenceSummary} contains
-  base data by position gathered by \code{readSeqFile}. \code{getBase}
+  base frequency data by position gathered by \code{readSeqFile}. \code{getBase}
   is an accessor function that reshapes the base frequency data by position
   into a data frame.
 
   This accessor function is useful if you want to map variables to
-  custom \code{ggplot2} aesthetics.
+  custom \code{ggplot2} aesthetics. Base proportions can be accessed
+  with \code{getBaseProp}.
 }
 
 
@@ -36,7 +37,6 @@
 
 \section{Methods}{
   \describe{
-
     \item{\code{signature(x = "SequenceSummary")}}{
       \code{getBase} is an accessor function that works on any object read
       in with \code{readSeqFile}; that is, objects that inherit from
@@ -50,11 +50,18 @@
   s.fastq <- readSeqFile(system.file('extdata', 'test.fastq',
     package='qrqc'))
 
-  # A custom base quality plot
+  # A custom base plot
   ggplot(getBase(s.fastq)) + geom_line(aes(x=position, y=frequency,
     color=base)) + facet_grid(. ~ base) + scale_color_dna()
 }
 
+
+\seealso{getGC}
+\seealso{getSeqlen}
+\seealso{getBaseProp}
+\seealso{getQual}
+\seealso{getMCQual}
 \seealso{basePlot}
+
 \keyword{methods}
 \keyword{accessor}

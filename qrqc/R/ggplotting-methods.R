@@ -27,6 +27,7 @@ function(x) {
     colnames(gc) <- c('position', 'gc')
     return(gc)
   })
+  gcd
 })
 
 setMethod("getBase", signature(x="SequenceSummary"), 
@@ -106,7 +107,7 @@ function(x, fun) {
   
 setMethod("qualPlot", signature(x="FASTQSummary"),
 # Plot a single FASTQSummary object.
-function(x, smooth=TRUE, extreme.color="grey", quantile.color="orange",
+function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
          mean.color="blue", median.color=NULL) {
   qd <- getQual(x)
   p <- ggplot(qd)
@@ -122,7 +123,7 @@ function(x, smooth=TRUE, extreme.color="grey", quantile.color="orange",
 
 setMethod("qualPlot", signature(x="list"),
 # Plot a list of FASTQSummary objects as facets.
-function(x, smooth=TRUE, extreme.color="grey", quantile.color="orange",
+function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
          mean.color="blue", median.color=NULL) {
   if (!length(names(x)))
     stop("A list pased into qualPlot must have named elements.")

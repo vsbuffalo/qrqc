@@ -63,7 +63,12 @@
     ymax=upper, color=mean)) + scale_color_gradient("mean quality",
     low="red", high="green") + scale_y_continuous("quality")
 }
-\seealso{getQual}
-\seealso{list2df}
+\seealso{getGC}
+\seealso{getSeqlen}
+\seealso{getBase}
+\seealso{getBaseProp}
+\seealso{getMCQual}
+
+\seealso{qualPlot}
 \keyword{methods}
 \keyword{accessor}
