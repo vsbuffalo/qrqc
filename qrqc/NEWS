@@ -1,0 +1,27 @@
+qrqc -- history of changes.
+
+Copyright (c) Vince Buffalo 2011-2012
+
+Version 1.9.1: (2012-02-20)
+
+ - plotQuals, plotBase, plotSeqLengths, plotGC replaced by qualPlot,
+   basePlot, seqlenPlot, and gcPlot, respectively. These should be
+   used for all plotting; these other functions are now
+   deprecated. These new methods are all based on ggplot2.
+
+   These new plotting functions now have methods for a named list of
+   SequencySummary objects, which can be useful in comparing many
+   sequence files at once.
+
+ - There are also helper plotting functions scale_color_dna,
+   scale_color_iupac, and geom_qlinerange for creating plots.
+
+ - reportMethods now uses these new plotting methods.
+
+ - New accessor functions getBase, getBaseProp, getQual, getSeqlen,
+   and getMCQual can be used to return data frames of data from
+   SequencySummary object.
+
+ - Added function list2df for applying a function to objects in a
+   named list and combining the results into a data frame. This is
+   used in graphing lists of SequencySummary objects.
