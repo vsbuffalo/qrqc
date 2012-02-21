@@ -25,3 +25,6 @@ Version 1.9.1: (2012-02-20)
  - Added function list2df for applying a function to objects in a
    named list and combining the results into a data frame. This is
    used in graphing lists of SequencySummary objects.
+
+ - Removed Phred quality as a visible option in readSeqFile. I don't
+   believe this should affect any users, but if it does, let me know.

@@ -11,9 +11,9 @@
   proportion can be controlled with \code{hash.prop}.
 }
 \usage{
-  readSeqFile(filename, type='fastq', max.length=1000,
-              quality='illumina', hash=TRUE, hash.prop=0.1,
-              verbose=FALSE)
+  readSeqFile(filename, type=c("fastq", "fasta"), max.length=1000,
+              quality=c("sanger", "solexa", "illumina"), hash=TRUE,
+              hash.prop=0.1, verbose=FALSE)
 }
 \arguments{
   \item{filename}{the name of the file which the sequences are to be
@@ -26,7 +26,7 @@
     sequence is allocated to *this* size in C, populated, and then
     trimmed in R. Specifying a value too small will lead to an error and
     the function will need to be re-run.}
-  \item{quality}{either `illumina', `phred', or `solexa', this
+  \item{quality}{either `illumina', `sanger', or `solexa', this
     determines the quality offsets and range. See the values of
     QUALITY.CONSTANTS for more information.}
   \item{hash}{a logical value indicating whether to hash sequences}
@@ -39,6 +39,27 @@
   An S4 object of \code{\linkS4class{FASTQSummary}} or
   \code{\linkS4class{FASTASummary}} containing the summary statistics.
 }
+
+\note{
+  Identifying the correct quality can be difficult. \code{readSeqFile}
+  will error out if it a base quality outside of the range of a known
+  quality type, but it is possible one could have reads with a different
+  quality type that won't fall outside of the another type.
+
+  Here is a bit more about quality:
+
+  \item{phred}{PHRED quality scores (e.g. from Roche 454). ASCII with no offset,
+    range: [4, 60]. This has been removed as an option since sequence reads with this
+    type are very, very uncommon.}
+  \item{sanger}{Sanger are PHRED ASCII qualities with an offset of 33, range:
+    [0, 93]. From NCBI SRA, or Illumina pipeline 1.8+.}
+  \item{solexa}{Solexa (also very early Illumina - pipeline < 1.3). ASCII offset
+    of 64, range: [-5, 62]. Uses a different quality-to-probabilities
+    conversion than other schemes.}
+  \item{illumina}{Illumina output from pipeline versions between 1.3 and
+    1.7. ASCII offset of 64, range: [0, 62].}
+}
+
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
   ## Load a FASTQ file, with sequence hashing.
