@@ -118,7 +118,7 @@ function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
   p <- p + scale_y_continuous("quality")
   if (smooth) {
     mcd <- getMCQual(x)
-    p <- p + geom_smooth(aes(x=position, y=quality), data=mcd, se=FALSE)
+    p <- p + geom_smooth(aes(x=position, y=quality), data=mcd, se=FALSE, color="purple")
   }
   p
 })

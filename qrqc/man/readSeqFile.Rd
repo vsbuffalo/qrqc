@@ -7,11 +7,13 @@
   length distributions. If \code{type} is `fastq', the distribution
   of qualities across position will also be recorded. If \code{hash} is
   \code{TRUE}, the unique sequences will be hashed with counts of their
-  frequency.
+  frequency. By default, only 10\% of the reads will be hashed; this
+  proportion can be controlled with \code{hash.prop}.
 }
 \usage{
   readSeqFile(filename, type='fastq', max.length=1000,
-              quality='illumina', hash=TRUE, verbose=FALSE)
+              quality='illumina', hash=TRUE, hash.prop=0.1,
+              verbose=FALSE)
 }
 \arguments{
   \item{filename}{the name of the file which the sequences are to be
@@ -28,6 +30,8 @@
     determines the quality offsets and range. See the values of
     QUALITY.CONSTANTS for more information.}
   \item{hash}{a logical value indicating whether to hash sequences}
+  \item{hash.prop}{a numeric value in (0, 1] that functions as the proportion
+    of reads to hash.}
   \item{verbose}{a logical value indicating whether be verbose (in the C
     backend).}
 }

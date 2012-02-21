@@ -5,9 +5,10 @@ QUALITY.CONSTANTS <- list(phred=list(offset=0, min=4, max=60),
                           solexa=list(offset=64, min=-5, max=62),
                           illumina=list(offset=64, min=0, max=62))
 
-## for new ggplot2 functions REMOVE
+## for new ggplot2 functions
 DNA_BASES_N <- c("A", "T", "G", "C", "N")
 
+###### deprecated start -- to remove when old plotting functions are removed ######
 NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N', 'R', 'Y', 'S',
                  'W', 'K', 'M', 'B', 'D', 'H', 'V', '-')
 NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
@@ -15,17 +16,19 @@ NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
                         'N'='purple')
 other.iupac <- c('R', 'Y', 'S', 'W', 'K', 'M', 'B', 'D', 'H', 'V', '-')
 
+
 # These are from RColorBrewer, but I include them manually to remove a
 # depedency for one call.
 other.iupac.colors <- c("#8DD3C7", "#FFFFB3", "#BEBADA", "#FB8072", "#80B1D3", "#FDB462", 
                         "#B3DE69", "#FCCDE5", "#D9D9D9", "#BC80BD", "#CCEBC5")
 names(other.iupac.colors) <- other.iupac
 NUCLEOTIDES.COLORS <- c(NUCLEOTIDES.COLORS, other.iupac.colors)
+###### deprecated end ######
 
 readSeqFile <-
 # Use the C function summarize_file to create matrices of base
 # and quality counts, per position along all reads.
-function(filename, type='fastq', max.length=1000, quality='illumina', hash=TRUE, verbose=FALSE) {
+function(filename, type='fastq', max.length=1000, quality='illumina', hash=TRUE, hash.prop=0.1, verbose=FALSE) {
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
 
@@ -46,6 +49,7 @@ function(filename, type='fastq', max.length=1000, quality='illumina', hash=TRUE,
                as.integer(max.length),
                as.integer(qtype),
                as.logical(hash),
+               as.numeric(hash.prop),
                as.logical(verbose))
   
   names(out) <- c('base.freqs', 'seq.lengths', 'qual.freqs')
@@ -58,6 +62,7 @@ function(filename, type='fastq', max.length=1000, quality='illumina', hash=TRUE,
   if (hash) {
     names(out)[4] <- 'hash'
     obj@hash <- sortSequenceHash(out$hash)
+    obj@hash.prop <- hash.prop
   }
 
   ## Data cleaning

@@ -7,6 +7,7 @@ setClass("SequenceSummary",
            base.freqs='data.frame',
            seq.lengths='integer',
            hash='integer',
+           hash.prop='numeric',
            hashed='logical'))
 
 setClass("FASTASummary",

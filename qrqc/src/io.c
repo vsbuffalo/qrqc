@@ -5,6 +5,7 @@
 #include <R.h>
 #include <R_ext/Utils.h>
 #include <Rinternals.h>
+#include <Rmath.h>
 #include "samtools/khash.h"
 #include "samtools/kseq.h"
 #include "io.h"
@@ -213,7 +214,7 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
   }
 }
 
-extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, SEXP verbose) {
+extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, SEXP hash_prop, SEXP verbose) {
   /*
     Given a FASTA or FASTQ file, read in sequences and gather
     statistics on bases, qualities, sequence lengths, and unique
@@ -235,6 +236,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
   /* Note: NULL and 0 initializations to stop warnings on Windows systems */
   SEXP base_counts, out_list, seq_lengths, qual_counts=NULL, seq_hash=NULL, seq_hash_names=NULL;
   int *ibc, *isl, *iqc=NULL, q_type=0, q_range=0;
+  double hprop;
 
   if (IS_FASTQ(quality_type)) {
     q_type = INTEGER(quality_type)[0];
@@ -243,6 +245,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
   }
   
   if (LOGICAL(hash)[0]) {
+    hprop = REAL(hash_prop)[0];
     h = kh_init(str);
     kh_resize(str, h, 1572869);
     size_out_list++;
@@ -284,9 +287,13 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     isl[block->seq.l]++;
 
     if (LOGICAL(hash)[0]) {
-      add_seq_to_khash(h, block, &num_unique_seqs);
-      if (LOGICAL(verbose)[0] && nblock % 100000 == 0)
-        printf("on block %d, %d entries in hash table\n", nblock, num_unique_seqs);
+      GetRNGstate();
+      if (hprop == 1 || hprop <= runif(0, 1)) {
+        add_seq_to_khash(h, block, &num_unique_seqs);
+        if (LOGICAL(verbose)[0] && nblock % 100000 == 0)
+          Rprintf("on block %d, %d entries in hash table...\n", nblock, num_unique_seqs);
+      }
+      PutRNGstate();
     }
     nblock++;
   }
@@ -296,7 +303,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     PROTECT(seq_hash_names = allocVector(VECSXP, num_unique_seqs));
     protects += 2;
     if (LOGICAL(verbose)[0])
-      printf("processing complete... now loading C hash structure to R...\n");
+      Rprintf("processing complete... now loading C hash structure to R...\n");
     seq_khash_to_VECSXP(h, seq_hash, seq_hash_names);
     kh_destroy(str, h);
   }

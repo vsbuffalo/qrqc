@@ -24,6 +24,8 @@
       particular length (the length is the position in the vector).}
     \item{\code{hash}}{a numeric vector of the count frequencies of
       sequences (the sequences are in the name attribute).}
+    \item{\code{hash.prop}}{a numeric value indicating the proportion of
+      sequences that were sampled for hashing.}
     \item{\code{hashed}}{a logical indicating whether the sequences were
       hashed in \code{readSeqFile}.}
   }
