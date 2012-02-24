@@ -58,7 +58,7 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
                as.integer(k),
                as.logical(verbose))
   
-  names(out) <- c('base.freqs', 'seq.lengths', 'qual.freqs')
+  names(out) <- c('base.freqs', 'seq.lengths', 'qual.freqs', 'hash', 'kmer')
 
   class.types <- c('fasta'="FASTASummary", 'fastq'="FASTQSummary")
   obj <- new(class.types[type], filename=filename)
@@ -66,7 +66,6 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
   obj@seq.lengths <- .trimArray(out$seq.lengths[-1]) # from C call, this is 0-indexed
   
   if (hash) {
-    names(out)[4] <- 'hash'
     obj@hash <- sortSequenceHash(out$hash)
     obj@hash.prop <- hash.prop
   }
@@ -74,8 +73,11 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
   if (kmer) {
     # we put this in the next element, which depends on whether we
     # hashed
-    names(out)[4 + as.integer(hash)] <- 'kmer'
-    obj@kmer <- sortSequenceHash(out$kmer)
+    obj@kmer <- local({
+      tmp <- unlist(out$kmer)
+      kmer <- do.call(rbind, strsplit(names(tmp), '-'))
+      data.frame(kmer=kmer[, 1], position=as.integer(kmer[, 2]), count=tmp, row.names=NULL)
+    })
     obj@hash.prop <- hash.prop
     obj@k <- as.integer(k)
   }

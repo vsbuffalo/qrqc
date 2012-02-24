@@ -8,7 +8,7 @@ setClass("SequenceSummary",
            seq.lengths='integer',
            hash='integer',
            hash.prop='numeric',
-           kmer='integer',
+           kmer='data.frame',
            k='integer',
            hashed='logical'))
 

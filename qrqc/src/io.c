@@ -10,6 +10,10 @@
 #include "samtools/kseq.h"
 #include "io.h"
 
+/* This cannot be simple changed to increased - the %05d in
+   hash_seq_kmers is a constraint. */
+#define MAX_READ_LENGTH 99999
+
 #ifdef _WIN32
 int gzreadclone(FILE *file, void *buf, unsigned int len) {
   unsigned int i;
@@ -197,22 +201,30 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
      with add_seq_to_khash, increase num_unique_kmers if new kmer is
      found.
    */
+
+  /* 
+     We want a positional tag in the k-mer string, to avoid the
+     complexity of multiple nested hashes (k-mer and position). We
+     need to allocate the space for the k-mer and null byte (k + 1), a
+     delimiter ";", and the position, which depends on our max read
+     size, which we limit to MAX_READ_LENGTH (or 99999, hence the %05d
+     and the 5 in the Calloc).
+  */
+  char *a_kmer = Calloc(k + 2 + 5, char), *start_ptr, *end_ptr;
   int i;
-  char *a_kmer = Calloc(k + 1, char), *start_ptr, *end_ptr;
   khiter_t key;
   int is_missing, ret;
 
   if (!a_kmer)
     error("Could not allocate memory (in hash_seq_kmers, a_kmer)");
   
-  Rprintf("asd");
   start_ptr = block->seq.s;
   for (i=0; i < block->seq.l-k-1; i++) {
     Rprintf("hashing k-mers of sequence %s\n", block->seq.s);
     strncpy(a_kmer, start_ptr + i, (size_t) k);
-
+    sprintf(a_kmer + k, "-%05i", i+1);
     /* end_ptr = a_kmer + k + 1; */
-    a_kmer[k+1] = '\0';
+    a_kmer[k + 1 + 5] = '\0';
     Rprintf("grabbing k-mer %s\n", a_kmer);
 
     /* hash kmer */
@@ -242,7 +254,6 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
   for (k = kh_begin(h); k != kh_end(h); ++k) {
     R_CheckUserInterrupt();
     if (kh_exist(h, k)) {
-      Rprintf("-- %s", mkString(kh_key(h, k)));
       SET_VECTOR_ELT(seq_hash_names, i, mkString(kh_key(h, k)));
       SET_VECTOR_ELT(seq_hash, i, ScalarInteger(kh_value(h, k)));
       /* per the comment here
@@ -269,7 +280,8 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
 
     All matrices are pre-allocated to max_length, and then trimmed
     accordingly in R. This may be (and should be) changed in future
-    versions.
+    versions. max_length is confined by kmer-hashing (so far) which
+    has a limit MAX_READ_LENGTH.
 
     Note that quality_type is -1 if the file is FASTA.
    */
@@ -285,6 +297,9 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
   SEXP base_counts, out_list, seq_lengths, qual_counts=NULL, seq_hash=NULL, seq_hash_names=NULL;
   SEXP kmer_hash=NULL, kmer_hash_names=NULL;
   double hprop;
+
+  if (INTEGER(max_length)[0] > MAX_READ_LENGTH)
+    error("max_length is greater than MAX_READ_LENGTH (%d)", MAX_READ_LENGTH);
 
   if (IS_FASTQ(quality_type)) {
     q_type = INTEGER(quality_type)[0];
@@ -417,7 +432,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
 
   if (LOGICAL(kmer)[0]) {
     setAttrib(kmer_hash, R_NamesSymbol, kmer_hash_names);
-    SET_VECTOR_ELT(out_list, 3, kmer_hash);
+    SET_VECTOR_ELT(out_list, 4, kmer_hash);
   }
 
   /* One more protected SEXP from qual_counts */
