@@ -4,5 +4,5 @@
 
 SEXP summarize_file(SEXP filename, SEXP max_length, 
                     SEXP quality_type, SEXP hash, SEXP hash_prop, 
-                    SEXP verbose);
+                    SEXP kmer, SEXP k, SEXP verbose);
 #endif

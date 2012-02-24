@@ -8,6 +8,8 @@ setClass("SequenceSummary",
            seq.lengths='integer',
            hash='integer',
            hash.prop='numeric',
+           kmer='integer',
+           k='integer',
            hashed='logical'))
 
 setClass("FASTASummary",

@@ -29,7 +29,7 @@ readSeqFile <-
 # Use the C function summarize_file to create matrices of base
 # and quality counts, per position along all reads.
 function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger", "solexa", "illumina"),
-         hash=TRUE, hash.prop=0.1, verbose=FALSE) {
+         hash=TRUE, hash.prop=0.1, kmer=TRUE, k=6, verbose=FALSE) {
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
 
@@ -54,6 +54,8 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
                as.integer(qtype),
                as.logical(hash),
                as.numeric(hash.prop),
+               as.logical(kmer),
+               as.integer(k),
                as.logical(verbose))
   
   names(out) <- c('base.freqs', 'seq.lengths', 'qual.freqs')
@@ -67,6 +69,15 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
     names(out)[4] <- 'hash'
     obj@hash <- sortSequenceHash(out$hash)
     obj@hash.prop <- hash.prop
+  }
+
+  if (kmer) {
+    # we put this in the next element, which depends on whether we
+    # hashed
+    names(out)[4 + as.integer(hash)] <- 'kmer'
+    obj@kmer <- sortSequenceHash(out$kmer)
+    obj@hash.prop <- hash.prop
+    obj@k <- as.integer(k)
   }
 
   ## Data cleaning
