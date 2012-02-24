@@ -41,7 +41,7 @@ KHASH_MAP_INIT_STR(str, int)
 
 #define INIT_MAX_SEQ 500
 #define NUM_BASES 16 /* includes all IUPAC codes. */
-#define EXTRA_VERBOSE 1
+#define EXTRA_VERBOSE 0
 
 
 #define IS_FASTQ(quality_type) INTEGER(quality_type)[0] >= 0
@@ -200,9 +200,7 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
      Given a hash and a block containg sequence, hash each k-mer. As
      with add_seq_to_khash, increase num_unique_kmers if new kmer is
      found.
-   */
 
-  /* 
      We want a positional tag in the k-mer string, to avoid the
      complexity of multiple nested hashes (k-mer and position). We
      need to allocate the space for the k-mer and null byte (k + 1), a
@@ -220,12 +218,10 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
   
   start_ptr = block->seq.s;
   for (i=0; i < block->seq.l-k-1; i++) {
-    Rprintf("hashing k-mers of sequence %s\n", block->seq.s);
     strncpy(a_kmer, start_ptr + i, (size_t) k);
     sprintf(a_kmer + k, "-%05i", i+1);
     /* end_ptr = a_kmer + k + 1; */
     a_kmer[k + 1 + 5] = '\0';
-    Rprintf("grabbing k-mer %s\n", a_kmer);
 
     /* hash kmer */
     key = kh_get(str, h, a_kmer);
@@ -307,6 +303,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     size_out_list++;
   }
   
+  /* Initiate hashes for sequence and k-mer hashing */
   if (LOGICAL(hash)[0]) {
     /* turn on hashing, initiate */
     hprop = REAL(hash_prop)[0];
@@ -335,6 +332,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     size_out_list++;
   }
 
+  /* Open file, allocate structure */
   FILE_TYPE *fp = FILE_OPEN(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
@@ -396,10 +394,11 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
           Rprintf("on block %d, %d k-mers in hash table...\n", nblock, num_unique_kmers);
       }
     }
-
     nblock++;
   }
 
+  
+  /* Handle getting data out of R through list elements. */
   if (LOGICAL(hash)[0]) {
     PROTECT(seq_hash = allocVector(VECSXP, num_unique_seqs));
     PROTECT(seq_hash_names = allocVector(VECSXP, num_unique_seqs));
