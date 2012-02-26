@@ -10,7 +10,7 @@
 #include "samtools/kseq.h"
 #include "io.h"
 
-/* This cannot be simple changed to increased - the %05d in
+/* This cannot be simply changed to increased - the %05d in
    hash_seq_kmers is a constraint. */
 #define MAX_READ_LENGTH 99999
 
@@ -208,7 +208,7 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
      size, which we limit to MAX_READ_LENGTH (or 99999, hence the %05d
      and the 5 in the Calloc).
   */
-  char *a_kmer = Calloc(k + 2 + 5, char), *start_ptr, *end_ptr;
+  char *a_kmer = Calloc(k + 2 + 5, char), *start_ptr;
   int i;
   khiter_t key;
   int is_missing, ret;
@@ -217,10 +217,9 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
     error("Could not allocate memory (in hash_seq_kmers, a_kmer)");
   
   start_ptr = block->seq.s;
-  for (i=0; i < block->seq.l-k-1; i++) {
+  for (i=0; i <= block->seq.l-k; i++) {
     strncpy(a_kmer, start_ptr + i, (size_t) k);
     sprintf(a_kmer + k, "-%05i", i+1);
-    /* end_ptr = a_kmer + k + 1; */
     a_kmer[k + 1 + 5] = '\0';
 
     /* hash kmer */

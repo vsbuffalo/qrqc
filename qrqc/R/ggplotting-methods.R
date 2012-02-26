@@ -260,10 +260,23 @@ function() {
 setMethod("kmerPlot", signature(x="SequenceSummary"),
 # If it exists, make a plot of k-mers. There are two many k-mers for
 # many ks to plot, so we take the top few and look at where they are.
-function(x, n.kmers=12) {
+function(x) {
   if (!nrow(getKmer(x)))
     stop("Data frame of k-mer counts by position is empty. Rerun readSeqFile with kmer=TRUE.")
   d <- getKmer(x)
-  top.kmers <- d$kmer[order(d$count, decreasing=TRUE)]
-  ggplot(d[d$kmer %in% top.kmers[1:n.kmers], ]) + geom_bar(aes(x=position, y=count, fill=kmer), stat="identity")
+  ## top.kmers <- d$kmer[order(d$count, decreasing=TRUE)]
+  ## d.some <- subset(d, kmer %in% top.kmers[1:n.kmers], drop=TRUE)
+  ## ggplot(d.some) + geom_bar(aes(x=position, y=count, fill=kmer), stat="identity")
+
+  k <- x@k
+  n.perm <- factorial(k)
+  n <-nrow(d)
+    
+  ## d$oe.ratio <- d$count / ((1/n.perm) * n)
+  ## top.oes.ratio <- d$kmer[order(d$oes.ratio, decreasing=TRUE)]
+  ## d.some <- subset(d, kmer %in% top.kmers[1:n.kmers], drop=TRUE)
+  ## ggplot(d.some) + geom_bar(aes(x=position, y=oe.ratio, fill=kmer), stat="identity")
+
+  ## We want to expand this to include rows for all k-kmers with 0
+  ## counts.
 })
