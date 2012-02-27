@@ -218,9 +218,9 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
   
   start_ptr = block->seq.s;
   for (i=0; i <= block->seq.l-k; i++) {
+    /* copy k-mer from sequence char array */
     strncpy(a_kmer, start_ptr + i, (size_t) k);
     sprintf(a_kmer + k, "-%05i", i+1);
-    a_kmer[k + 1 + 5] = '\0';
 
     /* hash kmer */
     key = kh_get(str, h, a_kmer);
@@ -236,7 +236,7 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
   Free(a_kmer);
 }
 
-static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_names, int dont_free) {
+static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_names) {
   /*
     Given a hash with string keys, output values to a given
     (pre-allocated!) SEXP seq_hash. Then, output keys to
@@ -255,12 +255,8 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
          (http://attractivechaos.wordpress.com/2009/09/29/khash-h/),
          using character arrays keys with strdup must be freed during
          table traverse. 
-
-         I've added dont_free because with k-mer hashing, we're copy
-         lots of little subsequences and the freeing is done there.
       */
-      if (!dont_free)
-        free((char *) kh_key(h, k));
+      free((char *) kh_key(h, k));
       i++;
     }
   }
@@ -404,7 +400,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     protects += 2;
     if (LOGICAL(verbose)[0])
       Rprintf("processing complete... now loading C hash structure to R...\n");
-    seq_khash_to_VECSXP(h, seq_hash, seq_hash_names, 0);
+    seq_khash_to_VECSXP(h, seq_hash, seq_hash_names);
     kh_destroy(str, h);
   }
 
@@ -414,7 +410,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     protects += 2;
     if (LOGICAL(verbose)[0])
       Rprintf("processing complete... now loading C k-mer hash structure to R...\n");
-    seq_khash_to_VECSXP(hkmer, kmer_hash, kmer_hash_names, 1);
+    seq_khash_to_VECSXP(hkmer, kmer_hash, kmer_hash_names);
     kh_destroy(str, hkmer);
   }
 
