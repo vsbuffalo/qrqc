@@ -9,6 +9,8 @@ QUALITY.CONSTANTS <- list(phred=list(offset=0, min=4, max=60),
 DNA_BASES_N <- c("A", "T", "G", "C", "N")
 
 ###### deprecated start -- to remove when old plotting functions are removed ######
+###### All of these are replaced by biovizBase colors, which are more aesthetically
+###### please and more colorblind friendly.
 NUCLEOTIDES <- c('A', 'T', 'C', 'G', 'N', 'R', 'Y', 'S',
                  'W', 'K', 'M', 'B', 'D', 'H', 'V', '-')
 NUCLEOTIDES.COLORS <- c('A'='dark green', 'T'='red',
@@ -83,6 +85,10 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
   }
 
   ## Data cleaning
+  ##
+  ## The C function behind the summarization allocates extra space
+  ## (beyond read length) that is just full of zeros, so we remove
+  ## these extra columns with zero data, and add names.
   obj@base.freqs <- local({
     tmp <- as.data.frame(t(.trimRightCols(out$base.freqs)))
     tmp <- cbind(1:nrow(tmp), tmp)

@@ -25,3 +25,4 @@ setGeneric("getBase", signature="x", function(x, drop=TRUE) standardGeneric("get
 setGeneric("getBaseProp", signature="x", function(x, drop=TRUE) standardGeneric("getBaseProp"))
 setGeneric("getSeqlen", signature="x", function(x) standardGeneric("getSeqlen"))
 setGeneric("getMCQual", signature="x", function(x, n=100) standardGeneric("getMCQual"))
+setGeneric("kmerEntropyPlot"), signature="x", function(x) standardGeneric("kmerEntropyPlot")

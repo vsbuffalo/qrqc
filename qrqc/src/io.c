@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,10 +10,6 @@
 #include "samtools/khash.h"
 #include "samtools/kseq.h"
 #include "io.h"
-
-/* This cannot be simply changed to increased - the %05d in
-   hash_seq_kmers is a constraint. */
-#define MAX_READ_LENGTH 99999
 
 #ifdef _WIN32
 int gzreadclone(FILE *file, void *buf, unsigned int len) {
@@ -143,7 +140,7 @@ static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q
   int q_offset = quality_contants[q_type][Q_OFFSET];
 
   if (!block->qual.l && block->seq.l > 0)
-    error("update_qual_matrices only works on FASTQ files");
+    error("'update_qual_matrices' only works on FASTQ files");
   
   for (i = 0; i < block->qual.l; i++) {
     R_CheckUserInterrupt();
@@ -204,23 +201,40 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
      We want a positional tag in the k-mer string, to avoid the
      complexity of multiple nested hashes (k-mer and position). We
      need to allocate the space for the k-mer and null byte (k + 1), a
-     delimiter ";", and the position, which depends on our max read
-     size, which we limit to MAX_READ_LENGTH (or 99999, hence the %05d
-     and the 5 in the Calloc).
+     delimiter "-", and the largest possible length of an R integer
+     when represented as as string (log10(x) + 1): this is where the
+     expression in Calloc comes from.
+
+
+     # Memory
+     
+     This method uses an int to store a k-mer. There 4^k possible
+     k-mers, and say each int is 4 bytes. For a read of length l,
+     there are l-k k-mer positions, with worse case scenario being a
+     different k-mer at each position. This would mean (l-k)*4^k*4
+     bytes to hold the k-mers, not including hashing overhead.
+
+     TODO:
+      - if k-mer count is greater than SINT_MAX, Inf?
+      - k-mer should have k > 2
+      - if a genome is entirely AAAAA, k=5, how long before overrun?
   */
-  char *a_kmer = Calloc(k + 2 + 5, char), *start_ptr;
+  char *a_kmer = Calloc(k + 2 + log10(SINT_MAX), char), *start_ptr;
   int i;
   khiter_t key;
   int is_missing, ret;
+  
+  if (k <= 2)
+    error("'k' must be >= 2");
 
   if (!a_kmer)
-    error("Could not allocate memory (in hash_seq_kmers, a_kmer)");
+    error("Could not allocate memory for 'a_kmer' in 'hash_seq_kmers'");
   
   start_ptr = block->seq.s;
   for (i=0; i <= block->seq.l-k; i++) {
     /* copy k-mer from sequence char array */
     strncpy(a_kmer, start_ptr + i, (size_t) k);
-    sprintf(a_kmer + k, "-%05i", i+1);
+    sprintf(a_kmer + k, "-%i", i+1);
 
     /* hash kmer */
     key = kh_get(str, h, a_kmer);
@@ -229,8 +243,12 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
       key = kh_put(str, h, strdup(a_kmer), &ret);
       kh_value(h, key) = 1;
       (*num_unique_kmers)++;
-    } else
+    } else {
+      /* if (kh_value(h, key) > 3 || !R_FINITE(kh_value(h, key))) //SINT_MAX) */
+      /*   kh_value(h, key) = R_PosInf; */
+      /* else */
       kh_value(h, key) = kh_value(h, key) + 1;
+    }
   }
 
   Free(a_kmer);
@@ -271,13 +289,12 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
 
     All matrices are pre-allocated to max_length, and then trimmed
     accordingly in R. This may be (and should be) changed in future
-    versions. max_length is confined by kmer-hashing (so far) which
-    has a limit MAX_READ_LENGTH.
+    versions. 
 
     Note that quality_type is -1 if the file is FASTA.
    */
   if (!isString(filename))
-    error("filename should be a string");
+    error("'filename' should be a string");
 
   khash_t(str) *h=NULL, *hkmer=NULL;
   kseq_t *block;
@@ -288,9 +305,6 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
   SEXP base_counts, out_list, seq_lengths, qual_counts=NULL, seq_hash=NULL, seq_hash_names=NULL;
   SEXP kmer_hash=NULL, kmer_hash_names=NULL;
   double hprop;
-
-  if (INTEGER(max_length)[0] > MAX_READ_LENGTH)
-    error("max_length is greater than MAX_READ_LENGTH (%d)", MAX_READ_LENGTH);
 
   if (IS_FASTQ(quality_type)) {
     q_type = INTEGER(quality_type)[0];
@@ -355,7 +369,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     if (IS_FASTQ(quality_type) && l == -2)
       error("improperly formatted FASTQ file; truncated quality string");
     if (l >= INTEGER(max_length)[0]-1)
-      error("read in sequence greater than max.length");
+      error("read in sequence greater than 'max.length'");
 
     update_base_matrices(block, ibc);
     if (IS_FASTQ(quality_type))

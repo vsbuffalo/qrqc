@@ -260,7 +260,7 @@ function() {
 setMethod("kmerPlot", signature(x="SequenceSummary"),
 # If it exists, make a plot of k-mers. There are two many k-mers for
 # many ks to plot, so we take the top few and look at where they are.
-function(x) {
+function(x, kmers=20) {
   if (!nrow(getKmer(x)))
     stop("Data frame of k-mer counts by position is empty. Rerun readSeqFile with kmer=TRUE.")
   d <- getKmer(x)
@@ -269,14 +269,68 @@ function(x) {
   ## ggplot(d.some) + geom_bar(aes(x=position, y=count, fill=kmer), stat="identity")
 
   k <- x@k
-  n.perm <- factorial(k)
-  n <-nrow(d)
-    
-  ## d$oe.ratio <- d$count / ((1/n.perm) * n)
-  ## top.oes.ratio <- d$kmer[order(d$oes.ratio, decreasing=TRUE)]
-  ## d.some <- subset(d, kmer %in% top.kmers[1:n.kmers], drop=TRUE)
-  ## ggplot(d.some) + geom_bar(aes(x=position, y=oe.ratio, fill=kmer), stat="identity")
+  n.perm <- 4^k
+  n.kmers <- length(unique(d$kmer))
 
-  ## We want to expand this to include rows for all k-kmers with 0
-  ## counts.
+  ## K-L divergence of empirical distribution across all reads to
+  ## positional distribution.
+
+  kmerDist <- function(x) {
+    tmp <- aggregate(x$count, list(kmer=x$kmer), sum)
+    data.frame(kmer=tmp$kmer, prop=tmp$x/sum(tmp$x))    
+  }
+  
+  kmer.dist <- kmerDist(d)
+
+  kmer.by.pos <- split(d, list(position=d$position))
+
+  r <- mapply(function(x, p) {
+    ratio <- kmerDist(x)$prop/kmer.dist$prop[match(x$kmer, kmer.dist$kmer)]
+    data.frame(kmer=x$kmer, ratio, position=p)
+  }, kmer.by.pos, as.numeric(names(kmer.by.pos)), SIMPLIFY=FALSE)
+
+  ratio <- do.call(rbind, r)
+
+  y <- lapply(kmer.by.pos, kmerDist)
+
+  ## We want to calculate the K-L divergence, but our sample spaces
+  ## are not the same, as our positional k-mer data frame is not
+  ## populated with zero entries for the entire k-mer space. 
+  kl <- mapply(function(x, p) {
+    x$q <- kmer.dist$prop[match(x$kmer, kmer.dist$kmer)]
+    data.frame(kmer=x$kmer, position=p, kl=x$prop*log2(x$prop/x$q))
+  }, y, as.numeric(names(y)), SIMPLIFY=FALSE)
+  
+  ggplot(subset())
 })
+
+kmerEntropy <-
+# Get a dataframe of k-mer entropy by position.
+function(x) {
+  if (is(x, "SequenceSummary"))
+    error("'x' must be an object that inherits from 'SequenceSummary'")
+  d <- getKmer(x)
+
+  y <- split(d, list(position=d$position))
+  kmer.entropies <- sapply(y, function(x) {
+    p <- x$count/sum(x$count)
+    -sum(p*log2(p))
+  })
+  data.frame(position=as.numeric(names(y)), entropy=kmer.entropies)
+}
+
+setMethod("kmerEntropyPlot", signature(x="SequenceSummary"),
+# Plot the k-mer entropy by position.
+function(x) {
+  ggplot(data=kmerEntropy(x)) + geom_line(aes(x=position, y=entropy), color="blue")
+})
+
+setMethod("kmerEntropyPlot", signature(x="list"),
+# Plot the k-mer entropy by position.
+function(x) {
+  ke <- list2df(x, kmerEntropy)
+  p <- ggplot(data=ke) + geom_line(aes(x=position, y=entropy), color="blue")
+  p <- p + facet_wrap(~ sample)
+  p
+})
+
