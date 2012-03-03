@@ -168,7 +168,7 @@ scale. Different geoms (see \Rpackage{ggplot2} for more details) can
 be specified too with the \texttt{geom} parameter. By default, a line
 graph is used, but bar graphs (through \texttt{geom='bar'}) and bar
 graphs with dodged bars (through \texttt{geom='dodge'}) can be
-plotted also, as in \ref{fig:BasePlot-prop}.
+plotted also, as in Figure \ref{fig:BasePlot-prop}.
 
 \begin{figure}
 \centering
@@ -219,7 +219,7 @@ their k-mers with \texttt{k=6}. The accessor function \texttt{getKmer}
 will return a data frame of k-mer frequency by position.
 
 The function \texttt{kmerEntropyPlot} will plot the Shannon entropy by
-position, as in \ref{fig:Entropy}. \texttt{kmerEntropyPlot} will
+position, as in Figure \ref{fig:Entropy}. \texttt{kmerEntropyPlot} will
 handle any object that inherits from \texttt{SequenceSummary} or a
 named list of such objects.
 
@@ -239,7 +239,7 @@ function \texttt{calcKL} calculates the Kullback-Leibler divergence
 between the distribution of k-mers at a particular positions (for all
 positions) and the distribution of k-mers across all positions. The
 result is a data frame of the K-L terms, of which a subset are stacked
-in the plot produced by \texttt{kmerKLPlot}, as in \ref{fig:KmerKL}.
+in the plot produced by \texttt{kmerKLPlot}, as in Figure \ref{fig:KmerKL}.
 
 \begin{figure}
 \centering
@@ -258,7 +258,7 @@ sample space of k-mers). The number of top k-mers (determined by
 finding the k-mers with the highest K-L terms) is controlled by setting
 the number of k-mers to include with \texttt{n.kmers}. Passing a list
 of objects that inherit from \texttt{SequenceSummary} will facet the
-K-L divergence term plot, as in \ref{fig:KmerKLRand}
+K-L divergence term plot, as in Figure \ref{fig:KmerKLRand}
 
 \begin{figure}
 \centering
@@ -268,7 +268,8 @@ K-L divergence term plot, as in \ref{fig:KmerKLRand}
 \label{fig:KmerKLRand}
 \end{figure}
 <<figKmerKLRand,fig=TRUE,width=7,height=6>>=
-s.contam <- readSeqFile(system.file('extdata', 'test-contam.fastq', package='qrqc'),   kmer=TRUE, k=5, verbose=TRUE)
+contam.file <- system.file('extdata', 'test-contam.fastq', package='qrqc')
+s.contam <- readSeqFile(contam.file, kmer=TRUE, k=5)
 
 kmerKLPlot(list("contaminated"=s.fastq, "random"=s.rand,
   "highly contaminated"=s.contam))
@@ -280,7 +281,7 @@ A major motivating factor of using \Rpackage{ggplot2} with
 \Rpackage{qrqc} is that it allows easy customization of plots without
 requiring plotting methods to have excessive arguments. For example,
 if we wish to flip the coordinates of a plot, we easily with
-\texttt{coord\_flip()}, as in \ref{fig:Coord}.
+\texttt{coord\_flip()}, as in Figure \ref{fig:Coord}.
 
 \begin{figure}
 \centering
@@ -315,9 +316,10 @@ One can access the summary data gathered by \texttt{readSeqFile}
 through the slots in an object that inherits from
 \texttt{SequenceSummary}. However, these are straight from the C
 function used by \texttt{readSeqFile} and not easy to work with. The
-accessor functions \texttt{getBase}, \texttt{getBaseProps},
-\texttt{getQual}, \texttt{getSeqlen}, and \texttt{getMCQual} return
-data frames that can then be used directly with \Rpackage{ggplot2}.
+accessor functions \texttt{getBase}, \texttt{getBaseProp},
+\texttt{getQual}, \texttt{getSeqlen}, \texttt{getKmer}, and
+\texttt{getMCQual} return data frames that can then be used directly
+with \Rpackage{ggplot2}.
 
 
 \begin{figure}
@@ -356,7 +358,7 @@ information. Both contain:
 \begin{itemize}
 \item \texttt{filename}: the filename of the file read and summarized
   with \texttt{readSeqFile}.
-\item \texttt{base.freqs}: a dataframe containing the frequency counts
+\item \texttt{base.freqs}: a data frame containing the frequency counts
   of each base.
 \item \texttt{seq.lengths}: a numeric vector containing the sequences
   lengths (counts by position).
@@ -364,14 +366,18 @@ information. Both contain:
   sequences (the actual sequences are the names attribute).
 \item{\texttt{hash.prop}}{a numeric value indicating the proportion of
     sequences that were sampled for hashing.}
-\item \texttt{hashed}: a logical indicating whether sequence hashing
-  to count unique sequences was done.
+\item{\texttt{kmer}}{a data frame of k-mer frequency by position.}
+\item{\texttt{k}{an integer value indicating the k-mer size 'k'.}}
+\item{\texttt{hashed}: a logical indicating whether sequence hashing
+  to count unique sequences was done.}
+\item{\texttt{kmers.hashed}: a logical indicating whether k-mer
+    hashing was done.}
 \end{itemize}
 
 Additionally, \texttt{FASTQSummary} provides:
 
 \begin{itemize}
-\item \texttt{qual.freqs}: a dataframe containing the counts of bases
+\item \texttt{qual.freqs}: a data frame containing the counts of bases
   of a particular quality by position.
 \item \texttt{mean.qual}: a numeric giving the mean quality, weighted
   by sequence lengths.

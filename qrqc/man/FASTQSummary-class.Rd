@@ -24,7 +24,7 @@
     quality (used to convert ASCII characters to quality
     integers). Either "phred", "solexa", or "illumina".}
 
-    \item{\code{qual.freqs}}{a dataframe of quality frequencies by
+    \item{\code{qual.freqs}}{a data frame of quality frequencies by
       position, if the file was a FASTQ file.}
     \item{\code{mean.qual}}{a numeric that is the mean quality across
       all positions,
