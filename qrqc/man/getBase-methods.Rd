@@ -3,7 +3,7 @@
 \alias{getBase}
 \alias{getBase-methods}
 \alias{getBase,SequenceSummary-method}
-\title{Get a Data Frame of Base Frequency Data from a \code{SequenceSummary} object}
+\title{Get a Data Frame of Base Frequency Data from a \code{SequenceSummary} Object}
 \description{
   An object that inherits from class \code{SequenceSummary} contains
   base frequency data by position gathered by \code{readSeqFile}. \code{getBase}

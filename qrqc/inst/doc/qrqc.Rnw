@@ -32,7 +32,7 @@
   Quality Control) package is a fast and extensible package that
   reports basic quality and summary statistics on FASTQ and FASTA
   files, including base and quality distribution by position, sequence
-  length distribution, and common sequences.
+  length distribution, k-mers by position, and common sequences.
 \end{abstract}
 
 \section{Reading in a Sequence File}
@@ -43,7 +43,9 @@ sequences can be hashed (also done at the C level), to see the most
 frequent sequences in the file. Hashing is memory intensive (all
 unique sequence reads are kept in memory once), so by default,
 \texttt{readSeqFile} will randomly sample 10\% of the reads and hash
-these. This proportion can be adjusted with the \texttt{hash.prop}.
+these. This proportion can be adjusted with the
+\texttt{hash.prop}. Also, k-mers are hashed (when \texttt{kmer=TRUE})
+with the same proportion as set by \texttt{hash.prop}.
 
 <<echo=TRUE>>=
 library(qrqc)
@@ -207,6 +209,66 @@ functions.
 
 <<figGcPlot,fig=TRUE,width=7,height=6>>=
 gcPlot(s.fastq) + geom_hline(yintercept=0.5, color="purple")
+@
+
+\section{k-mer Hashing and Investigating Contamination with Shannon Entropy and K-L Divergence}
+
+\texttt{readSeqFile} also has an option to hash k-mers. By default,
+\texttt{readSeqFile} randomly selects 10\% of the reads and hashes
+their k-mers with \texttt{k=6}. The accessor function \texttt{getKmer}
+will return a data frame of k-mer frequency by position.
+
+The function \texttt{kmerEntropyPlot} will plot the Shannon entropy by
+position, as in \ref{fig:Entropy}. \texttt{kmerEntropyPlot} will
+handle any object that inherits from \texttt{SequenceSummary} or a
+named list of such objects.
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figEntropy}
+\caption{Shannon Entropy for an Illumina file and a FASTA file made from uniformly and randomly sampling bases.}
+\label{fig:Entropy}
+\end{figure}
+<<figEntropy,fig=TRUE,width=7,height=6>>=
+s.rand <- readSeqFile(system.file('extdata', 'random.fasta', package='qrqc'), type="fasta")
+kmerEntropyPlot(list("low contamination"=s.fastq, "random uniform bases"=s.rand))
+@
+
+To look for possible contamination in this k-mer frequency data, the
+function \texttt{calcKL} calculates the Kullback-Leibler divergence
+between the distribution of k-mers at a particular positions (for all
+positions) and the distribution of k-mers across all positions. The
+result is a data frame of the K-L terms, of which a subset are stacked
+in the plot produced by \texttt{kmerKLPlot}, as in \ref{fig:KmerKL}.
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figKmerKL}
+\caption{K-L terms for a subset of top k-mers.}
+\label{fig:KmerKL}
+\end{figure}
+<<figKmerKL,fig=TRUE,width=7,height=6>>=
+kmerKLPlot(s.fastq)
+@
+
+Note that the total height is \emph{proportional} to the actual K-L
+divergence; because only a subset of the k-mers are used to avoid over
+plotting, this is not the full K-L divergence (it's a subset of the
+sample space of k-mers). The number of top k-mers (determined by
+finding the k-mers with the highest K-L terms) is controlled by setting
+the number of k-mers to include with \texttt{n.kmers}. Passing a list
+of objects that inherit from \texttt{SequenceSummary} will facet the
+K-L divergence term plot, as in \ref{fig:KmerKLRand}
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figKmerKLRand}
+\caption{K-L terms for a subset of top k-mers for many
+  \texttt{SequenceSummary} objects.}
+\label{fig:KmerKLRand}
+\end{figure}
+<<figKmerKLRand,fig=TRUE,width=7,height=6>>=
+kmerKLPlot(list("less contaminated"=s.fastq, "random"=s.rand, "highly contaminated"=s.contam))
 @
 
 \section{Customizing Graphics with \Rpackage{ggplot2}}

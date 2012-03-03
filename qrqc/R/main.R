@@ -35,6 +35,9 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
 
+  if (k < 2)
+    stop("'k' must be greater than 2")
+  
   type <- match.arg(type)
   quality <- match.arg(quality)
   
@@ -106,5 +109,6 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
     obj@quality <- quality
   }
   obj@hashed <- hash
+  obj@kmers.hashed <- kmer
   return(obj)
 }

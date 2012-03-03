@@ -10,7 +10,8 @@ setClass("SequenceSummary",
            hash.prop='numeric',
            kmer='data.frame',
            k='integer',
-           hashed='logical'))
+           hashed='logical',
+           kmers.hashed='logical'))
 
 setClass("FASTASummary",
          contains="SequenceSummary")

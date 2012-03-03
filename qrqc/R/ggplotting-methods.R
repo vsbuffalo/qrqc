@@ -278,7 +278,7 @@ calcKL <- function(x) {
   ## k-mers.
   y <- lapply(kmer.by.pos, kmerDist)
   
-  kl <- mapply(function(x, p) { ##FIXME
+  kl <- mapply(function(x, p) {
     x$q <- kmer.dist$prop[match(x$kmer, kmer.dist$kmer)]
     klout <- data.frame(kmer=x$kmer, position=p,
                         kl=x$prop*log2(x$prop/x$q), p=x$prop, q=x$q)

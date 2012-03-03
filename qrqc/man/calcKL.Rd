@@ -22,6 +22,17 @@
   \item{x}{an S4 object a class that inherits from \code{SequenceSummary}.}
 }
 
+\value{
+  \code{calcKL} returns a \code{data.frame} with columns:
+
+  \item{kmer}{the k-mer sequence.}
+  \item{position}{the position in the read.}
+  \item{kl}{the K-L term for this k-mer in the K-L sum, calculated as
+    p(i)*log2(p(i)/q(i)).}
+  \item{p}{the probability for this k-mer, at this position.}
+  \item{q}{the probability for this k-mer across all positions.}
+}
+
 \note{
   The K-L divergence calculation in \code{calcKL} uses base 2 in the
   log; the units are in bits.

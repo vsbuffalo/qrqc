@@ -33,7 +33,7 @@ function(length.dist) {
   last <- length(.trimArray(length.dist))
   l <- length.dist[1:last]
   s <- numeric(last)
-  for (i in last:1) { # TODO fix
+  for (i in last:1) {
     s[1:i] <- s[1:i] + l[i]
   }
   return(s)

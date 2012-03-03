@@ -59,11 +59,11 @@ test_that("binned2boxplot", {
 
 test_that("calcKL", {
   ## Check that our sample spaces sum to 1
-  s.fastq <- readSeqFile(system.file('extdata', 'test.fastq',
+  s.fastq <- qrqc:::readSeqFile(system.file('extdata', 'test.fastq',
     package='qrqc'), hash.prop=1)
 
   eps <- 1e-4
-  kld <- calcKL(s.fastq)
+  kld <- qrqc:::calcKL(s.fastq)
   expect_that(all(with(kld, aggregate(p, list(position), sum))[, 2] - 1 < EPSILON), is_true())
   expect_that(all(with(kld, aggregate(q, list(position), sum))[, 2] - 1 < EPSILON), is_true())
 })
