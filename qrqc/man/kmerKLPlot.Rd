@@ -55,7 +55,7 @@
 \note{
 
   The K-L divergence calculation in \code{calcKL} uses base 2 in the
-  log, thus the units are in bits.
+  log; the units are in bits.
 
   Also, note that \code{ggplot2} warns that "Stacking is not well defined when ymin
   != 0". This occurs when some k-mers are less frequent in the positional

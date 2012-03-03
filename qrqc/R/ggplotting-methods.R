@@ -289,6 +289,7 @@ calcKL <- function(x, kmers=20) {
   }, y, as.numeric(names(y)), SIMPLIFY=FALSE)
 
   kld <- do.call(rbind, kl)
+  kld
 }
 
 
