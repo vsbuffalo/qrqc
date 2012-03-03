@@ -55,17 +55,18 @@
   quality type that won't fall outside of the another type.
 
   Here is a bit more about quality:
-
-  \item{phred}{PHRED quality scores (e.g. from Roche 454). ASCII with no offset,
-    range: [4, 60]. This has been removed as an option since sequence reads with this
-    type are very, very uncommon.}
-  \item{sanger}{Sanger are PHRED ASCII qualities with an offset of 33, range:
-    [0, 93]. From NCBI SRA, or Illumina pipeline 1.8+.}
-  \item{solexa}{Solexa (also very early Illumina - pipeline < 1.3). ASCII offset
-    of 64, range: [-5, 62]. Uses a different quality-to-probabilities
-    conversion than other schemes.}
+  \describe{
+    \item{phred}{PHRED quality scores (e.g. from Roche 454). ASCII with no offset,
+      range: [4, 60]. This has been removed as an option since sequence reads with this
+      type are very, very uncommon.}
+    \item{sanger}{Sanger are PHRED ASCII qualities with an offset of 33, range:
+      [0, 93]. From NCBI SRA, or Illumina pipeline 1.8+.}
+    \item{solexa}{Solexa (also very early Illumina - pipeline < 1.3). ASCII offset
+      of 64, range: [-5, 62]. Uses a different quality-to-probabilities
+      conversion than other schemes.}
   \item{illumina}{Illumina output from pipeline versions between 1.3 and
     1.7. ASCII offset of 64, range: [0, 62].}
+  }
 }
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}

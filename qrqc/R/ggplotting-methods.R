@@ -257,7 +257,7 @@ function() {
   scale_color_manual(values=getBioColor("IUPAC_CODE_MAP"))
 }
 
-calcKL <- function(x, kmers=20) {
+calcKL <- function(x) {
   d <- getKmer(x)
 
   kmerDist <- function(x) {
@@ -278,9 +278,8 @@ calcKL <- function(x, kmers=20) {
   ## k-mers.
   y <- lapply(kmer.by.pos, kmerDist)
   
-  kl <- mapply(function(x, p) {
-    this.kmer.dist <- kmerDist(subset(d, kmer %in% unique(x$kmer)))
-    x$q <- this.kmer.dist$prop[match(x$kmer, this.kmer.dist$kmer)]
+  kl <- mapply(function(x, p) { ##FIXME
+    x$q <- kmer.dist$prop[match(x$kmer, kmer.dist$kmer)]
     klout <- data.frame(kmer=x$kmer, position=p,
                         kl=x$prop*log2(x$prop/x$q), p=x$prop, q=x$q)
     # by definition of K-L divergence, we only keep if for i, p(i) > 0
@@ -299,7 +298,7 @@ setMethod("kmerKLPlot", signature(x="SequenceSummary"),
 function(x, n.kmers=20) {
   if (!nrow(getKmer(x)))
     stop("Data frame of k-mer counts by position is empty. Rerun readSeqFile with kmer=TRUE.")
-  kld <- calcKL(x, kmers)  
+  kld <- calcKL(x)  
   kld.subset <- subset(kld, kmer %in% kld$kmer[order(kld$kl, decreasing=TRUE)[seq_len(n.kmers)]])
 
   p <- ggplot(kld.subset)
@@ -316,7 +315,7 @@ function(x, n.kmers=20) {
     stop("Data frame of k-mer counts by position is empty. Rerun readSeqFile with kmer=TRUE.")
 
   kld.subset  <- list2df(x, function(x) {
-    kld <- calcKL(x, kmers)  
+    kld <- calcKL(x)  
     subset(kld, kmer %in% kld$kmer[order(kld$kl, decreasing=TRUE)[seq_len(n.kmers)]])
   })
   

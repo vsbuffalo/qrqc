@@ -64,6 +64,6 @@ test_that("calcKL", {
 
   eps <- 1e-4
   kld <- calcKL(s.fastq)
-  expect_that(all(with(kld, aggregate(p, list(position), sum))[, 2] - 1 < EPSILON, is_true())
-  expect_that(all(with(kld, aggregate(q, list(position), sum))[, 2] - 1 < EPSILON, is_true())
+  expect_that(all(with(kld, aggregate(p, list(position), sum))[, 2] - 1 < EPSILON), is_true())
+  expect_that(all(with(kld, aggregate(q, list(position), sum))[, 2] - 1 < EPSILON), is_true())
 })
