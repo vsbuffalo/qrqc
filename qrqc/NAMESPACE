@@ -36,6 +36,9 @@ export(geom_qlinerange)
 export(list2df)
 export(scale_color_iupac)
 export(scale_color_dna)
+export(kmerKLPlot)
+export(kmerEntropyPlot)
+export(calcKL)
 
 # deprecated
 export(plotQuals)

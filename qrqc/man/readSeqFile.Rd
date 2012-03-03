@@ -8,12 +8,17 @@
   of qualities across position will also be recorded. If \code{hash} is
   \code{TRUE}, the unique sequences will be hashed with counts of their
   frequency. By default, only 10\% of the reads will be hashed; this
-  proportion can be controlled with \code{hash.prop}.
+  proportion can be controlled with \code{hash.prop}. If
+  \code{kmer=TRUE}, k-mers of length \code{k} will be hashed by
+  position, also with the sampling proportion controlled by
+  \code{hash.prop}.
+  
+  
 }
 \usage{
   readSeqFile(filename, type=c("fastq", "fasta"), max.length=1000,
               quality=c("sanger", "solexa", "illumina"), hash=TRUE,
-              hash.prop=0.1, verbose=FALSE)
+              hash.prop=0.1, kmer=TRUE, k=6L, verbose=FALSE)
 }
 \arguments{
   \item{filename}{the name of the file which the sequences are to be
@@ -32,6 +37,9 @@
   \item{hash}{a logical value indicating whether to hash sequences}
   \item{hash.prop}{a numeric value in (0, 1] that functions as the proportion
     of reads to hash.}
+  \item{kmer}{a logical value indicating whether to hash k-mers by
+    position.}
+  \item{k}{an integer value indicating the k-mer size.}
   \item{verbose}{a logical value indicating whether be verbose (in the C
     backend).}
 }

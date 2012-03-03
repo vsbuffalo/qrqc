@@ -31,7 +31,7 @@ readSeqFile <-
 # Use the C function summarize_file to create matrices of base
 # and quality counts, per position along all reads.
 function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger", "solexa", "illumina"),
-         hash=TRUE, hash.prop=0.1, kmer=TRUE, k=6, verbose=FALSE) {
+         hash=TRUE, hash.prop=0.1, kmer=TRUE, k=6L, verbose=FALSE) {
   if (!file.exists(filename))
     stop(sprintf("file '%s' does not exist", filename))
 
