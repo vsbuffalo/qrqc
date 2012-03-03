@@ -231,7 +231,7 @@ named list of such objects.
 \end{figure}
 <<figEntropy,fig=TRUE,width=7,height=6>>=
 s.rand <- readSeqFile(system.file('extdata', 'random.fasta', package='qrqc'), type="fasta")
-kmerEntropyPlot(list("low contamination"=s.fastq, "random uniform bases"=s.rand))
+kmerEntropyPlot(list("contaminated"=s.fastq, "random"=s.rand))
 @
 
 To look for possible contamination in this k-mer frequency data, the
@@ -268,7 +268,10 @@ K-L divergence term plot, as in \ref{fig:KmerKLRand}
 \label{fig:KmerKLRand}
 \end{figure}
 <<figKmerKLRand,fig=TRUE,width=7,height=6>>=
-kmerKLPlot(list("less contaminated"=s.fastq, "random"=s.rand, "highly contaminated"=s.contam))
+s.contam <- readSeqFile(system.file('extdata', 'test-contam.fastq', package='qrqc'),   kmer=TRUE, k=5, verbose=TRUE)
+
+kmerKLPlot(list("contaminated"=s.fastq, "random"=s.rand,
+  "highly contaminated"=s.contam))
 @
 
 \section{Customizing Graphics with \Rpackage{ggplot2}}
