@@ -144,7 +144,7 @@ static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q
   
   for (i = 0; i < block->qual.l; i++) {
     R_CheckUserInterrupt();
-    if ((char) block->qual.s[i] - q_offset <= q_min || (char) block->qual.s[i] - q_offset >= q_max)
+    if ((char) block->qual.s[i] - q_offset < q_min || (char) block->qual.s[i] - q_offset > q_max)
       error("base quality out of range (%d <= b <= %d) encountered: %d", q_min,
             q_max, (char) block->qual.s[i]);
     
