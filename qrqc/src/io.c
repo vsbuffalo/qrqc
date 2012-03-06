@@ -304,7 +304,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
   /* Note: NULL and 0 initializations to stop warnings on Windows systems */
   SEXP base_counts, out_list, seq_lengths, qual_counts=NULL, seq_hash=NULL, seq_hash_names=NULL;
   SEXP kmer_hash=NULL, kmer_hash_names=NULL;
-  double hprop;
+  double hprop=0;
 
   if (IS_FASTQ(quality_type)) {
     q_type = INTEGER(quality_type)[0];
@@ -390,7 +390,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
          hash proportion */
       if (sample_block) {
         add_seq_to_khash(h, block, &num_unique_seqs);
-        if (EXTRA_VERBOSE || LOGICAL(verbose)[0] && nblock % 100000 == 0)
+        if (EXTRA_VERBOSE || (LOGICAL(verbose)[0] && nblock % 100000 == 0))
           Rprintf("on block %d, %d entries in hash table...\n", nblock, num_unique_seqs);
       }
     }
@@ -399,7 +399,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
       /* hash kmer */
       if (sample_block) {  
         hash_seq_kmers(kn, hkmer, block, &num_unique_kmers);
-        if (EXTRA_VERBOSE || LOGICAL(verbose)[0] && nblock % 100000 == 0)
+        if (EXTRA_VERBOSE || (LOGICAL(verbose)[0] && nblock % 100000 == 0))
           Rprintf("on block %d, %d k-mers in hash table...\n", nblock, num_unique_kmers);
       }
     }
