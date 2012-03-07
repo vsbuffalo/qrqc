@@ -1,10 +1,12 @@
 #include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <R.h>
 #include <R_ext/Utils.h>
 #include <Rinternals.h>
+#include <Rmath.h>
 #include "samtools/khash.h"
 #include "samtools/kseq.h"
 #include "io.h"
@@ -36,6 +38,8 @@ KHASH_MAP_INIT_STR(str, int)
 
 #define INIT_MAX_SEQ 500
 #define NUM_BASES 16 /* includes all IUPAC codes. */
+#define EXTRA_VERBOSE 0
+
 
 #define IS_FASTQ(quality_type) INTEGER(quality_type)[0] >= 0
 
@@ -136,11 +140,11 @@ static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q
   int q_offset = quality_contants[q_type][Q_OFFSET];
 
   if (!block->qual.l && block->seq.l > 0)
-    error("update_qual_matrices only works on FASTQ files");
+    error("'update_qual_matrices' only works on FASTQ files");
   
   for (i = 0; i < block->qual.l; i++) {
     R_CheckUserInterrupt();
-    if ((char) block->qual.s[i] - q_offset <= q_min || (char) block->qual.s[i] - q_offset >= q_max)
+    if ((char) block->qual.s[i] - q_offset < q_min || (char) block->qual.s[i] - q_offset > q_max)
       error("base quality out of range (%d <= b <= %d) encountered: %d", q_min,
             q_max, (char) block->qual.s[i]);
     
@@ -188,6 +192,68 @@ static void add_seq_to_khash(khash_t(str) *h, kseq_t *block, unsigned int *num_u
     kh_value(h, k) = kh_value(h, k) + 1;
 }
 
+static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *num_unique_kmers) {
+  /* 
+     Given a hash and a block containg sequence, hash each k-mer. As
+     with add_seq_to_khash, increase num_unique_kmers if new kmer is
+     found.
+
+     We want a positional tag in the k-mer string, to avoid the
+     complexity of multiple nested hashes (k-mer and position). We
+     need to allocate the space for the k-mer and null byte (k + 1), a
+     delimiter "-", and the largest possible length of an R integer
+     when represented as as string (log10(x) + 1): this is where the
+     expression in Calloc comes from.
+
+
+     # Memory
+     
+     This method uses an int to store a k-mer. There 4^k possible
+     k-mers, and say each int is 4 bytes. For a read of length l,
+     there are l-k k-mer positions, with worse case scenario being a
+     different k-mer at each position. This would mean (l-k)*4^k*4
+     bytes to hold the k-mers, not including hashing overhead.
+
+     TODO:
+      - if k-mer count is greater than SINT_MAX, Inf?
+      - k-mer should have k > 2
+      - if a genome is entirely AAAAA, k=5, how long before overrun?
+  */
+  char *a_kmer = Calloc(k + 2 + log10(SINT_MAX), char), *start_ptr;
+  int i;
+  khiter_t key;
+  int is_missing, ret;
+  
+  if (k <= 2)
+    error("'k' must be >= 2");
+
+  if (!a_kmer)
+    error("Could not allocate memory for 'a_kmer' in 'hash_seq_kmers'");
+  
+  start_ptr = block->seq.s;
+  for (i=0; i <= block->seq.l-k; i++) {
+    /* copy k-mer from sequence char array */
+    strncpy(a_kmer, start_ptr + i, (size_t) k);
+    sprintf(a_kmer + k, "-%i", i+1);
+
+    /* hash kmer */
+    key = kh_get(str, h, a_kmer);
+    is_missing = (key == kh_end(h));
+    if (is_missing) {
+      key = kh_put(str, h, strdup(a_kmer), &ret);
+      kh_value(h, key) = 1;
+      (*num_unique_kmers)++;
+    } else {
+      /* if (kh_value(h, key) > 3 || !R_FINITE(kh_value(h, key))) //SINT_MAX) */
+      /*   kh_value(h, key) = R_PosInf; */
+      /* else */
+      kh_value(h, key) = kh_value(h, key) + 1;
+    }
+  }
+
+  Free(a_kmer);
+}
+
 static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_names) {
   /*
     Given a hash with string keys, output values to a given
@@ -206,14 +272,16 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
       /* per the comment here
          (http://attractivechaos.wordpress.com/2009/09/29/khash-h/),
          using character arrays keys with strdup must be freed during
-         table traverse. */
+         table traverse. 
+      */
       free((char *) kh_key(h, k));
       i++;
     }
   }
 }
 
-extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, SEXP verbose) {
+extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SEXP hash, 
+                           SEXP hash_prop, SEXP kmer, SEXP k, SEXP verbose) {
   /*
     Given a FASTA or FASTQ file, read in sequences and gather
     statistics on bases, qualities, sequence lengths, and unique
@@ -221,20 +289,22 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
 
     All matrices are pre-allocated to max_length, and then trimmed
     accordingly in R. This may be (and should be) changed in future
-    versions.
+    versions. 
 
     Note that quality_type is -1 if the file is FASTA.
    */
   if (!isString(filename))
-    error("filename should be a string");
+    error("'filename' should be a string");
 
-  khash_t(str) *h=NULL;
+  khash_t(str) *h=NULL, *hkmer=NULL;
   kseq_t *block;
-  int size_out_list = 4, l, protects=0;
-  unsigned int num_unique_seqs = 0, nblock = 0;
+  int size_out_list=4, l, protects=0, sample_block=0;
+  int *ibc, *isl, *iqc=NULL, q_type=0, q_range=0, kn=0;
+  unsigned int num_unique_seqs=0, num_unique_kmers=0, nblock=0;
   /* Note: NULL and 0 initializations to stop warnings on Windows systems */
   SEXP base_counts, out_list, seq_lengths, qual_counts=NULL, seq_hash=NULL, seq_hash_names=NULL;
-  int *ibc, *isl, *iqc=NULL, q_type=0, q_range=0;
+  SEXP kmer_hash=NULL, kmer_hash_names=NULL;
+  double hprop=0;
 
   if (IS_FASTQ(quality_type)) {
     q_type = INTEGER(quality_type)[0];
@@ -242,12 +312,36 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     size_out_list++;
   }
   
+  /* Initiate hashes for sequence and k-mer hashing */
   if (LOGICAL(hash)[0]) {
+    /* turn on hashing, initiate */
+    hprop = REAL(hash_prop)[0];
+    if (LOGICAL(verbose)[0])
+      Rprintf("initiating sequence hash...");
     h = kh_init(str);
-    kh_resize(str, h, 1572869);
+    kh_resize(str, h, 1572869); /* resizing now increases efficiency */
     size_out_list++;
   }
 
+  if (LOGICAL(kmer)[0]) {
+    /* turn on k-mer hashing, initiate */
+    kn = INTEGER(k)[0];
+
+    if (EXTRA_VERBOSE)
+      Rprintf("k-mer k=%d", kn);
+    
+    /* if we're not hashing, but we are k-mer hashing we need to grab
+       the hash_prop */
+    if (!LOGICAL(hash)[0]) 
+      hprop = REAL(hash_prop)[0];
+    if (LOGICAL(verbose)[0])
+      Rprintf("initiating k-mer hash...");
+    hkmer = kh_init(str);
+    kh_resize(str, hkmer, (int) gammafn(kn + 1)); /* pre-allocate all possible k-mers */
+    size_out_list++;
+  }
+
+  /* Open file, allocate structure */
   FILE_TYPE *fp = FILE_OPEN(CHAR(STRING_ELT(filename, 0)), "r");
   if (fp == NULL)
     error("failed to open file '%s'", CHAR(STRING_ELT(filename, 0)));
@@ -275,7 +369,7 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     if (IS_FASTQ(quality_type) && l == -2)
       error("improperly formatted FASTQ file; truncated quality string");
     if (l >= INTEGER(max_length)[0]-1)
-      error("read in sequence greater than max.length");
+      error("read in sequence greater than 'max.length'");
 
     update_base_matrices(block, ibc);
     if (IS_FASTQ(quality_type))
@@ -283,22 +377,55 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     
     isl[block->seq.l]++;
 
+    /* both sequence and k-mer hashing user sampling, so grab a random
+       sample to use for both. */
+    if (LOGICAL(hash)[0] || LOGICAL(kmer)[0]) {
+      GetRNGstate();
+      sample_block = hprop == 1 || hprop <= runif(0, 1);
+      PutRNGstate();
+    }
+
     if (LOGICAL(hash)[0]) {
-      add_seq_to_khash(h, block, &num_unique_seqs);
-      if (LOGICAL(verbose)[0] && nblock % 100000 == 0)
-        printf("on block %d, %d entries in hash table\n", nblock, num_unique_seqs);
+      /* hash sequence if random uniform draw is less than or equal to
+         hash proportion */
+      if (sample_block) {
+        add_seq_to_khash(h, block, &num_unique_seqs);
+        if (EXTRA_VERBOSE || (LOGICAL(verbose)[0] && nblock % 100000 == 0))
+          Rprintf("on block %d, %d entries in hash table...\n", nblock, num_unique_seqs);
+      }
+    }
+
+    if (LOGICAL(kmer)[0]) {
+      /* hash kmer */
+      if (sample_block) {  
+        hash_seq_kmers(kn, hkmer, block, &num_unique_kmers);
+        if (EXTRA_VERBOSE || (LOGICAL(verbose)[0] && nblock % 100000 == 0))
+          Rprintf("on block %d, %d k-mers in hash table...\n", nblock, num_unique_kmers);
+      }
     }
     nblock++;
   }
 
+  
+  /* Handle getting data out of R through list elements. */
   if (LOGICAL(hash)[0]) {
     PROTECT(seq_hash = allocVector(VECSXP, num_unique_seqs));
     PROTECT(seq_hash_names = allocVector(VECSXP, num_unique_seqs));
     protects += 2;
     if (LOGICAL(verbose)[0])
-      printf("processing complete... now loading C hash structure to R...\n");
+      Rprintf("processing complete... now loading C hash structure to R...\n");
     seq_khash_to_VECSXP(h, seq_hash, seq_hash_names);
     kh_destroy(str, h);
+  }
+
+  if (LOGICAL(kmer)[0]) {
+    PROTECT(kmer_hash = allocVector(VECSXP, num_unique_kmers));
+    PROTECT(kmer_hash_names = allocVector(VECSXP, num_unique_kmers));
+    protects += 2;
+    if (LOGICAL(verbose)[0])
+      Rprintf("processing complete... now loading C k-mer hash structure to R...\n");
+    seq_khash_to_VECSXP(hkmer, kmer_hash, kmer_hash_names);
+    kh_destroy(str, hkmer);
   }
 
   SET_VECTOR_ELT(out_list, 0, base_counts);
@@ -309,6 +436,11 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
   if (LOGICAL(hash)[0]) {
     setAttrib(seq_hash, R_NamesSymbol, seq_hash_names);
     SET_VECTOR_ELT(out_list, 3, seq_hash);
+  }
+
+  if (LOGICAL(kmer)[0]) {
+    setAttrib(kmer_hash, R_NamesSymbol, kmer_hash_names);
+    SET_VECTOR_ELT(out_list, 4, kmer_hash);
   }
 
   /* One more protected SEXP from qual_counts */

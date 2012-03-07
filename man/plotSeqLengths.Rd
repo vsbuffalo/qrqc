@@ -16,10 +16,13 @@
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
+\dontrun{
   ## Load a FASTQ file, with sequence hashing.
   s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Plot Qualities
   plotSeqLengths(s.fastq)
 }
+}
+\seealso{seqlenPlot}
 \keyword{graphics}

@@ -38,6 +38,7 @@
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
+\dontrun{
   ## Load a FASTQ file, with sequence hashing.
   s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
@@ -47,4 +48,6 @@
   ## Plot base proportions
   plotBases(s.fastq, type="prop")
 }
+}
+\seealso{basePlot}
 \keyword{graphics}

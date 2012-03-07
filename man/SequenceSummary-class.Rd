@@ -12,11 +12,15 @@
   call. This is a base class with slots common to both
   \code{\linkS4class{FASTQSummary}} and  \code{\linkS4class{FASTASummary}}. This is
   not usually instantiated directly.
+
+  Note that many accessor functions transform data in the slots into data
+  frames. The data in the slots is mostly untransformed and less easy to
+  work with directly, so using the accessor functions is recommended.
 }
 \section{Slots}{
   \describe{
     \item{\code{filename}}{the filename processed by \code{readSeqFile}.}
-   \item{\code{base.freqs}}{a dataframe of base frequencies by
+    \item{\code{base.freqs}}{a data frame of base frequencies by
       position. Each column is a nucleotide (there is a column for
       position too), and each row contains the count frequencies of bases for that
       position.}
@@ -24,7 +28,13 @@
       particular length (the length is the position in the vector).}
     \item{\code{hash}}{a numeric vector of the count frequencies of
       sequences (the sequences are in the name attribute).}
+    \item{\code{hash.prop}}{a numeric value indicating the proportion of
+      sequences that were sampled for hashing.}
+    \item{\code{kmer}}{a data frame of k-mer frequency by position.}
+    \item{\code{k}}{an integer indicating the length of k-mers hashed.}
     \item{\code{hashed}}{a logical indicating whether the sequences were
+      hashed in \code{readSeqFile}.}
+    \item{\code{kmers.hashed}}{a logical indicating whether the k-mers were
       hashed in \code{readSeqFile}.}
   }
 }

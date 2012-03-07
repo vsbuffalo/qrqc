@@ -10,16 +10,16 @@
   not be overwritten.
 }
 \usage{
-  makeReport(obj, outputDir=".")
+  makeReport(x, outputDir=".")
 }
 \arguments{
-  \item{obj}{an object that is either \code{FASTQSummary} or \code{FASTASummary}.}
+  \item{x}{an object that is either \code{FASTQSummary} or \code{FASTASummary}.}
   \item{outputDir}{an optional character argument to to indicate the report
     output directory. By default, the current directory.}
 }
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
 \examples{
-  ## Load a FASTQ file, with sequence hashing.
+  ## Load a FASTQ file
   s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
 
   ## Make and save a report

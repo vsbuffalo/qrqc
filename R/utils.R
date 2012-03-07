@@ -11,13 +11,13 @@ function(matrix, quality) {
 
 .trimRightCols <-
 # Remove blank cols from right of matrix, which occur because the
-# matrix allocates excess space.
+# matrix allocates excess space in C.
 function(m) {
   cs <- colSums(m)
   return(m[, 1:max(which(cs != 0))])
 }
 
-.trimArray <-
+.trimArray <- # TODO merge?
 function(x)
   x[1:max(which(x != 0))]
 
@@ -132,4 +132,14 @@ function(obj) {
     return(tmp)
   })
   return(base.props)
+}
+
+generateReads <- function(prob=c(A=0.25, T=0.25, C=0.25, G=0.25),
+                        len=100, n=1000, filename=NULL, format="fasta") {
+  seqs <- replicate(n, paste(sample(names(prob), len, prob=prob, replace=TRUE), collapse=""))
+  names(seqs) <- paste("sequence", seq_len(n))
+  if (is.null(filename))
+    return(DNAStringSet(seqs))
+  else
+    write.XStringSet(DNAStringSet(seqs), filename, format=format)
 }

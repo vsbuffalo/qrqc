@@ -7,7 +7,11 @@ setClass("SequenceSummary",
            base.freqs='data.frame',
            seq.lengths='integer',
            hash='integer',
-           hashed='logical'))
+           hash.prop='numeric',
+           kmer='data.frame',
+           k='integer',
+           hashed='logical',
+           kmers.hashed='logical'))
 
 setClass("FASTASummary",
          contains="SequenceSummary")

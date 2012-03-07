@@ -18,7 +18,7 @@
 
 \title{\textsf{\textbf{Using the \Rpackage{qrqc} package to gather information about sequence qualities}}}
 
-\date{2010-01-19}
+\date{2012-02-19}
 
 \begin{document}
 
@@ -32,7 +32,7 @@
   Quality Control) package is a fast and extensible package that
   reports basic quality and summary statistics on FASTQ and FASTA
   files, including base and quality distribution by position, sequence
-  length distribution, and common sequences.
+  length distribution, k-mers by position, and common sequences.
 \end{abstract}
 
 \section{Reading in a Sequence File}
@@ -40,7 +40,12 @@
 The \Rpackage{qrqc} package reads and processes FASTA and FASTQ files
 in C for speed, through the function \texttt{readSeqFile}. Optionally,
 sequences can be hashed (also done at the C level), to see the most
-frequent sequences in the file.
+frequent sequences in the file. Hashing is memory intensive (all
+unique sequence reads are kept in memory once), so by default,
+\texttt{readSeqFile} will randomly sample 10\% of the reads and hash
+these. This proportion can be adjusted with the
+\texttt{hash.prop}. Also, k-mers are hashed (when \texttt{kmer=TRUE})
+with the same proportion as set by \texttt{hash.prop}.
 
 <<echo=TRUE>>=
 library(qrqc)
@@ -74,116 +79,260 @@ but \texttt{type=FASTA} must be specified.
 If the file read and summarized with \texttt{readSeqFile} is a FASTQ
 file (and thus the resulting object is from the \texttt{FASTQSummary}
 class), quality information by position can be plotted with
-\texttt{plotQuals}, which produces a graphic as in Figure \ref{fig:PlotQuals}:
+\texttt{qualPlot}, which produces a graphic as in Figure \ref{fig:qualPlot}:
 
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotQuals}
+\includegraphics{qrqc-figQualPlot}
 \caption{A plot of quality by base position, with sequence length
   histogram.}
-\label{fig:PlotQuals}
+\label{fig:QualPlot}
 \end{figure}
 
-<<figPlotQuals,fig=TRUE,width=7,height=6>>=
-plotQuals(s.fastq)
+<<figQualPlot,fig=TRUE,width=7,height=6>>=
+qualPlot(s.fastq)
 @ 
 
-By default, quality plots include a histogram of sequence lengths. This
-is recommended, as low quality at a particular base position is less
-worrisome if there are few reads with this sequence length. The grey
-lines indicate the 10\% and 90\% quantiles, orange lines indicate the
-lower and upper quartiles, the blue dot is the median, and the green
-dash the mean. A purple lowess curve is fit through the
+If there's variability in sequence length, one should interpret this
+quality plot with the sequence length histogram (as produced by
+\texttt{seqlenPlot}), as low quality at a particular base position is
+less worrisome if there are few reads with this sequence length. The
+grey lines indicate the 10\% and 90\% quantiles, orange lines indicate
+the lower and upper quartiles, the blue dot is the median, and the
+green dash the mean. A purple smooth curve is fit through the
 distributions. This line is fit by first randomly drawing values from
-the empirical (binned) distribution of qualities at a particular base, then
-fitting through these points.
+the empirical (binned) distribution of qualities at a particular base,
+then using \Rpackage{ggplot2}'s \texttt{geom\_smooth} with these points.
 
-\texttt{plotQuals} can be very useful in inspecting base qualities
+\texttt{qualPlot} can be very useful in inspecting base qualities
 before and after read quality control pipelines. For example, the
 package contains \texttt{test-trimmed.fastq}, which has the same
 sequences as \texttt{test.fastq} after being trimmed with Nik Joshi's
 \texttt{Sickle}, a windowed adaptive quality trimmer.
 
+Each plot can be made separately by passing each \texttt{FASTQSummary}
+object directly to \texttt{qualPlot}. However, \texttt{qualPlot} has
+methods to handle a named list of \texttt{FASTQSummary} objects. Each
+will be plotted in a panel of its own.
+
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotQuals-trimmed}
+\includegraphics{qrqc-figQualPlot-list}
 \caption{A plot of quality by base position after being trimmed with \texttt{Sickle}.}
-\label{fig:PlotQuals-trimmed}
+\label{fig:QualPlot-list}
 \end{figure}
-<<figPlotQuals-trimmed,fig=TRUE,width=7,height=6>>=
+<<figQualPlot-list,fig=TRUE,width=7,height=6>>=
 s.trimmed.fastq <- readSeqFile(system.file('extdata', 'test-trimmed.fastq', package='qrqc'))
-plotQuals(s.trimmed.fastq)
+qualPlot(list("trimmed"=s.trimmed.fastq, "untrimmed"=s.fastq))
 @ 
 
-\section{Other Plots of FASTQSummary and FASTASummary Objects}
-The following S4 methods work for FASTQSummary and FASTASummary
-objects. Base frequencies (counts) and base proportions by position
-can be plotted with \texttt{plotBases}. When used with
-\texttt{type='freq'}, \texttt{plotBases} produces a graphic as in Figure
-\ref{fig:PlotBase-freqs}:
+\section{Base Plots of FASTQSummary and FASTASummary Objects}
+\texttt{qualPlot} is the only plotting method that works only on
+\texttt{FASTQSummary} objects. Other plotting methods work for
+FASTQSummary and FASTASummary objects. Base frequencies (counts) and
+base proportions by position can be plotted with
+\texttt{basePlot}. When used with \texttt{type='frequency'},
+\texttt{basePlot} produces a graphic as in Figure
+\ref{fig:BasePlot-freqs}:
 
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotBase-freqs}
+\includegraphics{qrqc-figBasePlot-freqs}
 \caption{Base frequencies by position in sequence.}
-\label{fig:PlotBase-freqs}
+\label{fig:BasePlot-freqs}
 \end{figure}
 
-<<figPlotBase-freqs,fig=TRUE,width=7,height=6>>=
-plotBases(s.fastq, type="freq")
+<<figBasePlot-freqs,fig=TRUE,width=7,height=6>>=
+basePlot(s.fastq)
 @ 
 
-\texttt{plotBases} uses the Sanger base color scheme: blue is
-Cytosine, green is Adenine, black is Guanine, red is Thymine, and
-purple in N (any base). When further IUPAC nucleotides are found in
-the sequences, a legend is added.
+\texttt{basePlot} uses a color scheme from \Rpackage{biovizBase},
+which (according to their goals) make biological sense, are
+aesthetically pleasing, and accommodate those that are colorblind.
 
-\texttt{plotBases} also accepts a \texttt{bases} parameter, which
+By default, the color scheme is determined by \Rpackage{biovizBase}'s
+\texttt{getBioColor} with ``DNA\_BASES\_N'' (which includes A, T, C, G,
+and N). A scheme for IUPAC codes can be used too; use
+\texttt{colorvalues=getBioColor('IUPAC\_CODE\_MAP')}. If one is making
+custom graphics, these color schemes can be more easily accessed through
+\texttt{scale\_color\_dna} and \texttt{scale\_color\_iupac}.
+
+\texttt{basePlot} also accepts a \texttt{bases} parameter, which
 can be used to specify specific bases. This is useful for plotting
 just the frequency of `N'.
 
-Base proportions by position can be plotted with \texttt{plotBases},
-with \texttt{type='prop'}. This plot is basically identical to
-the plot produced with \texttt{type='freq'} with a different y scale:
+Base proportions by position can be plotted with \texttt{basePlot},
+with \texttt{type='proportion'}. This plot is basically identical to
+the plot produced with \texttt{type='frequency'} with a different y
+scale. Different geoms (see \Rpackage{ggplot2} for more details) can
+be specified too with the \texttt{geom} parameter. By default, a line
+graph is used, but bar graphs (through \texttt{geom='bar'}) and bar
+graphs with dodged bars (through \texttt{geom='dodge'}) can be
+plotted also, as in Figure \ref{fig:BasePlot-prop}.
 
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotBase-prop}
+\includegraphics{qrqc-figBasePlot-prop}
 \caption{Base proportions by position in sequence.}
-\label{fig:PlotBase-prop}
+\label{fig:BasePlot-prop}
 \end{figure}
 
-<<figPlotBase-prop,fig=TRUE,width=7,height=6>>=
-plotBases(s.fastq, type="prop")
+<<figBasePlot-prop,fig=TRUE,width=7,height=6>>=
+basePlot(s.fastq, bases=c("G", "C"), geom="bar", type="proportion")
 @
 
 Sequence length distribution can be plotted with
-\texttt{plotSeqLengths} (graphic shown in Figure \ref{fig:PlotSeqLengths}):
+\texttt{seqlenPlot} (graphic shown in Figure \ref{fig:seqlenPlot}):
 
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotSeqLengths}
+\includegraphics{qrqc-figSeqlenPlot}
 \caption{Histogram of sequence lengths after quality trimming.}
-\label{fig:PlotSeqLengths}
+\label{fig:SeqlenPlot}
 \end{figure}
 
-<<figPlotSeqLengths,fig=TRUE,width=7,height=6>>=
-plotSeqLengths(s.trimmed.fastq)
+<<figSeqlenPlot,fig=TRUE,width=7,height=6>>=
+seqlenPlot(s.trimmed.fastq)
 @
 
-The GC content can be plotted with \texttt{plotGC} (graphic shown
-in Figure \ref{fig:PlotGC}):
+The GC content can be plotted with \texttt{gcPlot} (graphic shown in
+Figure \ref{fig:gcPlot}). Here, we can start to see how using
+\Rpackage{ggplot2} can easily add to \Rpackage{qrqc}'s plotting
+functions.
 
 \begin{figure}
 \centering
-\includegraphics{qrqc-figPlotGC}
+\includegraphics{qrqc-figGcPlot}
 \caption{GC content by position}
-\label{fig:PlotGC}
+\label{fig:GcPlot}
 \end{figure}
 
-<<figPlotGC,fig=TRUE,width=7,height=6>>=
-plotGC(s.fastq)
+<<figGcPlot,fig=TRUE,width=7,height=6>>=
+gcPlot(s.fastq) + geom_hline(yintercept=0.5, color="purple")
 @
+
+\section{k-mer Hashing and Investigating Contamination with Shannon Entropy and K-L Divergence}
+
+\texttt{readSeqFile} also has an option to hash k-mers. By default,
+\texttt{readSeqFile} randomly selects 10\% of the reads and hashes
+their k-mers with \texttt{k=6}. The accessor function \texttt{getKmer}
+will return a data frame of k-mer frequency by position.
+
+The function \texttt{kmerEntropyPlot} will plot the Shannon entropy by
+position, as in Figure \ref{fig:Entropy}. \texttt{kmerEntropyPlot} will
+handle any object that inherits from \texttt{SequenceSummary} or a
+named list of such objects.
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figEntropy}
+\caption{Shannon Entropy for an Illumina file and a FASTA file made from uniformly and randomly sampling bases.}
+\label{fig:Entropy}
+\end{figure}
+<<figEntropy,fig=TRUE,width=7,height=6>>=
+s.rand <- readSeqFile(system.file('extdata', 'random.fasta', package='qrqc'), type="fasta")
+kmerEntropyPlot(list("contaminated"=s.fastq, "random"=s.rand))
+@
+
+To look for possible contamination in this k-mer frequency data, the
+function \texttt{calcKL} calculates the Kullback-Leibler divergence
+between the distribution of k-mers at a particular positions (for all
+positions) and the distribution of k-mers across all positions. The
+result is a data frame of the K-L terms, of which a subset are stacked
+in the plot produced by \texttt{kmerKLPlot}, as in Figure \ref{fig:KmerKL}.
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figKmerKL}
+\caption{K-L terms for a subset of top k-mers.}
+\label{fig:KmerKL}
+\end{figure}
+<<figKmerKL,fig=TRUE,width=7,height=6>>=
+kmerKLPlot(s.fastq)
+@
+
+Note that the total height is \emph{proportional} to the actual K-L
+divergence; because only a subset of the k-mers are used to avoid over
+plotting, this is not the full K-L divergence (it's a subset of the
+sample space of k-mers). The number of top k-mers (determined by
+finding the k-mers with the highest K-L terms) is controlled by setting
+the number of k-mers to include with \texttt{n.kmers}. Passing a list
+of objects that inherit from \texttt{SequenceSummary} will facet the
+K-L divergence term plot, as in Figure \ref{fig:KmerKLRand}
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figKmerKLRand}
+\caption{K-L terms for a subset of top k-mers for many
+  \texttt{SequenceSummary} objects.}
+\label{fig:KmerKLRand}
+\end{figure}
+<<figKmerKLRand,fig=TRUE,width=7,height=6>>=
+contam.file <- system.file('extdata', 'test-contam.fastq', package='qrqc')
+s.contam <- readSeqFile(contam.file, kmer=TRUE, k=5)
+
+kmerKLPlot(list("contaminated"=s.fastq, "random"=s.rand,
+  "highly contaminated"=s.contam))
+@
+
+\section{Customizing Graphics with \Rpackage{ggplot2}}
+
+A major motivating factor of using \Rpackage{ggplot2} with
+\Rpackage{qrqc} is that it allows easy customization of plots without
+requiring plotting methods to have excessive arguments. For example,
+if we wish to flip the coordinates of a plot, we easily with
+\texttt{coord\_flip()}, as in Figure \ref{fig:Coord}.
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figCoord}
+\caption{Flipped coordinate base plot.}
+\label{fig:Coord}
+\end{figure}
+<<figCoord,fig=TRUE,width=7,height=6>>=
+basePlot(s.fastq, geom="bar") + coord_flip()
+@
+
+\texttt{scale\_x\_continuous} and \texttt{scale\_y\_continuous} can be
+used to change axis labels and limits of the window. For example, one
+can focus on only the 3'-end bases, as in Figure \ref{fig:Zoom}. In
+this example, we also use \texttt{theme\_bw()} to remove
+\Rpackage{ggplot2}'s default grey background.
+
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figZoom}
+\caption{Controlling the x-axis.}
+\label{fig:Zoom}
+\end{figure}
+<<figZoom,fig=TRUE,width=7,height=6>>=
+qualPlot(s.fastq) + scale_x_continuous(limits=c(60, 85)) + theme_bw()
+@
+
+\section{Accessor Functions}
+
+One can access the summary data gathered by \texttt{readSeqFile}
+through the slots in an object that inherits from
+\texttt{SequenceSummary}. However, these are straight from the C
+function used by \texttt{readSeqFile} and not easy to work with. The
+accessor functions \texttt{getBase}, \texttt{getBaseProp},
+\texttt{getQual}, \texttt{getSeqlen}, \texttt{getKmer}, and
+\texttt{getMCQual} return data frames that can then be used directly
+with \Rpackage{ggplot2}.
+
+
+\begin{figure}
+\centering
+\includegraphics{qrqc-figAltqual}
+\caption{Accessor functions with custom \Rpackage{ggplot2} plots.}
+\label{fig:Altqual}
+\end{figure}
+<<figAltqual,fig=TRUE,width=7,height=6>>=
+ggplot(getQual(s.fastq)) + geom_linerange(aes(x=position, ymin=lower,
+      ymax=upper, color=mean)) + scale_color_gradient("mean quality",
+      low="red", high="green") + scale_y_continuous("quality")
+@ 
 
 \section{HTML Report Generation}
 
@@ -209,20 +358,26 @@ information. Both contain:
 \begin{itemize}
 \item \texttt{filename}: the filename of the file read and summarized
   with \texttt{readSeqFile}.
-\item \texttt{base.freqs}: a dataframe containing the frequency counts
+\item \texttt{base.freqs}: a data frame containing the frequency counts
   of each base.
 \item \texttt{seq.lengths}: a numeric vector containing the sequences
   lengths (counts by position).
 \item \texttt{hash}: a numeric vector containing the counts of unique
   sequences (the actual sequences are the names attribute).
-\item \texttt{hashed}: a logical indicating whether sequence hashing
-  to count unique sequences was done.
+\item{\texttt{hash.prop}}{a numeric value indicating the proportion of
+    sequences that were sampled for hashing.}
+\item{\texttt{kmer}}{a data frame of k-mer frequency by position.}
+\item{\texttt{k}{an integer value indicating the k-mer size 'k'.}}
+\item{\texttt{hashed}: a logical indicating whether sequence hashing
+  to count unique sequences was done.}
+\item{\texttt{kmers.hashed}: a logical indicating whether k-mer
+    hashing was done.}
 \end{itemize}
 
 Additionally, \texttt{FASTQSummary} provides:
 
 \begin{itemize}
-\item \texttt{qual.freqs}: a dataframe containing the counts of bases
+\item \texttt{qual.freqs}: a data frame containing the counts of bases
   of a particular quality by position.
 \item \texttt{mean.qual}: a numeric giving the mean quality, weighted
   by sequence lengths.

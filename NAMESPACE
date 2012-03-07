@@ -1,14 +1,46 @@
 useDynLib(qrqc, .registration=TRUE)
-import(reshape)
-import(testthat)
-import(Rsamtools)
-import(brew)
-import(xtable)
 
+importClassesFrom(methods, character, data.frame, integer, list,
+                  logical, numeric)
+importMethodsFrom(Biostrings, quality)
+importMethodsFrom(methods, show)
+import(biovizBase)
+import(ggplot2)
+import(reshape)
+importFrom(graphics, abline, axis, layout, lines, par, plot.new,
+           plot.window, points, title)
+importFrom(methods, "@<-", new)
+importFrom(plyr, count)
+
+importFrom(stats, approxfun, lowess, weighted.mean)
+
+# common between ggplot2 rewrite and older version
 export(readSeqFile)
+export(makeReport)
+exportClassPattern("^.*$")
+
+# new plotting functions
+export(getBase)
+export(getKmer)
+export(getBaseProp)
+export(getQual)
+export(getGC)
+export(getMCQual)
+export(getSeqlen)
+export(basePlot)
+export(qualPlot)
+export(seqlenPlot)
+export(gcPlot)
+export(geom_qlinerange)
+export(list2df)
+export(scale_color_iupac)
+export(scale_color_dna)
+export(kmerKLPlot)
+export(kmerEntropyPlot)
+export(calcKL)
+
+# deprecated
 export(plotQuals)
 export(plotBases)
 export(plotSeqLengths)
 export(plotGC)
-export(makeReport)
-exportClassPattern("^.*$")

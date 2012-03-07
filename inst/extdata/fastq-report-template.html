@@ -2,7 +2,7 @@
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title>Quality Report for "<%=basename(obj@filename)%>"</title>
+    <title>Quality Report for "<%=basename(x@filename)%>"</title>
     <meta http-equiv="content-type" 
 	  content="text/html;charset=utf-8" />
     <style type="text/css" media="screen">
@@ -33,19 +33,18 @@
   <body>
     <div class="section">
       <h2>General Information</h2>
-      File: <span class="fixed-font"><%=obj@filename%></span><br/>
+      File: <span class="fixed-font"><%=x@filename%></span><br/>
       Type: <span class="fixed-font">FASTQ</span><br/>
       Sequence Length Range: <span class="fixed-font"><%=sl.range[1]%> to <%=sl.range[2]%></span><br/>
-      Total Sequences: <span class="fixed-font"><%=sum(obj@seq.lengths)%></span><br/>
-      Unique Sequences: <span class="fixed-font"><%=length(obj@hash)%></span><br/>
+      Total Sequences: <span class="fixed-font"><%=sum(x@seq.lengths)%></span><br/>
+      Unique Sequences: <span class="fixed-font"><%=length(x@hash)%></span><br/>
     </div>
     
     <div class="section">
       <h2>Quality by Position</h2>
       <%
-         png(file.path(dir, 'images', 'qualplot.png'), width=WIDTH)
-         plotQuals(obj)
-         dev.off()
+         qualPlot(x)
+         ggsave(file.path(dir, 'images', 'qualplot.png'), width=WIDTH, height=HEIGHT, dpi=DPI)
          %>
       <img src='images/qualplot.png'/><br/>
       <em><font color="grey">Grey lines</font>: 10% and 90% quantiles</em></br>
@@ -58,9 +57,8 @@
     <div class="section">
       <h2>Nucleotide Frequency by Position</h2>
       <%
-         png(file.path(dir, 'images', 'basefreqs.png'), width=WIDTH, height=HEIGHT)
-         plotBases(obj)
-         dev.off()
+         basePlot(x)
+         ggsave(file.path(dir, 'images', 'basefreqs.png'), width=WIDTH, height=HEIGHT, dpi=DPI)
          %>
       <img src='images/basefreqs.png' />
     </div>
@@ -68,9 +66,8 @@
     <div class="section">
       <h2>Nucleotide Proportion by Position</h2>
       <%
-         png(file.path(dir, 'images', 'baseprops.png'), width=WIDTH, height=HEIGHT)
-         plotBases(obj, type="prop")
-         dev.off()
+         basePlot(x, type="proportion")
+         ggsave(file.path(dir, 'images', 'baseprops.png'), width=WIDTH, height=HEIGHT, dpi=DPI)
          %>
       <img src='images/baseprops.png' />
     </div>
@@ -79,9 +76,8 @@
     <div class="section">
       <h2>N Frequency by Position</h2>
       <%
-         png(file.path(dir, 'images', 'nfreq.png'), width=WIDTH, height=HEIGHT)
-         plotBases(obj, bases='N')
-         dev.off()
+         basePlot(x, bases='N')
+         ggsave(file.path(dir, 'images', 'nfreq.png'), width=WIDTH, height=HEIGHT, dpi=DPI)
          %>
       <img src='images/nfreq.png' />
     </div>
@@ -89,9 +85,8 @@
     <div class="section">
       <h2>GC Content by Position</h2>
       <%
-         png(file.path(dir, 'images', 'gc.png'), width=WIDTH, height=HEIGHT)
-         plotGC(obj)
-         dev.off()
+         gcPlot(x)
+         ggsave(file.path(dir, 'images', 'gc.png'), width=WIDTH, height=HEIGHT, dpi=DPI)
          %>
       <img src='images/gc.png' />
     </div>
@@ -99,9 +94,8 @@
     <div class="section">
       <h2>Sequence Length Distribution</h2>
       <%
-         png(file.path(dir, 'images', 'seqlengths.png'), width=WIDTH, height=HEIGHT)
-         plotSeqLengths(obj)
-         dev.off()
+         seqlenPlot(x)
+         ggsave(file.path(dir, 'images', 'seqlengths.png'), width=WIDTH, height=HEIGHT, dpi=DPI)
          %>
       <img src='images/seqlengths.png' />
     </div>
@@ -110,8 +104,8 @@
     <div class="section">
       <h2>Most Frequent Sequences</h2>
       <%
-         if (obj@hashed) {
-           x <- makeHashTable(obj)
+         if (x@hashed) {
+           x <- makeHashTable(x)
            print(x, type="html")         
          } else {
            cat("No sequence frequency information available - readSeqFile() run with hash=FALSE")
@@ -120,5 +114,6 @@
     </div>
 
     <div style="font-size: 0.8em; margin-left: 280px;">Report produced by the R package <span class="fixed-font">qrqc</span></div>
+    <div style="font-size: 0.8em; margin-left: 280px;">(c) Vince Buffalo 2011-2012, License: GPL 2.0</div>
   </body>
 </html>
