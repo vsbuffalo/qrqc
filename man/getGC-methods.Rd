@@ -5,15 +5,16 @@
 \alias{getGC,SequenceSummary-method}
 \title{Get a Data Frame of GC Content from a \code{SequenceSummary} object}
 \description{
-  An object that inherits from class \code{SequenceSummary} contains
-  base frequency data by position gathered by \code{readSeqFile}. \code{getGC}
+  An object that inherits from class \code{\link[=SequenceSummary-class]{SequenceSummary}} contains
+  base frequency data by position gathered by
+  \code{\link{readSeqFile}}. \code{\link{getGC}} 
   is an accessor function that reshapes the base frequency data into a
   data frame and returns the GC content by position.
 
   This accessor function is useful if you want to map variables to
   custom \code{ggplot2} aesthetics. Frequencies or proportions of all
-  bases (not just GC) can be accessed with \code{getBase} and
-  \code{getBaseProp} respectively.
+  bases (not just GC) can be accessed with \code{\link{getBase}} and
+  \code{\link{getBaseProp}} respectively.
 }
 
 \usage{
@@ -55,7 +56,9 @@
     high="blue") + scale_y_continuous("GC content")
   p
 }
+\seealso{\code{\link{getSeqlen}}, \code{\link{getBase}},
+  \code{\link{getBaseProp}}, \code{\link{getQual}},
+  \code{\link{getMCQual}}, \code{\link{getKmer}}, \code{\link{gcPlot}}}
 
-\seealso{getSeqlen,getBase,getBaseProp,getQual,getMCQual,cPlot}
 \keyword{methods}
 \keyword{accessor}

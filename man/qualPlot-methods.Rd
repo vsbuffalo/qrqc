@@ -73,6 +73,6 @@
   qualPlot(list("not trimmed"=s.fastq, "trimmed"=s.trimmed.fastq))
 }
 
-\seealso{getQual}
+\seealso{\code{\link{getQual}}}
 \keyword{methods}
 \keyword{graphics}

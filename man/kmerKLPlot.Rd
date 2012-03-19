@@ -7,7 +7,7 @@
 \title{Plot K-L Divergence Components for a Subset of k-mers to Inspect for Contamination}
 \description{
   
-  \code{kmerKLPlot} calls \code{calcKL}, which calculates the
+  \code{kmerKLPlot} calls \code{\link{calcKL}}, which calculates the
   Kullback-Leibler divergence between the k-mer distribution at each
   position compared to the k-mer distribution across all
   positions. \code{kmerKLPlot} then plots each k-mer's contribution to
@@ -89,6 +89,7 @@
   suppressWarnings(kmerKLPlot(list("highly contaminated"=s.contam.fastq, "less
     contaminated"=s.fastq, "random"=s.random.fasta)))
 }
-
+\seealso{\code{\link{getKmer}}, \code{\link{calcKL}},
+  \code{\link{kmerEntropyPlot}}}
 \keyword{methods}
 \keyword{graphics}

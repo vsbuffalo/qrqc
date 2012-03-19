@@ -46,7 +46,7 @@
   seqlenPlot(list("not trimmed"=s.fastq, "trimmed"=s.trimmed.fastq))
 }
 
-\seealso{getSeqlen}
+\seealso{\code{\link{getSeqlen}}}
 \keyword{methods}
 \keyword{graphics}
 

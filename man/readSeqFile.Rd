@@ -86,20 +86,22 @@
   \code{\link[=FASTASummary-class]{FASTASummary}} are the classes of the
   objects returned by \code{readSeqFile}.
 
-  \code{\link{plotBases}} is a function that plots the distribution of
+  \code{\link{basePlot}} is a function that plots the distribution of
   bases over sequence length for a particular \code{FASTASummary} or
-  \code{FASTQSummary} object. \code{\link{plotGC}} combines and plots
+  \code{FASTQSummary} object. \code{\link{gcPlot}} combines and plots
   the GC proportion.
   
     
-  \code{\link{plotQuals}} is a function that plots the distribution of
+  \code{\link{qualPlot}} is a function that plots the distribution of
   qualities over sequence length for a particular \code{FASTASummary}
   or \code{FASTQSummary} object.
 
-  \code{\link{plotSeqLengths}} is a function that plots a histogram of
+  \code{\link{seqlenPlot}} is a function that plots a histogram of
   sequence lengths for a particular \code{FASTASummary} or
   \code{FASTQSummary} object.
 
+  \code{\link{kmerKLPlot}} is a function that plots K-L divergence
+  of k-mers to look for possible biase in reads.
 }
 
 

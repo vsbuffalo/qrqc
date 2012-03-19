@@ -80,8 +80,12 @@ function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger"
     # hashed
     obj@kmer <- local({
       tmp <- unlist(out$kmer)
+      if (!is.finite(tmp))
+        warning(paste("Some k-mer counts are infinite, meaning there was",
+                      "occurence of a k-mer over the maximum double size."))
       kmer <- do.call(rbind, strsplit(names(tmp), '-'))
-      data.frame(kmer=kmer[, 1], position=as.integer(kmer[, 2]), count=tmp, row.names=NULL)
+      data.frame(kmer=kmer[, 1], position=as.integer(kmer[, 2]),
+                 count=as.numeric(tmp), row.names=NULL)
     })
     obj@hash.prop <- hash.prop
     obj@k <- as.integer(k)

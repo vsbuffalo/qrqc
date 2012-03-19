@@ -3,8 +3,9 @@
 \title{Use Line Segments and Points to Plot Quality Statistics by Position in the Read}
 \description{
   \code{geom_qlinerange} uses multiple line segments and points to plot
-  quality ranges. By default the 10\% and 90\% range in plotted in grey, the quartile
-  range in orange, and the mean as a point in blue.
+  quality ranges. By default the 10\% and 90\% range in plotted in grey,
+  the quartile range in orange, and the mean as a point in blue. It is
+  used in \code{\link{qualPlot}}.
 }
 
 \usage{
@@ -31,6 +32,6 @@ geom_qlinerange(extreme.color="grey", quartile.color="orange", mean.color="blue"
 }
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}
-\seealso{getQual}
+\seealso{\code{\link{getQual}}, \code{\link{qualPlot}}}
 \keyword{methods}
 \keyword{graphics}

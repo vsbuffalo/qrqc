@@ -4,7 +4,7 @@
 \alias{makeReport-methods}
 \title{Make an HTML report from a FASTASummary of FASTQSummary object}
 \description{
-  \code{makeReport} takes a \code{FASTQSummary} or \code{FASTASummary}
+  \code{makeReport} takes a \code{\link[=FASTQSummary-class]{FASTQSummary}} or \code{\link[=FASTASummary-class]{FASTASummary}}
   object, creates an HTML report, and writes it to a file within a
   directory. The directory naming is incremental so past reports will
   not be overwritten.

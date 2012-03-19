@@ -44,6 +44,6 @@
   plotQuals(s.fastq)
 }
 }
-\seealso{qualPlot}
+\seealso{\code{\link{qualPlot}}}
 \keyword{graphics}
 \keyword{methods}
