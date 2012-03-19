@@ -34,7 +34,7 @@ KSEQ_INIT(FILE_TYPE*, gzreadclone)
 KSEQ_INIT(gzFile, gzread)
 #endif
 
-KHASH_MAP_INIT_STR(str, int)
+KHASH_MAP_INIT_STR(str, double)
 
 #define INIT_MAX_SEQ 500
 #define NUM_BASES 16 /* includes all IUPAC codes. */
@@ -186,10 +186,14 @@ static void add_seq_to_khash(khash_t(str) *h, kseq_t *block, unsigned int *num_u
   is_missing = (k == kh_end(h));
   if (is_missing) {
     k = kh_put(str, h, strdup(block->seq.s), &ret);
-    kh_value(h, k) = 1;
+    kh_value(h, k) = 1.0;
     (*num_unique_seqs)++;
-  } else
-    kh_value(h, k) = kh_value(h, k) + 1;
+  } else {
+    if (!R_FINITE(kh_value(h, k)) || !R_FINITE(1 + kh_value(h, k)))
+      kh_value(h, k) = R_PosInf;
+    else
+      kh_value(h, k) = kh_value(h, k) + 1.0;
+  }
 }
 
 static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *num_unique_kmers) {
@@ -205,19 +209,14 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
      when represented as as string (log10(x) + 1): this is where the
      expression in Calloc comes from.
 
-
      # Memory
      
-     This method uses an int to store a k-mer. There 4^k possible
-     k-mers, and say each int is 4 bytes. For a read of length l,
+     This method uses a double to store a k-mer. There 4^k possible
+     k-mers, and say each int is 8 bytes. For a read of length l,
      there are l-k k-mer positions, with worse case scenario being a
-     different k-mer at each position. This would mean (l-k)*4^k*4
+     different k-mer at each position. This would mean (l-k)*4^k*8
      bytes to hold the k-mers, not including hashing overhead.
 
-     TODO:
-      - if k-mer count is greater than SINT_MAX, Inf?
-      - k-mer should have k > 2
-      - if a genome is entirely AAAAA, k=5, how long before overrun?
   */
   char *a_kmer = Calloc(k + 2 + log10(SINT_MAX), char), *start_ptr;
   int i;
@@ -241,13 +240,13 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
     is_missing = (key == kh_end(h));
     if (is_missing) {
       key = kh_put(str, h, strdup(a_kmer), &ret);
-      kh_value(h, key) = 1;
+      kh_value(h, key) = 1.0;
       (*num_unique_kmers)++;
     } else {
-      /* if (kh_value(h, key) > 3 || !R_FINITE(kh_value(h, key))) //SINT_MAX) */
-      /*   kh_value(h, key) = R_PosInf; */
-      /* else */
-      kh_value(h, key) = kh_value(h, key) + 1;
+      if (!R_FINITE(kh_value(h, k)) || !R_FINITE(1 + kh_value(h, k)))
+        kh_value(h, key) = R_PosInf;
+      else
+        kh_value(h, key) = kh_value(h, key) + 1.0;
     }
   }
 
@@ -268,7 +267,7 @@ static void seq_khash_to_VECSXP(khash_t(str) *h, SEXP seq_hash, SEXP seq_hash_na
     R_CheckUserInterrupt();
     if (kh_exist(h, k)) {
       SET_VECTOR_ELT(seq_hash_names, i, mkString(kh_key(h, k)));
-      SET_VECTOR_ELT(seq_hash, i, ScalarInteger(kh_value(h, k)));
+      SET_VECTOR_ELT(seq_hash, i, ScalarReal(kh_value(h, k)));
       /* per the comment here
          (http://attractivechaos.wordpress.com/2009/09/29/khash-h/),
          using character arrays keys with strdup must be freed during
@@ -337,7 +336,10 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
     if (LOGICAL(verbose)[0])
       Rprintf("initiating k-mer hash...");
     hkmer = kh_init(str);
-    kh_resize(str, hkmer, (int) gammafn(kn + 1)); /* pre-allocate all possible k-mers */
+    /*
+      Pre-allocate for some possible k-mers.
+    */
+    kh_resize(str, hkmer, 1572869);
     size_out_list++;
   }
 

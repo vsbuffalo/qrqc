@@ -50,7 +50,8 @@
   gcPlot(s.trimmed.fastq) + geom_hline(yintercept=0.5, color="purple")
 }
 
-\seealso{getBase,getBaseProp}
+\seealso{\code{\link{getBase}}, \code{\link{getBaseProp}}}
+
 \keyword{methods}
 \keyword{graphics}
 

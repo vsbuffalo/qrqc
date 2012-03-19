@@ -8,7 +8,7 @@
 \description{
   
   \code{calcKL} takes in an object that inherits from
-  \code{SequenceSummary} that has a kmers slot, and returns the terms of
+  \code{\link[=SequenceSummary-class]{SequenceSummary}} that has a kmers slot, and returns the terms of
   the K-L divergence sum (which correspond to items in the sample space,
   in this case, k-mers). 
 
@@ -53,5 +53,6 @@
   p + scale_y_continuous("K-L divergence")
 }
 
+\seealso{\code{\link{kmerKLPlot}}, \code{\link{getKmer}}}
 \keyword{methods}
 \keyword{graphics}

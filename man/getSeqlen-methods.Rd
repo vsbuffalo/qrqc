@@ -56,7 +56,9 @@
     color="blue") + scale_y_continuous("quality/count") + theme_bw()
 }
 
-\seealso{getGC,getBase,getBaseProp,getQual,getMCQual,seqlenPlot}
+\seealso{\code{\link{getGC}}, \code{\link{getBase}},
+  \code{\link{getBaseProp}}, \code{\link{getQual}},
+  \code{\link{getMCQual}}, \code{\link{seqlenPlot}}}
 
 \keyword{methods}
 \keyword{accessor}

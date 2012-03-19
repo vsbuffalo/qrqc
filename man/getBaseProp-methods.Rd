@@ -56,6 +56,7 @@
     color=base)) + facet_grid(. ~ base) + scale_color_dna()
 }
 
-\seealso{getGC,getSeqlen,getBase,getQual,getMCQual,basePlot}
+\seealso{\code{\link{getGC}}, \code{\link{getSeqlen}}, \code{\link{getBase}}, \code{\link{getQual}}, \code{\link{getMCQual}}, \code{\link{basePlot}}}
+
 \keyword{methods}
 \keyword{accessor}

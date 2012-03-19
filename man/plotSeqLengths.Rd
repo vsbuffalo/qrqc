@@ -24,5 +24,5 @@
   plotSeqLengths(s.fastq)
 }
 }
-\seealso{seqlenPlot}
+\seealso{\code{\link{seqlenPlot}}}
 \keyword{graphics}

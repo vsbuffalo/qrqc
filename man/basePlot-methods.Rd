@@ -19,7 +19,7 @@
 }
 
 \arguments{
-  \item{x}{an S4 object that inherits from \code{SequenceSummary} from
+  \item{x}{an S4 object that inherits from \code{\link[=SequenceSummary-class]{SequenceSummary}} from
     \code{readSeqFile}.}
   \item{geom}{Either "line", "bar", or "dodge" indicating
     the geom to use when plotting the bases. "line" will plot base
@@ -76,7 +76,7 @@
     geom_hline(yintercept=0.25, color="purple")
 }
 
-\seealso{getBase,getBaseProp}
+\seealso{\code{\link{getBase}}, \code{\link{getBaseProp}}}
 \keyword{methods}
 \keyword{graphics}
 

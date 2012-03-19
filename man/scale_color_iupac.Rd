@@ -20,5 +20,5 @@ scale_color_iupac()
     color=base)) + scale_color_iupac()
 }
 
-\seealso{scale_color_dna,plotBase}
+\seealso{\code{\link{scale_color_dna}}, \code{\link{basePlot}}}
 \keyword{graphics}

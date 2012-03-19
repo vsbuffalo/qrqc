@@ -1,3 +1,4 @@
+
 \name{plotGC-methods}
 \docType{methods}
 \alias{plotGC}
@@ -24,5 +25,5 @@
   plotGC(s.fastq)
 }
 }
-\seealso{gcPlot}
+\seealso{\code{\link{gcPlot}}}
 \keyword{graphics}

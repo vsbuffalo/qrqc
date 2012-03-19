@@ -59,5 +59,6 @@
     contaminated"=s.fastq, "random"=s.random.fasta))
 }
 
+\seealso{\code{\link{getKmer}}, \code{\link{calcKL}}, \code{\link{kmerKLPlot}}}
 \keyword{methods}
 \keyword{graphics}

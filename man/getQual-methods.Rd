@@ -8,9 +8,8 @@
   object}
 
 \description{
-  An object of class \code{FASTQSummary} contains quality
-  data (binned by \code{readSeqFile}). \code{getQual} is an accessor
-  function that reshapes the data into a data frame.
+  An object of class \code{\link[=FASTQSummary-class]{FASTQSummary}} contains quality data (binned by \code{\link{readSeqFile}}). \code{\link{getQual}} is
+  an accessor  function that reshapes the data into a data frame.  
 
   This accessor function is useful if you want to map variables to
   custom \code{ggplot2} aesthetics.
@@ -65,6 +64,9 @@ getQual(x)
   p <- p +  scale_color_gradient("mean quality", low="red", high="green")
   p + scale_y_continuous("quality")
 }
-\seealso{getGC,getSeqlen,getBase,getBaseProp,getMCQual,qualPlot}
+\seealso{\code{\link{getGC}}, \code{\link{getSeqlen}},
+  \code{\link{getBase}}, \code{\link{getBaseProp}},
+  \code{\link{getMCQual}}, \code{\link{qualPlot}}}
+
 \keyword{methods}
 \keyword{accessor}

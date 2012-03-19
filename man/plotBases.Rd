@@ -49,5 +49,5 @@
   plotBases(s.fastq, type="prop")
 }
 }
-\seealso{basePlot}
+\seealso{\code{\link{basePlot}}}
 \keyword{graphics}

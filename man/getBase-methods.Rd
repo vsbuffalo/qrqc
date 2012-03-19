@@ -5,14 +5,14 @@
 \alias{getBase,SequenceSummary-method}
 \title{Get a Data Frame of Base Frequency Data from a \code{SequenceSummary} Object}
 \description{
-  An object that inherits from class \code{SequenceSummary} contains
-  base frequency data by position gathered by \code{readSeqFile}. \code{getBase}
+  An object that inherits from class \code{\link[=SequenceSummary-class]{SequenceSummary}} contains
+  base frequency data by position gathered by \code{\link{readSeqFile}}. \code{\link{getBase}}
   is an accessor function that reshapes the base frequency data by position
   into a data frame.
 
   This accessor function is useful if you want to map variables to
   custom \code{ggplot2} aesthetics. Base proportions can be accessed
-  with \code{getBaseProp}.
+  with \code{\link{getBaseProp}}.
 }
 
 
@@ -57,6 +57,6 @@
 }
 
 
-\seealso{getGC,getSeqlen,getBaseProp,getQual,getMCQual,basePlot}
+\seealso{\code{\link{getGC}}, \code{\link{getSeqlen}}, \code{\link{getBaseProp}}, \code{\link{getQual}}, \code{\link{getMCQual}}, \code{\link{basePlot}}}
 \keyword{methods}
 \keyword{accessor}

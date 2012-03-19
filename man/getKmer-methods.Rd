@@ -7,9 +7,9 @@
 \title{Get a Data Frame of k-mer Frequency by Position from a \code{SequenceSummary} Object}
 
 \description{
-  An object that inherits from class \code{SequenceSummary} contains
-  k-mer frequency data by position gathered by \code{readSeqFile} when
-  \code{kmer=TRUE}. \code{getKmer} is an accessor function that is
+  An object that inherits from class \code{\link[=SequenceSummary-class]{SequenceSummary}} contains
+  k-mer frequency data by position gathered by \code{\link{readSeqFile}} when
+  \code{kmer=TRUE}. \code{\link{getKmer}} is an accessor function that is
   useful for custom \code{ggplot2} aesthetics.
 }
 
@@ -51,6 +51,9 @@ getKmer(x)
     fill=kmer), stat="identity")
   p
 }
-\seealso{getGC,getSeqlen,getBase,getBaseProp,getMCQual,kmerKLPlot,kmerEntropyPlot}
+\seealso{\code{\link{getGC}}, \code{\link{getSeqlen}}, \code{\link{getBase}},
+  \code{\link{getBaseProp}}, \code{\link{getQual}},
+  \code{\link{getMCQual}}, \code{\link{kmerKLPlot}}, \code{\link{kmerEntropyPlot}}}
+
 \keyword{methods}
 \keyword{accessor}
