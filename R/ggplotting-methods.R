@@ -186,8 +186,11 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
   bd <- fun(x, drop=FALSE) # drop is FALSE if a user asks just to see N, and there are none
 
   p <- ggplot(subset(bd, base %in% bases)) + g
-  p <- p + scale_colour_manual(values=colorvalues)
-  p <- p + scale_fill_manual(values=colorvalues)
+
+  if (geom %in% c("bar", "dodge"))
+    p <- p + scale_fill_manual(values=colorvalues)
+  if (geom == "line")
+    p <- p + scale_color_manual(values=colorvalues)
   p
 })
 
@@ -210,8 +213,10 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
   g <- geom.list[[geom]]
 
   p <- ggplot(subset(bd, base %in% bases)) + g + facet_wrap( ~ sample)
-  p <- p + scale_colour_manual(values=colorvalues)
-  p <- p + scale_fill_manual(values=colorvalues)
+  if (geom %in% c("bar", "dodge"))
+    p <- p + scale_fill_manual(values=colorvalues)
+  if (geom == "line")
+    p <- p + scale_color_manual(values=colorvalues)
   p
 })
 

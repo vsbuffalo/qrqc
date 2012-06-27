@@ -2,6 +2,11 @@ qrqc -- history of changes.
 
 Copyright (c) Vince Buffalo 2011-2012
 
+Version 1.10.1 (2012-06-27)
+
+ - Fixed bug with basePlot not working with single bases due to an
+   error in a ggplot2 call.
+
 Version 1.9.1: (2012-02-20)
 
  - plotQuals, plotBase, plotSeqLengths, plotGC replaced by qualPlot,
