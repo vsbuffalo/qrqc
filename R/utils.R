@@ -143,3 +143,15 @@ generateReads <- function(prob=c(A=0.25, T=0.25, C=0.25, G=0.25),
   else
     write.XStringSet(DNAStringSet(seqs), filename, format=format)
 }
+
+getType <- function(x) {
+  if (is(x, "FASTQSummary") ||
+      is.list(x) && all(sapply(x, function(x) is(x, "FASTQSummary"))))
+    return("FASTQ")
+  if (is(x, "FASTASummary") ||
+      is.list(x) && all(sapply(x, function(x) is(x, "FASTASummary"))))
+    return("FASTA")
+  if (is.list(x) && all(sapply(x, class) %in% c("FASTASummary", "FASTQSummary")))
+    return("SequenceSummaryList") # TODO define more
+  stop("Not an object from qrqc class.")
+}

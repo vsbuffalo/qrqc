@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!--begin.rcode setup, echo=FALSE, message=FALSE
+  opts_chunk$set(comment=NA, fig.width=8, fig.height=8, fig.path='ex-out-')
+  end.rcode-->
+<head>
+  <meta http-equiv="content-type" 
+	content="text/html;charset=utf-8" />
+  <style type="text/css" media="screen">
+    body {
+    font-family: arial, sans-serif;
+    }
+    table, td, th {
+    font-family: monospace;
+    border: 0;
+    padding-right: 1.2em;
+    }
+  </style>
+  <title>Quality Report from qrqc</title>
+</head>
+<body>
+
+  <h2>Contents</h2>
+      <ol class="">
+        <li>General Information</li>
+        <li>Quality by Position</li>
+        <li>Nucleotide Proportion by Position</li>
+        <li>N Frequency by Position</li>
+        <li>GC Content by Position</li>
+        <li>k-mer Entropy by Position</li>
+        <li>k-mer Kullback-Leibler by Position</li>
+        <li>Sequence Length Distribution</li>
+        <li>Most Frequent Sequences</li>
+      </ol>
+
+  <p>
+    <h2>General Information</h2>
+    File: <!--rinline x@filename --><br/>
+    Type: <!--rinline getType(x) --><br/>
+    Sequence Length Range: <!--rinline seqLengthRange(x)[1] --> to <!--rinline seqLengthRange(x)[2] --><br/>
+    Total Sequences: <!--rinline sum(x@seq.lengths) --><br/>
+    Sequences hashed: <!--rinline x@hashed --><br/>
+    Unique Sequences: <!--rinline if (!(ll <- length(x@hash))) NA else ll --></br>
+    k-mers hashed: <!--rinline x@kmers.hashed --><br/>
+    k: <!--rinline if (!length(x@k)) NA else x@k --><br/>
+    Proportion reads hashed: <!--rinline if (!length(x@hash.prop)) NA else x@hash.prop --></span><br/>
+  </p>
+  
+<h2>Quality by Position</h2>
+<!--begin.rcode qualplot, echo=FALSE, message=FALSE
+    if (getType(x) == "FASTQ") {
+      qualPlot(x)
+    } else {
+      cat("No quality data for FASTA file.")
+    }
+    end.rcode-->
+
+<h2>Nucleotide Proportion by Position</h2>
+<!--begin.rcode baseplot, echo=FALSE, message=FALSE
+    basePlot(x, type="proportion")
+    end.rcode-->
+</p>
+
+<h2>N Frequency by Position</h2>
+<!--begin.rcode nplot, echo=FALSE, message=FALSE
+    basePlot(x, bases="N", type="proportion")
+end.rcode-->
+
+<h2>GC Content by Position</h2>
+<!--begin.rcode gcplot, echo=FALSE, message=FALSE
+    gcPlot(x)
+end.rcode-->
+
+<h2>k-mer Entropy by Position</h2>
+<!--begin.rcode entropy, echo=FALSE, message=FALSE
+    if (x@kmers.hashed) {
+      kmerEntropyPlot(x)
+    } else {
+      cat("No k-mer frequency information available - readSeqFile() run with kmer=TRUE to include this diagnostic.")
+    }
+end.rcode-->
+
+<h2>k-mer Kullback-Leibler by Position</h2>
+<!--begin.rcode kmer-kl, echo=FALSE, message=FALSE
+    if (x@kmers.hashed) {
+      kmerKLPlot(x)
+    } else {
+      cat("No k-mer frequency information available - readSeqFile() run with kmer=TRUE to include this diagnostic.")
+    }
+end.rcode-->
+
+<h2>Sequence Length Distribution</h2>
+<!--begin.rcode seqlen, echo=FALSE, message=FALSE
+    seqlenPlot(x)
+end.rcode-->
+
+<h2>Most Frequent Sequences</h2>
+<!--begin.rcode most-frequent, echo=FALSE, message=FALSE
+    if (x@hashed) {
+      table <- makeHashTable(x)
+      print(table, type="html")
+    } else {
+      cat("No sequence frequency information available - readSeqFile() run with hash=TRUE to include this diagnostic.")
+    }
+end.rcode-->
+
+  <p>The R session information (including the OS info, R version and all
+    packages used):</p>
+
+<!--begin.rcode session-info, cache=FALSE
+    sessionInfo()
+    Sys.time()
+    end.rcode-->
+
+<div style="font-size: 0.8em; text-align: center;">
+  This report is automatically generated with
+  the <a href="http://bioconductor.org">Bioconductor</a>
+  package <a href="http://github.com/vsbuffalo/qrqc"><strong>qrqc</strong></a>
+  (version <!--rinline packageVersion('qrqc') -->)
+  using <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+  (version
+  <!--rinline packageVersion('knitr') -->)
+</div>
+
+<div style="font-size: 0.8em; text-align: center;">(c) Vince Buffalo 2011-2012, License: GPL 2.0</div>
+</body>
+</html>
