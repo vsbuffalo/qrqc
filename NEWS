@@ -2,6 +2,14 @@ qrqc -- history of changes.
 
 Copyright (c) Vince Buffalo 2011-2012
 
+Version 1.12.1 (2013-02-CHANGEME)
+
+ - Fixed basePlot error when called on a list, with bases='N'
+
+ - Adjusted basePlot's plotting limits
+
+ - 
+
 Version 1.10.1 (2012-06-27)
 
  - Fixed bug with basePlot not working with single bases due to an

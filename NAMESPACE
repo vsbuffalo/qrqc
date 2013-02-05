@@ -5,6 +5,7 @@ importClassesFrom(methods, character, data.frame, integer, list,
 importMethodsFrom(Biostrings, quality)
 importMethodsFrom(methods, show)
 import(biovizBase)
+import(knitr)
 import(ggplot2)
 import(reshape)
 importFrom(graphics, abline, axis, layout, lines, par, plot.new,

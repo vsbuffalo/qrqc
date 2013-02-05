@@ -27,7 +27,7 @@ names(other.iupac.colors) <- other.iupac
 NUCLEOTIDES.COLORS <- c(NUCLEOTIDES.COLORS, other.iupac.colors)
 ###### deprecated end ######
 
-readSeqFile <-
+readSeqFile <- 
 # Use the C function summarize_file to create matrices of base
 # and quality counts, per position along all reads.
 function(filename, type=c("fastq", "fasta"), max.length=1000, quality=c("sanger", "solexa", "illumina"),

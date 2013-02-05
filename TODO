@@ -1,1 +1,25 @@
+TODO
 
+ - benchmark against FASTQC
+
+ - knitr reports
+
+ - contrast statistics (per and after)
+
+ - handle multiple files at once
+
+ - optional explanations in report (by default on)
+
+ - implement BAM-related diagnostics 
+
+ - mapping quality 
+
+ - maybe clean up function handling; more generic stream processing
+
+ - decrease startup time
+
+ - merge generics in some way?
+
+ - make sure ordered is preserved in list - use ordered factor
+
+ - handle k-mer plot legend with multiple columns

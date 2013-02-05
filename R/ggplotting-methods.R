@@ -101,7 +101,8 @@ function(x, n=100) {
 })
 
 list2df <-
-# Use mapply
+# Use mapply to apply a function across list elements and then
+# collapse into a data.frame.
 function(x, fun) {
   if (!length(names(x)))
     stop("list 'x' must have named elements.")
@@ -174,7 +175,8 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
   colorvalues <- colorvalues[bases]
   # get the type
   type <- match.arg(type)
-  fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
+  fun <- list(frequency=function(x) getBase(x, drop=FALSE),
+              proportion=function(x) getBaseProp(x, drop=FALSE))[[type]]
 
   # get the geom
   geom <- match.arg(geom)
@@ -191,7 +193,9 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
     p <- p + scale_fill_manual(values=colorvalues)
   if (geom == "line")
     p <- p + scale_color_manual(values=colorvalues)
-  p
+  if (type == "frequency")
+    p <- p + ylim(c(0, 1))
+  return(p)
 })
 
 
@@ -202,7 +206,8 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
   colorvalues <- colorvalues[bases]
   # get the type
   type <- match.arg(type)
-  fun <- list(frequency=getBase, proportion=getBaseProp)[[type]]
+  fun <- list(frequency=function(x) getBase(x, drop=FALSE),
+              proportion=function(x) getBaseProp(x, drop=FALSE))[[type]]
   bd <- list2df(x, fun)
 
   # get the geom
@@ -211,12 +216,13 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
                     bar=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity"),
                     dodge=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity", position="dodge"))
   g <- geom.list[[geom]]
-
   p <- ggplot(subset(bd, base %in% bases)) + g + facet_wrap( ~ sample)
   if (geom %in% c("bar", "dodge"))
     p <- p + scale_fill_manual(values=colorvalues)
   if (geom == "line")
     p <- p + scale_color_manual(values=colorvalues)
+  if (type == "frequency")
+    p <- p + ylim(c(0, 1))
   p
 })
 
