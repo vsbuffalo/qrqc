@@ -28,14 +28,15 @@ if (exists("landscape") && landscape)
 \maketitle
 
 <<setup,include=FALSE,cache=FALSE>>=
-fig.dir <- file.path(outdir, "fig")
+fig.dir <- file.path(outdir, "figures")
 opts <- opts_chunk$set(fig.path=fig.dir, fig.align='center', 
                   fig.width=FIG.WIDTH, fig.height=FIG.HEIGHT)
 @ 
 \thispagestyle{empty}
 \section[]{General Information}
-<<filetable,include=FALSE,cache=FALSE,message=FALSE,results="asis">>=
-fileTable(x)
+<<filetable,echo=FALSE,results="asis">>=
+tbl <- fileTable(x)
+print(xtable(tbl), include.rownames=FALSE)
 @ 
 \newpage
 
@@ -53,7 +54,7 @@ basePlot(x, type="proportion")
 
 \section[]{N Frequency by Position}
 <<Nfreq,echo=FALSE,warning=FALSE,message=FALSE>>=
-#basePlot(x, bases='N')
+basePlot(x, bases='N')
 @ 
 \newpage
 
@@ -75,8 +76,10 @@ if (exists("include.hash") && include.hash)
 @ 
 \ifincludeHash
 \subsection{Most Frequent Sequences}
+
 <<hashed,echo=FALSE,warning=FALSE,message=FALSE,results="asis">>=
-cat(makeHashTable(x))
+tbl <- makeHashTable(x)
+print(xtable(tbl), include.rownames=FALSE, size="tiny")
 @ 
 \fi
 \newpage

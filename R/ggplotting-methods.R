@@ -111,7 +111,11 @@ function(x, fun) {
     d.tmp$sample <- n
     d.tmp
   }, x, names(x), SIMPLIFY=FALSE)
-  as.data.frame(do.call(rbind, d))
+  out <- as.data.frame(do.call(rbind, d))
+
+  # keep order of list in plots 
+  out$sample <- factor(out$sample, levels=unique(names(x)))
+  out
 }
   
 setMethod("qualPlot", signature(x="FASTQSummary"),

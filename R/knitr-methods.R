@@ -1,19 +1,41 @@
 ## knitr-method.R -- new report generation using knitr
-PDFLATEX.CMD <- "pdflatex -halt-on-error"
 TEMPLATES <- list(PDF=system.file('extdata', 'knitr-report-template.Rnw', package='qrqc'))
-FIG.HEIGHT <- 5
-FIG.WIDTH <- 6
+FIG.HEIGHT <- 6
+FIG.WIDTH <- 8
 
 reportName <- function(x) {
-  tmp <- sapply(x, function(y) strsplit(basename(y@filename), '.', fixed=TRUE)[[1]][1])
-  return(paste(tmp, sep="-"))
+  if (is.list(x)) {
+    tmp <- sapply(x, function(y) strsplit(basename(y@filename), '.', fixed=TRUE)[[1]][1])
+    out <- paste(tmp, sep="-")
+  } else {
+    out <- basename(y@filename)
+  }
+  return(out)
 }
 
-## setMethod("makeReport", signature(x="FASTQSummary"),
-## # Given a FASTQ object, knit a report          
-## function(x, output=c("pdf", "html")) {
-##   knit(TEMPLATES$PDF)
-## })
+makeReportDir <- function(x, outputDir=".") {
+  current.reports <- dir(outputDir, pattern=".*-report")
+  if (length(current.reports)) {
+    # we need to find the current report number and create a directory
+    # with the digit incremented.
+
+    last <- 0
+    if (length(grep(".*-report$", current.reports))) {
+      # There's a report is first, but will not match -x where x is an
+      # integer.
+      last <- 1
+    }
+    
+    tmp <- gsub(".*-report-(\\d+)", '\\1', current.reports)
+    last <- suppressWarnings(max(na.exclude(c(as.numeric(tmp), last))))
+    dirpath <- file.path(outputDir, sprintf("%s-report-%s", getReportName(x), last+1))
+  } else {
+    dirpath <- file.path(outputDir, sprintf("%s-report", getReportName(x)))
+  }  
+  if (!(dir.create(dirpath) && dir.create(file.path(dirpath, "images"))))
+    stop("Could not create report directory; perhaps permissions do not allow this.")
+  return(dirpath)
+}
 
 fileTable <-
 function(x) {
@@ -22,12 +44,20 @@ function(x) {
     seq.lens <- seqLengthRange(y)
     if (y@hashed)
       prop.unique <- length(y@hash)/n.seqs
-    list(filename=basename(y@filename), quality=y@quality,
-         min.len=seq.lens[1], max.len=seq.lens[2],
-         total=n.seqs, prop.unique=round(prop.unique, 3))
+    list(Filename=basename(y@filename), Quality=y@quality,
+         "Min Length"=seq.lens[1], "Max Length"=seq.lens[2],
+         Total=n.seqs, "Proportion Unique"=round(prop.unique, 3))
   })
   tbl <- do.call(rbind, tbl.list)
-  return(xtable(tbl))
+  tbl <- as.data.frame(cbind(Name=names(x), tbl))
+  return(tbl)
+}
+
+allSlotsEqual <-
+# For a list of objects and a slot, return logical indicating whether
+# all slots equal value
+function(x, slot, value=TRUE) {
+  return(all(sapply(x, function(y) slot(y, slot))))
 }
 
 report <-
@@ -36,10 +66,15 @@ report <-
 # case, we make a single list of it; this allows downstream functions
 # to work on a consistent object class. Using a generic method is not
 # really needed.
-function(x, outdir=".", landscape=FALSE) {
+function(x, outdir=".", kmers=TRUE, hash=FALSE, landscape=TRUE) {
+  if ((hash && !allSlotsEqual(x, "hashed")))
+    stop("hash is TRUE but not all list elements have ")
+  if ((hash && !allSlotsEqual(x, "kmers.hashed")))
+    stop("if kmers or hash are TRUE")
+
   ll <- list()
   if (is(x, "SequenceSummary"))
-    ll[[x@filename]] <- x
+    ll[[basename(x@filename)]] <- x
   else if (is.list(x))
     ll <- x
   else
@@ -47,19 +82,29 @@ function(x, outdir=".", landscape=FALSE) {
 
   if (landscape) {
     message("using landscape layout")
-    FIG.HEIGHT <- 8
-    FIG.WIDTH <- 11
+    FIG.HEIGHT <- 7
+    FIG.WIDTH <- 10
   }
-  include.hash <- any(sapply(x, function(x) x@hashed))
-  include.kmers <- any(sapply(x, function(x) x@kmers.hashed))
-  outfile <- file.path(outdir, paste(reportName(x), "tex", sep="."))
-  knit(TEMPLATES$PDF)
+  local({
+    x <- ll
+    include.kmers <- kmers
+    include.hash <- hash
+    knit(TEMPLATES$PDF)
+  })
 }
 
-makeHashTable <- function(x, n=16) {
-  d <- x@hash[1:n]
-  tbl <- as.table(cbind(sequence=names(d), count=d, 'proportion of total'=d/sum(x@seq.lengths)))
-  rownames(tbl) <- NULL
-  x.tbl <- xtable::xtable(tbl)
-  return(x.tbl)
+makeHashTable <- function(x, n=4) {
+  tbl.list <- mapply(function(y, name) {
+    if (!y@hashed)
+      return()
+    d <- y@hash[1:n]
+    tbl <- data.frame(Name=name, Sequence=names(d),
+                      Count=d, "Proportion of Total"=d/sum(y@seq.lengths),
+                      check.names=FALSE)
+    rownames(tbl) <- NULL
+    tbl
+  }, x, names(x), SIMPLIFY=FALSE)
+  tbl <- do.call(rbind, tbl.list)
+  tbl <- as.data.frame(tbl)
+  return(tbl)
 }

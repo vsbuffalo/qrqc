@@ -1,5 +1,15 @@
 ## utils.R - Utility functions for creating parts of graphics, loading data, etc.
 
+validList <-
+# qrqc's methods allow lists to be input, but in some cases (plotting
+# and report generation), we need to ensure every element has a @hash
+# and @kmer slots.
+function(x, consistent=TRUE, error=TRUE) {
+  
+}
+
+
+
 .setQualityNames <-
 # Given a quality type (as integer), name the matrix output from
 # the C function `summarize_fastq_file` accordingly.
