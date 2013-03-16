@@ -1,7 +1,13 @@
 ## knitr-method.R -- new report generation using knitr
-TEMPLATES <- list(PDF=system.file('extdata', 'knitr-report-template.Rnw', package='qrqc'))
+TEMPLATES <- list(tex=system.file('extdata', 'knitr-report-template.Rnw', package='qrqc'),
+                  html=system.file('extdata', 'knitr-report-template.html', package='qrqc'))
 FIG.HEIGHT <- 6
 FIG.WIDTH <- 8
+
+seqLengthRange <- function(x) {
+  s <- which(x@seq.lengths > 0)
+  return(c(min(s), max(s)))
+}
 
 reportName <- function(x) {
   if (is.list(x)) {
@@ -11,30 +17,6 @@ reportName <- function(x) {
     out <- basename(y@filename)
   }
   return(out)
-}
-
-makeReportDir <- function(x, outputDir=".") {
-  current.reports <- dir(outputDir, pattern=".*-report")
-  if (length(current.reports)) {
-    # we need to find the current report number and create a directory
-    # with the digit incremented.
-
-    last <- 0
-    if (length(grep(".*-report$", current.reports))) {
-      # There's a report is first, but will not match -x where x is an
-      # integer.
-      last <- 1
-    }
-    
-    tmp <- gsub(".*-report-(\\d+)", '\\1', current.reports)
-    last <- suppressWarnings(max(na.exclude(c(as.numeric(tmp), last))))
-    dirpath <- file.path(outputDir, sprintf("%s-report-%s", getReportName(x), last+1))
-  } else {
-    dirpath <- file.path(outputDir, sprintf("%s-report", getReportName(x)))
-  }  
-  if (!(dir.create(dirpath) && dir.create(file.path(dirpath, "images"))))
-    stop("Could not create report directory; perhaps permissions do not allow this.")
-  return(dirpath)
 }
 
 fileTable <-
@@ -60,37 +42,66 @@ function(x, slot, value=TRUE) {
   return(all(sapply(x, function(y) slot(y, slot))))
 }
 
-report <-
+datedir <-
+# make an output directory based on the current time. Checks if
+# directory exists and errors out if it would overwrite it.
+function(prefix="qrqc-report-") {
+  dirname <- paste0(prefix, format(Sys.time(), "%Y-%m-%dT%H%M%S"))
+  if (file.exists(dirname))
+    stop(sprintf("directory '%s' already exists!", dirname))
+  dir.create(dirname)
+  return(dirname)
+}
+
+setMethod(report, "SequenceSummary",
+          function(x, outdir=datedir(), type=c("tex", "html"),
+                   kmers=TRUE, hash=FALSE, landscape=TRUE,
+                   template=NULL) {
+            x.listed <- list()
+            x.listed[[basename(x@filename)]] <- x
+            generateReport(x.listed, outdir, type, kmers, hash, landscape, template)
+          })
+
+setMethod(report, "list",
+          function(x, outdir=datedir(), type=c("tex", "html"),
+                   kmers=TRUE, hash=FALSE, landscape=TRUE,
+                   template=NULL) {
+            generateReport(x, outdir, type, kmers, hash, landscape, template)
+          })
+
+
+generateReport <-
 # report generates a report using knitr. It accepts a list of objects
 # or a single object that inherit from SequenceSummary. In the latter
 # case, we make a single list of it; this allows downstream functions
 # to work on a consistent object class. Using a generic method is not
 # really needed.
-function(x, outdir=".", kmers=TRUE, hash=FALSE, landscape=TRUE) {
+function(x, outdir=datedir(), type=c("tex", "html"),
+         kmers=TRUE, hash=FALSE, landscape=TRUE,
+         template=NULL) {
+  type <- match.arg(type)
+
   if ((hash && !allSlotsEqual(x, "hashed")))
     stop("hash is TRUE but not all list elements have ")
   if ((hash && !allSlotsEqual(x, "kmers.hashed")))
     stop("if kmers or hash are TRUE")
 
-  ll <- list()
-  if (is(x, "SequenceSummary"))
-    ll[[basename(x@filename)]] <- x
-  else if (is.list(x))
-    ll <- x
-  else
-    stop("report() only handles lists and objects that inherit from SequenceSummary")
-
   if (landscape) {
-    message("using landscape layout")
     FIG.HEIGHT <- 7
     FIG.WIDTH <- 10
   }
+
+  outfile <- file.path(outdir, sprintf("qrqc-report.%s", type))
+
   local({
-    x <- ll
     include.kmers <- kmers
     include.hash <- hash
-    knit(TEMPLATES$PDF)
+
+    if (is.null(template))
+      template <- TEMPLATES[[type]]
+    knit(template, output=outfile)
   })
+  return(outfile)
 }
 
 makeHashTable <- function(x, n=4) {

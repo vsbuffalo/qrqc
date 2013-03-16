@@ -3,14 +3,9 @@ WIDTH <- 8
 HEIGHT <- 6.5
 DPI <- 72
 
-getReportName <- function(x)
+getReportName <- function(x) {
   .Deprecated("reportName")
   strsplit(basename(x@filename), '.', fixed=TRUE)[[1]][1]
-
-seqLengthRange <- function(x) {
-  .Deprecated()
-  s <- which(x@seq.lengths > 0)
-  return(c(min(s), max(s)))
 }
 
 makeHashTable <- function(x, n=16) {

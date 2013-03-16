@@ -8,6 +8,7 @@ import(biovizBase)
 import(knitr)
 import(ggplot2)
 import(reshape)
+import(grid)
 importFrom(graphics, abline, axis, layout, lines, par, plot.new,
            plot.window, points, title)
 importFrom(methods, "@<-", new)
@@ -17,7 +18,6 @@ importFrom(stats, approxfun, lowess, weighted.mean)
 
 # common between ggplot2 rewrite and older version
 export(readSeqFile)
-export(makeReport)
 exportClassPattern("^.*$")
 
 # new plotting functions
@@ -40,10 +40,15 @@ export(scale_color_iupac)
 export(scale_color_dna)
 export(kmerKLPlot)
 export(kmerEntropyPlot)
+export(kmerEntropy)
 export(calcKL)
+
+# new report functions
+export(report)
 
 # deprecated
 export(plotQuals)
 export(plotBases)
 export(plotSeqLengths)
 export(plotGC)
+export(makeReport)

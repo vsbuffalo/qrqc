@@ -2,8 +2,10 @@
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!--begin.rcode setup, echo=FALSE, message=FALSE
-  opts_chunk$set(comment=NA, fig.width=8, fig.height=8, fig.path='ex-out-')
-  end.rcode-->
+fig.dir <- file.path(outdir, "figures/")
+opts <- opts_chunk$set(fig.path=fig.dir, fig.align='center', 
+                       fig.width=FIG.WIDTH, fig.height=FIG.HEIGHT)
+end.rcode-->
 <head>
   <meta http-equiv="content-type" 
 	content="text/html;charset=utf-8" />
@@ -17,44 +19,20 @@
     padding-right: 1.2em;
     }
   </style>
-  <title>Quality Report from qrqc</title>
+  <title>Sequence Quality Report from qrqc</title>
 </head>
 <body>
-
-  <h2>Contents</h2>
-      <ol class="">
-        <li>General Information</li>
-        <li>Quality by Position</li>
-        <li>Nucleotide Proportion by Position</li>
-        <li>N Frequency by Position</li>
-        <li>GC Content by Position</li>
-        <li>k-mer Entropy by Position</li>
-        <li>k-mer Kullback-Leibler by Position</li>
-        <li>Sequence Length Distribution</li>
-        <li>Most Frequent Sequences</li>
-      </ol>
-
   <p>
     <h2>General Information</h2>
-    File: <!--rinline x@filename --><br/>
-    Type: <!--rinline getType(x) --><br/>
-    Sequence Length Range: <!--rinline seqLengthRange(x)[1] --> to <!--rinline seqLengthRange(x)[2] --><br/>
-    Total Sequences: <!--rinline sum(x@seq.lengths) --><br/>
-    Sequences hashed: <!--rinline x@hashed --><br/>
-    Unique Sequences: <!--rinline if (!(ll <- length(x@hash))) NA else ll --></br>
-    k-mers hashed: <!--rinline x@kmers.hashed --><br/>
-    k: <!--rinline if (!length(x@k)) NA else x@k --><br/>
-    Proportion reads hashed: <!--rinline if (!length(x@hash.prop)) NA else x@hash.prop --></span><br/>
-  </p>
-  
-<h2>Quality by Position</h2>
-<!--begin.rcode qualplot, echo=FALSE, message=FALSE
-    if (getType(x) == "FASTQ") {
-      qualPlot(x)
-    } else {
-      cat("No quality data for FASTA file.")
-    }
-    end.rcode-->
+    <!--begin.rcode filetable,echo=FALSE,results="asis"
+        tbl <- fileTable(x)
+        print(xtable(tbl), type="html", include.rownames=FALSE)
+        end.rcode-->
+
+    <h2>Sequence Quality</h2>
+    <!--begin.rcode qualplot, echo=FALSE, message=FALSE
+        
+        end.rcode-->
 
 <h2>Nucleotide Proportion by Position</h2>
 <!--begin.rcode baseplot, echo=FALSE, message=FALSE

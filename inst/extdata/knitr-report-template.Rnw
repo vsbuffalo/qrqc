@@ -1,16 +1,23 @@
 \documentclass[12pt]{article}
 \usepackage{fullpage}
 \pagestyle{empty}
+\newif\ifincludeQuality
 \newif\ifincludeHash
 \newif\ifincludeKmerHash
 \newif\ifuseLandscape
+
 \useLandscapefalse
 \includeHashfalse
 \includeKmerHashfalse
-<<landscape,echo=FALSE,results="asis">>=
+\includeQualityfalse
+
+<<settings,echo=FALSE,results="asis">>=
 if (exists("landscape") && landscape)
   cat("\\useLandscapetrue")
+if (is(x, "FASTQSummary"))
+  cat("\\includeQualitytrue")
 @
+
 \ifuseLandscape
 \usepackage[landscape,margin=0.5in]{geometry}
 \else
@@ -28,9 +35,9 @@ if (exists("landscape") && landscape)
 \maketitle
 
 <<setup,include=FALSE,cache=FALSE>>=
-fig.dir <- file.path(outdir, "figures")
+fig.dir <- file.path(outdir, "figures/")
 opts <- opts_chunk$set(fig.path=fig.dir, fig.align='center', 
-                  fig.width=FIG.WIDTH, fig.height=FIG.HEIGHT)
+                       fig.width=FIG.WIDTH, fig.height=FIG.HEIGHT)
 @ 
 \thispagestyle{empty}
 \section[]{General Information}
@@ -40,11 +47,20 @@ print(xtable(tbl), include.rownames=FALSE)
 @ 
 \newpage
 
+\section[]{Summary}
+
+<<summary,echo=FALSE>>=
+summaryPlot(x)
+@ 
+
+\newpage
+\ifincludeQuality
 \section[]{Sequence Quality}
 <<qualplot,echo=FALSE,warning=FALSE,message=FALSE>>=
 qualPlot(x)
 @ 
 \newpage
+\fi
 
 \section[]{Nucleotide Proportion by Position}
 <<baseplot,echo=FALSE,warning=FALSE,message=FALSE>>=

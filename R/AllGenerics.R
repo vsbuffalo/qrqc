@@ -8,6 +8,10 @@ setGeneric("plotGC", signature="obj", function(obj) standardGeneric("plotGC"))
 
 ## common
 setGeneric("makeReport", signature="x", function(x, outputDir=".") standardGeneric("makeReport"))
+setGeneric("report", signature="x",
+           function(x, outdir=datedir(), type=c("tex", "html"),
+                    kmers=TRUE, hash=FALSE, landscape=TRUE,
+                    template=NULL) standardGeneric("report"))
 
 ## ggplot2 generics
 setGeneric("qualPlot", signature="x",
@@ -27,4 +31,4 @@ setGeneric("getMCQual", signature="x", function(x, n=100) standardGeneric("getMC
 setGeneric("kmerEntropyPlot", signature="x", function(x) standardGeneric("kmerEntropyPlot"))
 setGeneric("kmerKLPlot", signature="x", function(x, n.kmers=20) standardGeneric("kmerKLPlot"))
 
-
+setGeneric("summaryPlot", signature="x", function(x) standardGeneric("summaryPlot"))

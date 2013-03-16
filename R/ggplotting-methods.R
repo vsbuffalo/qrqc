@@ -368,3 +368,28 @@ function(x) {
   p
 })
 
+setMethod("summaryPlot", signature(x="list"),
+function(x) {
+  plots <- list()
+  d.qual <- list2df(x, getQual)
+  plots$quality <- ggplot(d.qual) + geom_line(aes(x=position, y=middle, color=sample)) + ylab("median")
+  d.gc <- list2df(x, getBaseProp)
+  plots$gc <- ggplot(d.gc) + geom_line(aes(x=position, y=proportion, color=sample)) + ylab("GC content")
+  d.len <- list2df(x, getSeqlen)
+  plots$length <- ggplot(d.len) + geom_freqpoly(aes(x=length, y=count, color=sample), stat="identity")
+
+  include.kmers <- allSlotsEqual(x, "kmers.hashed")
+  if (include.kmers) {
+    d.kmers <- list2df(x, kmerEntropy)
+    plots$kmers <- ggplot(d.kmers) + geom_line(aes(x=position, y=entropy, color=sample))
+  }
+  
+  grid.newpage()
+  pushViewport(viewport(layout=grid.layout(2, 2)))
+  nolegend <- theme_bw() + theme(legend.position="none")
+  print(plots$qual + nolegend, vp=viewport(layout.pos.row=1, layout.pos.col=1))
+  print(plots$gc + theme_bw(), vp=viewport(layout.pos.row=1, layout.pos.col=2))
+  print(plots$length + nolegend, vp=viewport(layout.pos.row=2, layout.pos.col=1))
+  if (include.kmers)
+    print(plots$kmers + nolegend, vp=viewport(layout.pos.row=2, layout.pos.col=2))
+})
