@@ -36,8 +36,10 @@ if (is(x, "FASTQSummary"))
 
 <<setup,include=FALSE,cache=FALSE>>=
 fig.dir <- file.path(outdir, "figures/")
+tex.opts <- qrqc_options$tex_opts
 opts <- opts_chunk$set(fig.path=fig.dir, fig.align='center', 
-                       fig.width=FIG.WIDTH, fig.height=FIG.HEIGHT)
+                       fig.width=tex.opts[[orientation]]$fig.width, 
+                       fig.height=tex.opts[[orientation]]$fig.height)
 @ 
 \thispagestyle{empty}
 \section[]{General Information}
@@ -47,8 +49,7 @@ print(xtable(tbl), include.rownames=FALSE)
 @ 
 \newpage
 
-\section[]{Summary}
-
+\section[]{Quick Summary}
 <<summary,echo=FALSE>>=
 summaryPlot(x)
 @ 
@@ -70,7 +71,7 @@ basePlot(x, type="proportion")
 
 \section[]{N Frequency by Position}
 <<Nfreq,echo=FALSE,warning=FALSE,message=FALSE>>=
-basePlot(x, bases='N')
+basePlot(x, bases='N', type="proportion")
 @ 
 \newpage
 
@@ -112,5 +113,11 @@ kmerKLPlot(x)
 @ 
 \fi
 \newpage
+
+\section{Session Information}
+<<sessionInfo,echo=FALSE,warning=FALSE,message=FALSE>>=
+sessionInfo()
+@ 
+
 
 \end{document}

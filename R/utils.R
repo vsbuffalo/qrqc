@@ -1,14 +1,22 @@
 ## utils.R - Utility functions for creating parts of graphics, loading data, etc.
-
-validList <-
-# qrqc's methods allow lists to be input, but in some cases (plotting
-# and report generation), we need to ensure every element has a @hash
-# and @kmer slots.
-function(x, consistent=TRUE, error=TRUE) {
-  
+allSlotsEqual <-
+# For a list of objects and a slot, return logical indicating whether
+# all slots equal value
+function(x, slot, value=TRUE) {
+  return(all(sapply(x, function(y) slot(y, slot)) == value))
 }
 
-
+datedir <-
+# make an output directory based on the current time. Checks if
+# directory exists and errors out if it would overwrite it.
+function(prefix="qrqc-report-") {
+  dirname <- paste0(prefix, format(Sys.time(), "%Y-%m-%dT%H%M%S"))
+  message(sprintf("creating directory %s", dirname))
+  if (file.exists(dirname))
+    stop(sprintf("directory '%s' already exists!", dirname))
+  dir.create(dirname)
+  return(dirname)
+}
 
 .setQualityNames <-
 # Given a quality type (as integer), name the matrix output from

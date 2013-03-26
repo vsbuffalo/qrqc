@@ -1,106 +1,103 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
           "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<!--begin.rcode setup, echo=FALSE, message=FALSE
-fig.dir <- file.path(outdir, "figures/")
-opts <- opts_chunk$set(fig.path=fig.dir, fig.align='center', 
-                       fig.width=FIG.WIDTH, fig.height=FIG.HEIGHT)
-end.rcode-->
+  <!--begin.rcode setup, echo=FALSE, message=FALSE
+      fig.dir <- file.path(outdir, "figures/")
+      html.opts <- qrqc_options$html_opts
+      opts <- opts_chunk$set(fig.path=fig.dir,
+                            fig.width=html.opts$fig.width, 
+                            fig.height=html.opts$fig.height, 
+                            dpi=html.opts$dpi)
+  end.rcode-->
 <head>
   <meta http-equiv="content-type" 
 	content="text/html;charset=utf-8" />
   <style type="text/css" media="screen">
     body {
-    font-family: arial, sans-serif;
+         font-family: arial, sans-serif;
     }
     table, td, th {
-    font-family: monospace;
-    border: 0;
-    padding-right: 1.2em;
+        font-family: monospace;
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 0.4em;
     }
   </style>
   <title>Sequence Quality Report from qrqc</title>
 </head>
 <body>
-  <p>
-    <h2>General Information</h2>
-    <!--begin.rcode filetable,echo=FALSE,results="asis"
-        tbl <- fileTable(x)
-        print(xtable(tbl), type="html", include.rownames=FALSE)
-        end.rcode-->
-
-    <h2>Sequence Quality</h2>
-    <!--begin.rcode qualplot, echo=FALSE, message=FALSE
-        
-        end.rcode-->
-
-<h2>Nucleotide Proportion by Position</h2>
-<!--begin.rcode baseplot, echo=FALSE, message=FALSE
-    basePlot(x, type="proportion")
-    end.rcode-->
-</p>
-
-<h2>N Frequency by Position</h2>
-<!--begin.rcode nplot, echo=FALSE, message=FALSE
-    basePlot(x, bases="N", type="proportion")
-end.rcode-->
-
-<h2>GC Content by Position</h2>
-<!--begin.rcode gcplot, echo=FALSE, message=FALSE
-    gcPlot(x)
-end.rcode-->
-
-<h2>k-mer Entropy by Position</h2>
-<!--begin.rcode entropy, echo=FALSE, message=FALSE
-    if (x@kmers.hashed) {
+  <h2>General Information</h2>
+  <!--begin.rcode filetable,echo=FALSE,results="asis"
+      tbl <- fileTable(x)
+      print(xtable(tbl), type="html", include.rownames=FALSE)
+  end.rcode-->
+  
+  <h2 >Sequence Quality</h2>
+  <!--begin.rcode qualplot, echo=FALSE, message=FALSE
+      qualPlot(x)
+  end.rcode-->
+  
+  <h2>Nucleotide Proportion by Position</h2>
+  <!--begin.rcode baseplot, echo=FALSE, message=FALSE
+      basePlot(x, type="proportion")
+  end.rcode-->
+  
+  <h2>N Frequency by Position</h2>
+  <!--begin.rcode nplot, echo=FALSE, message=FALSE
+      basePlot(x, bases="N", type="proportion")
+   end.rcode-->
+  
+  <h2>GC Content by Position</h2>
+  <!--begin.rcode gcplot, echo=FALSE, message=FALSE
+      gcPlot(x)
+  end.rcode-->
+  
+  
+  <!--begin.rcode entropy, echo=FALSE, message=FALSE,results="asis"
+      if (exists("include.kmers") && include.kmers) {
+      cat("<h2>k-mer Entropy by Position</h2>")
       kmerEntropyPlot(x)
-    } else {
-      cat("No k-mer frequency information available - readSeqFile() run with kmer=TRUE to include this diagnostic.")
-    }
-end.rcode-->
-
-<h2>k-mer Kullback-Leibler by Position</h2>
-<!--begin.rcode kmer-kl, echo=FALSE, message=FALSE
-    if (x@kmers.hashed) {
+      }
+  end.rcode-->
+   
+  <!--begin.rcode kmer-kl, echo=FALSE, message=FALSE,results="asis"
+      if (exists("include.kmers") && include.kmers) {
+      cat("<h2>k-mer Kullback-Leibler by Position</h2>")
       kmerKLPlot(x)
-    } else {
-      cat("No k-mer frequency information available - readSeqFile() run with kmer=TRUE to include this diagnostic.")
-    }
-end.rcode-->
+      }
+  end.rcode-->
+  
+  <h2>Sequence Length Distribution</h2>
+  <!--begin.rcode seqlen, echo=FALSE, message=FALSE
+      seqlenPlot(x)
+  end.rcode-->
 
-<h2>Sequence Length Distribution</h2>
-<!--begin.rcode seqlen, echo=FALSE, message=FALSE
-    seqlenPlot(x)
-end.rcode-->
-
-<h2>Most Frequent Sequences</h2>
-<!--begin.rcode most-frequent, echo=FALSE, message=FALSE
-    if (x@hashed) {
+  <!--begin.rcode most-frequent, echo=FALSE, message=FALSE,results="asis"
+      if (exists("include.hash") && include.hash) {
+      cat("<h2>Most Frequent Sequences</h2>")
       table <- makeHashTable(x)
       print(table, type="html")
-    } else {
-      cat("No sequence frequency information available - readSeqFile() run with hash=TRUE to include this diagnostic.")
-    }
-end.rcode-->
-
+      }
+  end.rcode-->
+  
   <p>The R session information (including the OS info, R version and all
     packages used):</p>
+  
+  <!--begin.rcode session-info, cache=FALSE
+      sessionInfo()
+      Sys.time()
+  end.rcode-->
+  
+  <div style="font-size: 0.8em; text-align: center;">
+    This report is automatically generated with
+    the <a href="http://bioconductor.org">Bioconductor</a>
+    package <a href="http://github.com/vsbuffalo/qrqc"><strong>qrqc</strong></a>
+    (version <!--rinline packageVersion('qrqc') -->)
+    using <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
+    (version
+    <!--rinline packageVersion('knitr') -->)
+  </div>
 
-<!--begin.rcode session-info, cache=FALSE
-    sessionInfo()
-    Sys.time()
-    end.rcode-->
-
-<div style="font-size: 0.8em; text-align: center;">
-  This report is automatically generated with
-  the <a href="http://bioconductor.org">Bioconductor</a>
-  package <a href="http://github.com/vsbuffalo/qrqc"><strong>qrqc</strong></a>
-  (version <!--rinline packageVersion('qrqc') -->)
-  using <a href="http://yihui.name/knitr"><strong>knitr</strong></a>
-  (version
-  <!--rinline packageVersion('knitr') -->)
-</div>
-
-<div style="font-size: 0.8em; text-align: center;">(c) Vince Buffalo 2011-2012, License: GPL 2.0</div>
+  <div style="font-size: 0.8em; text-align: center;">(c) Vince Buffalo 2011-2013, License: GPL 2.0</div>
 </body>
 </html>

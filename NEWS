@@ -2,13 +2,29 @@ qrqc -- history of changes.
 
 Copyright (c) Vince Buffalo 2011-2012
 
-Version 1.12.1 (2013-02-CHANGEME)
+Version 1.9.1 (2013-02-26)
+
+ - Added new knitr-based report() function. makeReport() is now
+   deprecated. knitr-based reports allow for a list of any objects
+   that inherit from SequenceSummary. This allows for TeX-based reports too.
+
+ - Changed directory naming of report directories. Now, uses ISO dates
+   rather than numerican increments. Prefix of report directory can be
+   changed.
+
+ - Updated HTML report template.
+
+ - Added new qrqc_options list to adjust templates, image sizes, etc.
+
+ - Updated qualPlot to include quality scale on y-axis label.
+
+ - Added optional tar archiving and compression to report directories.
+
+Version 1.12.1 (2013-02-01)
 
  - Fixed basePlot error when called on a list, with bases='N'
 
  - Adjusted basePlot's plotting limits
-
- - 
 
 Version 1.10.1 (2012-06-27)
 

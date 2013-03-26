@@ -1,9 +1,4 @@
 ## knitr-method.R -- new report generation using knitr
-TEMPLATES <- list(tex=system.file('extdata', 'knitr-report-template.Rnw', package='qrqc'),
-                  html=system.file('extdata', 'knitr-report-template.html', package='qrqc'))
-FIG.HEIGHT <- 6
-FIG.WIDTH <- 8
-
 seqLengthRange <- function(x) {
   s <- which(x@seq.lengths > 0)
   return(c(min(s), max(s)))
@@ -35,38 +30,20 @@ function(x) {
   return(tbl)
 }
 
-allSlotsEqual <-
-# For a list of objects and a slot, return logical indicating whether
-# all slots equal value
-function(x, slot, value=TRUE) {
-  return(all(sapply(x, function(y) slot(y, slot))))
-}
-
-datedir <-
-# make an output directory based on the current time. Checks if
-# directory exists and errors out if it would overwrite it.
-function(prefix="qrqc-report-") {
-  dirname <- paste0(prefix, format(Sys.time(), "%Y-%m-%dT%H%M%S"))
-  if (file.exists(dirname))
-    stop(sprintf("directory '%s' already exists!", dirname))
-  dir.create(dirname)
-  return(dirname)
-}
-
 setMethod(report, "SequenceSummary",
           function(x, outdir=datedir(), type=c("tex", "html"),
                    kmers=TRUE, hash=FALSE, landscape=TRUE,
-                   template=NULL) {
+                   template=NULL, tar=FALSE, compression=c("none", "gzip", "bzip2"), quiet=FALSE) {
             x.listed <- list()
             x.listed[[basename(x@filename)]] <- x
-            generateReport(x.listed, outdir, type, kmers, hash, landscape, template)
+            generateReport(x.listed, outdir, type, kmers, hash, landscape, template, tar, compression, quiet)
           })
 
 setMethod(report, "list",
           function(x, outdir=datedir(), type=c("tex", "html"),
                    kmers=TRUE, hash=FALSE, landscape=TRUE,
-                   template=NULL) {
-            generateReport(x, outdir, type, kmers, hash, landscape, template)
+                   template=NULL, tar=FALSE, compression=c("none", "gzip", "bzip2"), quiet=FALSE) {
+            generateReport(x, outdir, type, kmers, hash, landscape, template, tar, compression, quiet)
           })
 
 
@@ -78,29 +55,54 @@ generateReport <-
 # really needed.
 function(x, outdir=datedir(), type=c("tex", "html"),
          kmers=TRUE, hash=FALSE, landscape=TRUE,
-         template=NULL) {
+         template=NULL, tar=FALSE, compression=c("none", "gzip", "bzip2"),
+         quiet=FALSE) {
   type <- match.arg(type)
-
+  orientation <- c("portrait", "landscape")[as.integer(landscape) + 1]
+  compression <- match.arg(compression)
+    
   if ((hash && !allSlotsEqual(x, "hashed")))
     stop("hash is TRUE but not all list elements have ")
   if ((hash && !allSlotsEqual(x, "kmers.hashed")))
     stop("if kmers or hash are TRUE")
 
-  if (landscape) {
-    FIG.HEIGHT <- 7
-    FIG.WIDTH <- 10
+  if (compression != "none" && !tar)
+    stop("compression argument only applicable if tar=TRUE")
+
+  if (!landscape && type == "html")
+    stop("landscap=TRUE is only available option for type='html'")
+
+  outfile <- sprintf("qrqc-report.%s", type)
+
+  if (!file.exists(outdir)) {
+    message(sprintf("creating directory %s", outdir))
+    dir.create(outdir)
   }
-
-  outfile <- file.path(outdir, sprintf("qrqc-report.%s", type))
-
+  
   local({
     include.kmers <- kmers
     include.hash <- hash
 
+    oldwd <- getwd()
+    setwd(outdir)
     if (is.null(template))
-      template <- TEMPLATES[[type]]
-    knit(template, output=outfile)
+      template <- qrqc_options$templates[[type]]
+    if (quiet)
+      knitfun <- function(x, output) suppressMessages(capture.output(knit(x, output)))
+    else
+      knitfun <- knit
+    knitfun(template, output=outfile)
+    setwd(oldwd)
   })
+
+  if (tar) {
+    ext <- c(none=".tar", gzip=".tar.gz", bzip2=".tar.bz2")[compression]
+    tarfile <- paste0(outdir, ext)
+    message(sprintf("creating %s", tarfile))
+    tar(tarfile, outdir, compression=compression)
+    outfile <- tarfile
+  }
+  
   return(outfile)
 }
 

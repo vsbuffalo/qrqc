@@ -126,7 +126,7 @@ function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
   p <- ggplot(qd)
   p <- p + geom_qlinerange(extreme.color=extreme.color, quartile.color=quartile.color,
                            mean.color=mean.color, median.color=median.color)
-  p <- p + scale_y_continuous("quality")
+  p <- p + scale_y_continuous(sprintf("quality (%s)", x@quality))
   if (smooth) {
     mcd <- getMCQual(x)
     p <- p + geom_smooth(aes(x=position, y=quality), data=mcd, se=FALSE, color="purple")
@@ -146,7 +146,10 @@ function(x, smooth=TRUE, extreme.color="grey", quartile.color="orange",
   p <- ggplot(qd)
   p <- p + geom_qlinerange(extreme.color=extreme.color, quartile.color=quartile.color,
                            mean.color=mean.color, median.color=median.color)
-  p <- p + scale_y_continuous("quality")
+  if (!allSlotsEqual(x, "quality", x[[1]]@quality))
+    stop("qualPlot method must have FASTQSummary objects with same quality type")
+  
+  p <- p + scale_y_continuous(sprintf("quality (%s)", x[[1]]@quality))
   if (smooth) {
     mcd <- list2df(x, getMCQual)
     p <- p + geom_smooth(aes(x=position, y=quality), data=mcd, se=FALSE)
@@ -189,7 +192,7 @@ function(x, geom=c("line", "bar", "dodge"), type=c("frequency", "proportion"),
                     dodge=geom_bar(aes_string(x="position", y=type, fill="base"), stat="identity", position="dodge"))
   g <- geom.list[[geom]]
 
-  bd <- fun(x, drop=FALSE) # drop is FALSE if a user asks just to see N, and there are none
+  bd <- fun(x)
 
   p <- ggplot(subset(bd, base %in% bases)) + g
 
@@ -372,17 +375,15 @@ setMethod("summaryPlot", signature(x="list"),
 function(x) {
   plots <- list()
   d.qual <- list2df(x, getQual)
-  plots$quality <- ggplot(d.qual) + geom_line(aes(x=position, y=middle, color=sample)) + ylab("median")
+  plots$quality <- ggplot(d.qual) + geom_line(aes(x=position, y=middle, color=sample)) + ylab("median quality")
   d.gc <- list2df(x, getBaseProp)
   plots$gc <- ggplot(d.gc) + geom_line(aes(x=position, y=proportion, color=sample)) + ylab("GC content")
   d.len <- list2df(x, getSeqlen)
   plots$length <- ggplot(d.len) + geom_freqpoly(aes(x=length, y=count, color=sample), stat="identity")
 
-  include.kmers <- allSlotsEqual(x, "kmers.hashed")
-  if (include.kmers) {
-    d.kmers <- list2df(x, kmerEntropy)
-    plots$kmers <- ggplot(d.kmers) + geom_line(aes(x=position, y=entropy, color=sample))
-  }
+  d.bases <- list2df(x, function(x) getBaseProp(x, drop=FALSE))
+  plots$N <- ggplot(d.bases[d.bases$base == "N", ]) + geom_line(aes(x=position, y=proportion, color=sample), stat="identity") + ylab("proportion N") + ylim(c(0, 1))
+
   
   grid.newpage()
   pushViewport(viewport(layout=grid.layout(2, 2)))
@@ -390,6 +391,5 @@ function(x) {
   print(plots$qual + nolegend, vp=viewport(layout.pos.row=1, layout.pos.col=1))
   print(plots$gc + theme_bw(), vp=viewport(layout.pos.row=1, layout.pos.col=2))
   print(plots$length + nolegend, vp=viewport(layout.pos.row=2, layout.pos.col=1))
-  if (include.kmers)
-    print(plots$kmers + nolegend, vp=viewport(layout.pos.row=2, layout.pos.col=2))
+  print(plots$N + nolegend, vp=viewport(layout.pos.row=2, layout.pos.col=2))
 })

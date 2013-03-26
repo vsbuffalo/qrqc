@@ -11,7 +11,8 @@ setGeneric("makeReport", signature="x", function(x, outputDir=".") standardGener
 setGeneric("report", signature="x",
            function(x, outdir=datedir(), type=c("tex", "html"),
                     kmers=TRUE, hash=FALSE, landscape=TRUE,
-                    template=NULL) standardGeneric("report"))
+                    template=NULL, tar=FALSE, compression=c("none", "gzip", "bzip2"),
+                    quiet=FALSE) standardGeneric("report"))
 
 ## ggplot2 generics
 setGeneric("qualPlot", signature="x",
