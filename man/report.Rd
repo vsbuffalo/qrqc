@@ -52,8 +52,9 @@
   s.fastq <- readSeqFile(system.file('extdata', 'test.fastq', package='qrqc'))
   s.trimmed.fastq <- readSeqFile("qrqc/inst/extdata/test-trimmed.fastq", kmer=FALSE)
 
-  ## Make and save a report
-  makeReport(list(untrimmed=s.fastq), trimmed=s.trimmed.fastq)
+  ## make a TeX report, and tar and compress in
+  Report(list(untrimmed=s.fastq), trimmed=s.trimmed.fastq, type="tex",
+         tar=TRUE, compression="gzip")
 }
 }
 
