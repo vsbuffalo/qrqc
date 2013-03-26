@@ -42,6 +42,8 @@
     argument.}
   \item{compression}{a string indicating whether to use compression:
     either "none", "gzip", or "bzip2".}
+  \item{quiet}{a logical value indicating whether to suppress
+    \code{knitr}'s building messages}
 }
 
 \author{Vince Buffalo <vsbuffalo@ucdavis.edu>}

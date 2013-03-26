@@ -1,7 +1,7 @@
 # qrqc - Quick Read Quality Control
 
 qrqc and all supporting documentation 
-Copyright (c) Vince Buffalo, 2011-2012
+Copyright (c) Vince Buffalo, 2011-2013
 
 Contact: Vince Buffalo <vsbuffaloAAAAA@gmail.com> (with the poly-A tail removed)
 

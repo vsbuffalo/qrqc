@@ -334,16 +334,46 @@ ggplot(getQual(s.fastq)) + geom_linerange(aes(x=position, ymin=lower,
       low="red", high="green") + scale_y_continuous("quality")
 @ 
 
-\section{HTML Report Generation}
+\section{HTML and \LaTeX Report Generation}
 
-With the help of \Rpackage{brew} and \Rpackage{xtable},
-\Rpackage{qrqc} can generate an HTML summary report. This is created
-with \texttt{makeReport}. Reports are stored in their own directories,
-with images kept under `images/' and the report is ``report.html''. A
-specific output directory can be passed through the \texttt{outputDir}
-argument, but the present directory is used as a default. Multiple
-reports generated in the same directory will have an incremental
-naming scheme.
+With the help of \Rpackage{knitr} and \Rpackage{xtable},
+\Rpackage{qrqc} can generate an HTML or \LaTeX summary report. This is
+created with \texttt{report}. By default, reports generate a directory
+called \texttt{qrqc-report-1970-01-01-T000000} but with the current
+ISO 8601 date and time. Optionally, one can use the arguments
+\texttt{tar=TRUE} and/or \texttt{compression='gzip'} to create a tar,
+with optional gzip compression. Bzip2 compression is also implemented,
+via \texttt{compression='bzip2'}.
+
+\texttt{report} takes either a named list of \texttt{FASTQSummary} or
+\texttt{FASTASummary} objects (the list cannot be a mix of both), or a
+single object from one of these classes. This allows for easy handling
+of many FASTQ files, and facilitates comparisons of many libraries and
+across quality improvement pipeline steps.
+
+<<report-example>>=
+qrqc.path <- system.file(file.path("extdata"), package="qrqc")
+fq.files <- list.files(qrqc.path, pattern="test.*\\.fastq", full.names=TRUE)
+names(fq.files) <- basename(fq.files)
+
+qs <- lapply(fq.files, readSeqFile, hash=FALSE)
+
+# not run:
+# report(qs)
+@ 
+
+The first plot of a report is a quick summary looking at key
+statistics of all input objects. Below is an example of this plot:
+
+<<sequenceSummary>>=
+
+sequenceSummary(qs)
+
+@ 
+
+Note that the GC plot looks a bit more erratic than it would on a real
+data set, as the per-cycle GC content proportion varies a lot in these
+small test samples.
 
 \section{Working with the FASTQSummary and FASTASummary classes}
 \Rpackage{qrqc} provides the \texttt{FASTQSummary} and
@@ -396,9 +426,13 @@ Thanks to Heng Li for his work on \texttt{kseq.h} \texttt{khash.h}
 \url{http://lh3lh3.users.sourceforge.net/kseq.shtml} and
 \url{http://attractivechaos.awardspace.com/khash.h.html}.
 
-\texttt{Sickle} can be downloaded or cloned from the UC Davis
-Bioinformatics Github repository:
-\url{https://github.com/ucdavis-bioinformatics/sickle}.
+\texttt{Sickle} can be downloaded, cloned, or collaboratively worked
+on from the developer's Github repository:
+\url{https://github.com/najoshi/sickle}.
+
+\Rpackage{qrqc} also has a Github repository. I welcome bug reports,
+comments, issues, or collaboratively development there too:
+\url{https://github.com/vsbuffalo/qrqc}.
 
 \section{Session Information}
 <<>>=
