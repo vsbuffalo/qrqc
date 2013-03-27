@@ -75,7 +75,7 @@
   <!--begin.rcode most-frequent, echo=FALSE, message=FALSE,results="asis"
       if (exists("include.hash") && include.hash) {
       cat("<h2>Most Frequent Sequences</h2>")
-      table <- makeHashTable(x)
+      table <- xtable(makeHashDataFrame(x))
       print(table, type="html")
       }
   end.rcode-->

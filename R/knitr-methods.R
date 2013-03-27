@@ -106,7 +106,7 @@ function(x, outdir=datedir(), type=c("tex", "html"),
   return(outfile)
 }
 
-makeHashTable <- function(x, n=4) {
+makeHashDataFrame <- function(x, n=4) {
   tbl.list <- mapply(function(y, name) {
     if (!y@hashed)
       return()

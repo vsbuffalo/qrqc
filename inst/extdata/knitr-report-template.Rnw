@@ -88,7 +88,7 @@ seqlenPlot(x)
 \subsection{Most Frequent Sequences}
 
 <<hashed,echo=FALSE,warning=FALSE,message=FALSE,results="asis">>=
-tbl <- makeHashTable(x)
+tbl <- makeHashDataFrame(x)
 print(xtable(tbl), include.rownames=FALSE, size="tiny")
 @ 
 \fi

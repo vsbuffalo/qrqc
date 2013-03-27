@@ -55,4 +55,4 @@ tool can do this; you can get it here
 
 3'-end adapter contamination can be difficult to recognize (and thus
 remove) due to poor quality and likely incorrect bases. I've developed
-a tool called `scythe` that removes 
+a tool called `scythe` that removes adapters.
