@@ -11,12 +11,8 @@
 \includeKmerHashfalse
 \includeQualityfalse
 
-<<settings,echo=FALSE,results="asis">>=
-if (exists("landscape") && landscape)
-  cat("\\useLandscapetrue")
-if (is(x, "FASTQSummary"))
-  cat("\\includeQualitytrue")
-@
+\Sexpr{if (exists("landscape") && landscape) "\\useLandscapetrue"}
+\Sexpr{if (is(x, "FASTQSummary")) "\\includeQualitytrue"}
 
 \ifuseLandscape
 \usepackage[landscape,margin=0.5in]{geometry}
@@ -87,10 +83,7 @@ seqlenPlot(x)
 @ 
 \newpage
 
-<<includeHash,echo=FALSE,warning=FALSE,message=FALSE,results="asis">>=
-if (exists("include.hash") && include.hash)
-  cat("\\includeHashtrue")
-@ 
+\Sexpr{if (exists("include.hash") && include.hash) "\\includeHashtrue"}
 \ifincludeHash
 \subsection{Most Frequent Sequences}
 
@@ -101,10 +94,7 @@ print(xtable(tbl), include.rownames=FALSE, size="tiny")
 \fi
 \newpage
 
-<<includeKmerHash,echo=FALSE,warning=FALSE,message=FALSE,results="asis">>=
-if (exists("include.kmers") && include.kmers)
-  cat("\\includeKmerHashtrue")
-@ 
+\Sexpr{if (exists("include.kmers") && include.kmers) "\\includeKmerHashtrue"}
 
 \ifincludeKmerHash
 \section{Positional k-mer Abundance}
