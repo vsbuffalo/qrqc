@@ -11,7 +11,6 @@ import(reshape)
 import(grid)
 importFrom(graphics, abline, axis, layout, lines, par, plot.new,
            plot.window, points, title)
-importFrom(methods, "@<-", new)
 importFrom(plyr, count)
 
 importFrom(stats, approxfun, lowess, weighted.mean)
