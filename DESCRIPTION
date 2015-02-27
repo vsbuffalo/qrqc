@@ -1,5 +1,5 @@
 Package: qrqc
-Version: 1.21.1
+Version: 1.21.2
 Date: 2012-04-17
 Title: Quick Read Quality Control
 Author: Vince Buffalo
@@ -7,7 +7,7 @@ Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
 Imports: reshape, ggplot2, Biostrings, biovizBase, graphics, methods,
         plyr, stats
 Depends: reshape, ggplot2, Biostrings, biovizBase, brew, xtable,
-        Rsamtools (>= 1.19.36), testthat
+        Rsamtools (>= 1.19.38), testthat
 LinkingTo: Rsamtools
 Description: Quickly scans reads and gathers statistics on base and
         quality frequencies, read length, k-mers by position, and
