@@ -6,9 +6,9 @@ Copyright (c) Vince Buffalo, 2011-2012
 Contact: Vince Buffalo <vsbuffaloAAAAA@gmail.com> (with the poly-A tail removed)
 
 If you wish to report a bug, please open an issue on Github
-(http://github.com/vsbuffalo/qrqc/issues) or send it to the
-bioconductor@r-project.org mailing list. You can contact me personally
-as well, but please open an issue first.
+(http://github.com/vsbuffalo/qrqc/issues) or post it on the
+Bioconductor support site (https://support.bioconductor.org/).
+You can contact me personally as well, but please open an issue first.
 
 ## About
 

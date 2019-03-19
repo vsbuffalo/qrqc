@@ -152,6 +152,27 @@ static void update_qual_matrices(kseq_t *block, int *qual_matrix, quality_type q
   }
 }
 
+static void zero_int_matrix(int *matrix, int nx, int ny) {
+  /*
+    Zero out a matrix of integers.
+  */
+  int i, j;
+  for (i = 0; i < nx; i++) {
+    for (j = 0; j < ny; j++)
+      matrix[i + nx*j] = 0;
+  }
+}
+
+static void zero_int_vector(int *vector, int n) {
+  /*
+    Zero out a vector of integers.
+  */
+  int i;
+  for (i = 0; i < n; i++) {
+    vector[i] = 0;
+  }
+}
+
 static void add_seq_to_khash(khash_t(str) *h, kseq_t *block, unsigned int *num_unique_seqs) {
   /*
     Given a hash of strings (khash_t(str) *h), a block containing a
@@ -335,14 +356,14 @@ extern SEXP summarize_file(SEXP filename, SEXP max_length, SEXP quality_type, SE
 
   ibc = INTEGER(base_counts);
   isl = INTEGER(seq_lengths);
-  memset(ibc, 0, sizeof(int)*NUM_BASES*INTEGER(max_length)[0]);
-  memset(isl, 0, sizeof(int)*INTEGER(max_length)[0]);
+  zero_int_matrix(ibc, NUM_BASES, INTEGER(max_length)[0]);
+  zero_int_vector(isl, INTEGER(max_length)[0]);
 
   if (IS_FASTQ(quality_type)) {
     PROTECT(qual_counts = allocMatrix(INTSXP, q_range + 1, INTEGER(max_length)[0]));
     protects++;
     iqc = INTEGER(qual_counts);
-    memset(iqc, 0, sizeof(int)*(q_range + 1)*INTEGER(max_length)[0]);
+    zero_int_matrix(iqc, q_range + 1, INTEGER(max_length)[0]);  
   }
 
   while ((l = kseq_read(block)) >= 0) {

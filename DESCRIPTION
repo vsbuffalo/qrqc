@@ -1,17 +1,21 @@
 Package: qrqc
-Version: 1.10.1
-Date: 2012-02-20
+Version: 1.37.0
+Date: 2012-04-17
 Title: Quick Read Quality Control
 Author: Vince Buffalo
 Maintainer: Vince Buffalo <vsbuffalo@ucdavis.edu>
-Imports: reshape, ggplot2, Biostrings, biovizBase, graphics, methods, plyr, stats
-Depends: reshape, ggplot2, Biostrings, biovizBase, brew, xtable, Rsamtools (>= 1.3.28), testthat
+Imports: reshape, ggplot2, Biostrings, biovizBase, graphics, methods,
+        plyr, stats
+Depends: reshape, ggplot2, Biostrings, biovizBase, brew, xtable,
+        Rsamtools (>= 1.19.38), testthat
 LinkingTo: Rsamtools
-Description: Quickly scans reads and gathers statistics on base and quality
- frequencies, read length, k-mers by position, and frequent sequences. Produces 
-  graphical output of statistics for use in quality control pipelines, and an 
-  optional HTML quality report. S4 SequenceSummary objects allow specific tests 
-  and functionality to be written around the data collected.
+Description: Quickly scans reads and gathers statistics on base and
+        quality frequencies, read length, k-mers by position, and
+        frequent sequences. Produces graphical output of statistics for
+        use in quality control pipelines, and an optional HTML quality
+        report. S4 SequenceSummary objects allow specific tests and
+        functionality to be written around the data collected.
 License: GPL (>=2)
 URL: http://github.com/vsbuffalo/qrqc
-biocViews: Sequencing, QualityControl, DataImport, Preprocessing, Visualization, HighThroughputSequencing
+biocViews: Sequencing, QualityControl, DataImport, Preprocessing,
+        Visualization
