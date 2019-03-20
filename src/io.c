@@ -3,12 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <R.h>
 #include <R_ext/Utils.h>
 #include <Rinternals.h>
 #include <Rmath.h>
-#include "samtools/khash.h"
-#include "samtools/kseq.h"
+#include "htslib/khash.h"
+#include "htslib/kseq.h"
 #include "io.h"
 
 #ifdef _WIN32
