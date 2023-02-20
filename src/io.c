@@ -219,7 +219,7 @@ static void hash_seq_kmers(int k, khash_t(str) *h, kseq_t *block, unsigned int *
      bytes to hold the k-mers, not including hashing overhead.
 
   */
-  char *a_kmer = Calloc(k + 2 + log10(SINT_MAX), char), *start_ptr;
+  char *a_kmer = Calloc(k + 2 + log10(INT8_MAX), char), *start_ptr;
   int i;
   khiter_t key;
   int is_missing, ret;
