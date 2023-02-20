@@ -48,7 +48,7 @@ quality drops.
 
 Illumina reads often have poor 3'-end qualities. I've noticed that
 HiSeq machines also produce poor quality 5'-ends. For increased
-mapping rates and better assmeblies, it is generally advisable that
+mapping rates and better assemblies, it is generally advisable that
 these poor quality regions be trimmed off. Nik Joshi's took `sickle`
 tool can do this; you can get it here
 <http://github.com/najoshi/sickle>.
