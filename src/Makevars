@@ -1,5 +1,5 @@
 RHTSLIB_LIBS=`echo 'Rhtslib::pkgconfig("PKG_LIBS")'|\
-    "${R_HOME}/bin/R" --vanilla --slave | tr -d "'"`
+    "${R_HOME}/bin/R" --vanilla --slave | tr ' "`
 RHTSLIB_CPPFLAGS=`echo 'Rhtslib::pkgconfig("PKG_CPPFLAGS")'|\
     "${R_HOME}/bin/R" --vanilla --slave`
 
